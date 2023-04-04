@@ -8,10 +8,9 @@ import jakarta.persistence.Table
 @Table(name="customers")
 class Customer {
     @Id
-    var customerId = 0
+    var email = ""
     var name = ""
     var surname = ""
     var phoneNumber = ""
     var address = ""
-    var email = ""
 }

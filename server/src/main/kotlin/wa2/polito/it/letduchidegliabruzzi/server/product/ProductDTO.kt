@@ -4,7 +4,7 @@ data class ProductDTO(
     val ean: String,
     val name: String,
     val brand: String,
-    val customerEmail: Int
+    val customerEmail: String
 )
 
 fun Product.toDTO(): ProductDTO {

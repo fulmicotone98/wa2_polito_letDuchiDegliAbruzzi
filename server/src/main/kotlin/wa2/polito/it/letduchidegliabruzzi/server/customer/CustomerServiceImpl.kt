@@ -8,12 +8,18 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository): C
         return customerRepository.findByEmail(email)?.toDTO()
     }
 
-    override fun addProfile(): CustomerDTO {
-        TODO("Not yet implemented")
+    override fun addProfile(customerDTO: CustomerDTO): Customer {
+        return customerRepository.save(customerDTO.toCustomer())
     }
 
-    override fun updateProfile(email: String): CustomerDTO {
-        TODO("Not yet implemented")
+    override fun updateProfile(oldCustomerDTO: CustomerDTO ,newCustomerDTO: CustomerDTO): Customer{
+        val oldCustomer :Customer = oldCustomerDTO.toCustomer()
+        oldCustomer.address = newCustomerDTO.address
+        oldCustomer.email = newCustomerDTO.email
+        oldCustomer.name = newCustomerDTO.name
+        oldCustomer.surname = newCustomerDTO.surname
+        oldCustomer.phonenumber = newCustomerDTO.phonenumber
+        return customerRepository.save(oldCustomer)
     }
 
 }

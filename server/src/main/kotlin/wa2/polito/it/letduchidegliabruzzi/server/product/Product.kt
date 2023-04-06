@@ -11,5 +11,5 @@ class Product {
     var ean = ""
     var name = ""
     var brand = ""
-    var customerEmail = 0
+    var customerEmail = ""
 }

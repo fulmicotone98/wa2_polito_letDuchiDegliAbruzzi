@@ -11,6 +11,6 @@ class Customer {
     var email = ""
     var name = ""
     var surname = ""
-    var phoneNumber = ""
+    var phonenumber = ""
     var address = ""
 }

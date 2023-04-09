@@ -6,11 +6,11 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name="customers")
-class Customer {
+class Customer(
     @Id
-    var email = ""
-    var name = ""
-    var surname = ""
-    var phonenumber = ""
-    var address = ""
-}
+    var email: String,
+    var name: String,
+    var surname: String,
+    var phonenumber: String,
+    var address: String
+)

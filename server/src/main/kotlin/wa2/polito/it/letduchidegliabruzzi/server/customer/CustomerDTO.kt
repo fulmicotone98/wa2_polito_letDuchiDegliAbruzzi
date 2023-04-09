@@ -13,11 +13,5 @@ fun Customer.toDTO(): CustomerDTO {
 }
 
 fun CustomerDTO.toCustomer(): Customer {
-    val customer = Customer()
-    customer.email = email
-    customer.phonenumber = phonenumber
-    customer.surname = surname
-    customer.address = address
-    customer.name = name
-    return customer
+   return Customer(email, name, surname, phonenumber, address)
 }

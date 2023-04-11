@@ -52,9 +52,10 @@ function Dashboard(props) {
                             provided that the email address does not exist</td>
                         <td>
                             <Form>
-                                <Form.Control placeholder="Enter email"/>
-                                <Form.Control placeholder="Enter email"/>
-                                <Form.Control placeholder="Enter email"/>
+                                <Form.Control placeholder="Enter name"/>
+                                <Form.Control placeholder="Enter surname"/>
+                                <Form.Control placeholder="Enter phone number"/>
+                                <Form.Control placeholder="Enter address"/>
                                 <Form.Control placeholder="Enter email"/>
                             </Form>
                         </td>
@@ -68,9 +69,10 @@ function Dashboard(props) {
                             fail if the email does not exist</td>
                         <td>
                             <Form>
-                                <Form.Control placeholder="Enter email"/>
-                                <Form.Control placeholder="Enter email"/>
-                                <Form.Control placeholder="Enter email"/>
+                                <Form.Control placeholder="Enter name"/>
+                                <Form.Control placeholder="Enter surname"/>
+                                <Form.Control placeholder="Enter phone number"/>
+                                <Form.Control placeholder="Enter address"/>
                                 <Form.Control placeholder="Enter email"/>
                             </Form>
                         </td>

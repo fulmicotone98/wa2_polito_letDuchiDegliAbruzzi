@@ -1,55 +1,24 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {BrowserRouter, BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import Layout from './components/Layout'
-import Homepage from "./components/Homepage";
-import {useState} from "react";
-import * as API from "./API";
+import {Col, Row} from "react-bootstrap";
+import View from "./components/View";
+import Dashboard from "./components/Dashboard";
 
 function App() {
-    const [products,setProducts] = useState([]);
-    const [user,setUser] = useState({})
 
-    const loadProducts = async () =>{
-        const list = await API.getProducts();
-        setProducts(list)
-    }
-
-    const getProductByID = async (id)=>{
-        const prod = await API.getProductByID(id)
-        setProducts([prod]);
-    }
-
-    const getUserByEmail = async (email)=>{
-        const u = await API.getUserByEmail(email);
-        setUser(u)
-    }
-
-    const storeUser = async (u) =>{
-        await API.storeUser(u)
-    }
-
-    const updateUser = async (u) =>{
-        await API.updateUser(u)
-    }
     return (
         <>
-            <BrowserRouter>
-                <Routes>
-                    <Route path={'/'} element={<Layout />}>
-                        <Route path={''} element={
-                            <Homepage
-                                products={products}
-                                user={user}
-                                loadProducts={loadProducts}
-                                getProductByID={getProductByID}
-                                getUserByEmail={getUserByEmail}
-                                storeUser={storeUser}
-                                updateUser={updateUser}
-                            />}
-                        />
-                    </Route>
-                </Routes>
-            </BrowserRouter>
+            <Row>
+                <Col>
+                    {/* Dashboard with all commands to test the APIs*/}
+                    <Dashboard/>
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    {/* View for the API result*/}
+                    <View/>
+                </Col>
+            </Row>
         </>
     );
 }

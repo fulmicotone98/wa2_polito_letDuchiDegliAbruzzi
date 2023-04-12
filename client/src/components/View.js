@@ -12,7 +12,7 @@ function View(props){
                         <th>Ean</th>
                         <th>Name</th>
                         <th>Brand</th>
-                        <th>Customer_email</th>
+                        <th>Customer Email</th>
                     </tr>
                     </thead>
                     { props.view === 'products'?
@@ -43,7 +43,7 @@ function View(props){
                             <th>Name</th>
                             <th>Surname</th>
                             <th>Address</th>
-                            <th>PhoneNumber</th>
+                            <th>Phone Number</th>
                         </tr>
                         </thead>
                             <tbody>

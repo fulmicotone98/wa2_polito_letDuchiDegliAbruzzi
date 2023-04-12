@@ -17,6 +17,32 @@ function Dashboard(props) {
     const [updatePhoneNumber, setUpdatePhoneNumber] = useState('')
     const [openEdit, setOpenEdit] = useState(false)
 
+    const onSubmit = async (event)=>{
+        event.preventDefault();
+        if(openEdit){
+            await props.updateProfile(updateEmail,updateName,updateSurname,updateAddress,updatePhoneNumber);
+            setOpenEdit(false);
+            setUpdateName('');
+            setUpdateSurname('');
+            setUpdateAddress('');
+            setUpdatePhoneNumber('');
+        }else{
+            try {
+                let customer = await getProfileByEmail(updateEmail)
+                setOpenEdit(true);
+                setUpdateName(customer.name);
+                setUpdateSurname(customer.surname);
+                setUpdatePhoneNumber(customer.phonenumber);
+                setUpdateAddress(customer.address)
+            }catch(ex){
+                setOpenEdit(false)
+                props.setView('error')
+                props.setError(ex.message)
+                props.setApiName('PUT /API/profiles/'+updateEmail)
+            }
+        }
+    }
+
     return (
         <>
             <Container fluid>
@@ -42,24 +68,24 @@ function Dashboard(props) {
                         <td> GET /API/products/{'{productId}'} </td>
                         <td>Details of product {'{productId}'} or fail if it does not exist</td>
                         <td>
-                            <Form>
-                                <Form.Control placeholder="Enter productId" onChange={(event) => { setProductId(event.target.value) }}/>
+                            <Form id="form_1" onSubmit={(event) => {props.getProduct(productId); event.preventDefault();}}>
+                                <Form.Control required placeholder="Enter productId" onChange={(event) => { setProductId(event.target.value) }}/>
                             </Form>
                         </td>
                         <td>
-                            <Button variant={'primary'} onClick={() => props.getProduct(productId)}> Get product </Button>
+                            <Button form="form_1" type="submit" variant={'primary'}> Get product </Button>
                         </td>
                     </tr>
                     <tr>
                         <td> GET /API/profiles/{'{email}'} </td>
                         <td>Details of user profile {'{email}'} or fail if it does not exist</td>
                         <td>
-                            <Form>
-                                <Form.Control placeholder="Enter email" onChange={(event) => { setSearchEmail(event.target.value) }}/>
+                            <Form id="form_2" onSubmit={(event) => {props.getProfile(searchEmail); event.preventDefault();}}>
+                                <Form.Control required type="email" placeholder="Enter email" onChange={(event) => { setSearchEmail(event.target.value) }}/>
                             </Form>
                         </td>
                         <td>
-                            <Button variant={'primary'} onClick={() => props.getProfile(searchEmail)}> Get profile </Button>
+                            <Button form="form_2" type="submit" variant={'primary'}> Get profile </Button>
                         </td>
                     </tr>
                     <tr>
@@ -67,16 +93,16 @@ function Dashboard(props) {
                         <td>Convert the request body into a ProfileDTO and store it into the DB,
                             provided that the email address does not exist</td>
                         <td>
-                            <Form>
-                                <Form.Control placeholder="Enter email" onChange={(event) => { setEmail(event.target.value) }}/>
-                                <Form.Control placeholder="Enter name" onChange={(event) => { setName(event.target.value) }}/>
-                                <Form.Control placeholder="Enter surname" onChange={(event) => { setSurname(event.target.value) }}/>
-                                <Form.Control placeholder="Enter address" onChange={(event) => { setAddress(event.target.value) }}/>
+                            <Form id="form_3" onSubmit={(event) => {props.addProfile(email,name,surname,address,phoneNumber); event.preventDefault();}}>
+                                <Form.Control required type="email" placeholder="Enter email" onChange={(event) => { setEmail(event.target.value) }}/>
+                                <Form.Control required placeholder="Enter name" onChange={(event) => { setName(event.target.value) }}/>
+                                <Form.Control required placeholder="Enter surname" onChange={(event) => { setSurname(event.target.value) }}/>
+                                <Form.Control required placeholder="Enter address" onChange={(event) => { setAddress(event.target.value) }}/>
                                 <Form.Control placeholder="Enter phone number" onChange={(event) => { setPhoneNumber(event.target.value) }}/>
                             </Form>
                         </td>
                         <td>
-                            <Button variant={'primary'} onClick={() => props.addProfile(email,name,surname,address,phoneNumber)}> Create profile </Button>
+                            <Button variant={'primary'} type="submit" form="form_3"> Create profile </Button>
                         </td>
                     </tr>
                     <tr>
@@ -84,32 +110,18 @@ function Dashboard(props) {
                         <td>Convert the request body into a ProfileDTO and replace the corresponding entry in the DB,
                             fail if the email does not exist</td>
                         <td>
-                            <Form>
-                                <Form.Control placeholder='Enter email' onChange={(event) => { setUpdateEmail(event.target.value) }} disabled={openEdit}/>
+                            <Form id="form_4" onSubmit={onSubmit}>
+                                <Form.Control required type="email" placeholder='Enter email' onChange={(event) => { setUpdateEmail(event.target.value) }} disabled={openEdit}/>
                                 { openEdit && <>
-                                    <Form.Control placeholder='Enter name' defaultValue={updateName} onChange={(event) => { setUpdateName(event.target.value) }}/>
-                                    <Form.Control placeholder='Enter surname' defaultValue = {updateSurname} onChange={(event) => { setUpdateSurname(event.target.value) }}/>
-                                    <Form.Control placeholder='Enter address' defaultValue= {updateAddress} onChange={(event) => { setUpdateAddress(event.target.value) }}/>
+                                    <Form.Control required placeholder='Enter name' defaultValue={updateName} onChange={(event) => { setUpdateName(event.target.value) }}/>
+                                    <Form.Control required placeholder='Enter surname' defaultValue = {updateSurname} onChange={(event) => { setUpdateSurname(event.target.value) }}/>
+                                    <Form.Control required placeholder='Enter address' defaultValue= {updateAddress} onChange={(event) => { setUpdateAddress(event.target.value) }}/>
                                     <Form.Control placeholder='Enter phone number' defaultValue={updatePhoneNumber} onChange={(event) => { setUpdatePhoneNumber(event.target.value) }}/>
                                 </>}
                              </Form>
                         </td>
                         <td>
-                            {!openEdit ? <Button variant={'primary'} onClick={async () => {
-                                try {
-                                    let customer = await getProfileByEmail(updateEmail)
-                                    setOpenEdit(true);
-                                    setUpdateName(customer.name);
-                                    setUpdateSurname(customer.surname);
-                                    setUpdatePhoneNumber(customer.phonenumber);
-                                    setUpdateAddress(customer.address)
-                                }catch(ex){
-                                    setOpenEdit(false)
-                                    props.setView('error')
-                                    props.setError(ex.message)
-                                    props.setApiName('PUT /API/profiles/'+updateEmail)
-                                }}}> Edit profile </Button> :
-                                <Button variant={'primary'} onClick={async () => {await props.updateProfile(updateEmail,updateName,updateSurname,updateAddress,updatePhoneNumber); setOpenEdit(false); setUpdateName(''); setUpdateSurname(''); setUpdateAddress(''); setUpdatePhoneNumber('');}}> Save </Button> }
+                             <Button type="submit" form="form_4" variant={'primary'} > {!openEdit ? "Edit profile " : "Save "} </Button>
                         </td>
                     </tr>
                     </tbody>

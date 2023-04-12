@@ -1,6 +1,22 @@
 import {Button, Container, Form, Table} from "react-bootstrap";
+import {useState} from "react";
+import {getProfileByEmail} from "../API";
 
 function Dashboard(props) {
+    const [productId, setProductId] = useState('')
+    const [searchEmail, setSearchEmail] = useState('')
+    const [email, setEmail] = useState('')
+    const [name, setName] = useState('')
+    const [surname, setSurname] = useState('')
+    const [address, setAddress] = useState('')
+    const [phoneNumber, setPhoneNumber] = useState('')
+    const [updateEmail, setUpdateEmail] = useState('')
+    const [updateName, setUpdateName] = useState('')
+    const [updateSurname, setUpdateSurname] = useState('')
+    const [updateAddress, setUpdateAddress] = useState('')
+    const [updatePhoneNumber, setUpdatePhoneNumber] = useState('')
+    const [openEdit, setOpenEdit] = useState(false)
+
     return (
         <>
             <Container fluid>
@@ -19,31 +35,31 @@ function Dashboard(props) {
                         <td>List all registered products in the DB</td>
                         <td> None</td>
                         <td>
-                            <Button variant={'primary'} onClick={() => {/*TODO*/}}> Get products </Button>
+                            <Button variant={'primary'} onClick={props.getProducts}> Get products </Button>
                         </td>
                     </tr>
                     <tr>
-                        <td> GET /API/products/{"{productId}"} </td>
-                        <td>Details of product {"{productId}"} or fail if it does not exist</td>
+                        <td> GET /API/products/{'{productId}'} </td>
+                        <td>Details of product {'{productId}'} or fail if it does not exist</td>
                         <td>
                             <Form>
-                                <Form.Control placeholder="Enter productId"/>
+                                <Form.Control placeholder="Enter productId" onChange={(event) => { setProductId(event.target.value) }}/>
                             </Form>
                         </td>
                         <td>
-                            <Button variant={'primary'} onClick={() => {/*TODO*/}}> Get product </Button>
+                            <Button variant={'primary'} onClick={() => props.getProduct(productId)}> Get product </Button>
                         </td>
                     </tr>
                     <tr>
-                        <td> GET /API/profiles/{"{email}"} </td>
-                        <td>Details of user profiles {"{email}"} or fail if it does not exist</td>
+                        <td> GET /API/profiles/{'{email}'} </td>
+                        <td>Details of user profile {'{email}'} or fail if it does not exist</td>
                         <td>
                             <Form>
-                                <Form.Control placeholder="Enter email"/>
+                                <Form.Control placeholder="Enter email" onChange={(event) => { setSearchEmail(event.target.value) }}/>
                             </Form>
                         </td>
                         <td>
-                            <Button variant={'primary'} onClick={() => {/*TODO*/}}> Get profile </Button>
+                            <Button variant={'primary'} onClick={() => props.getProfile(searchEmail)}> Get profile </Button>
                         </td>
                     </tr>
                     <tr>
@@ -52,15 +68,15 @@ function Dashboard(props) {
                             provided that the email address does not exist</td>
                         <td>
                             <Form>
-                                <Form.Control placeholder="Enter name"/>
-                                <Form.Control placeholder="Enter surname"/>
-                                <Form.Control placeholder="Enter phone number"/>
-                                <Form.Control placeholder="Enter address"/>
-                                <Form.Control placeholder="Enter email"/>
+                                <Form.Control placeholder="Enter email" onChange={(event) => { setEmail(event.target.value) }}/>
+                                <Form.Control placeholder="Enter name" onChange={(event) => { setName(event.target.value) }}/>
+                                <Form.Control placeholder="Enter surname" onChange={(event) => { setSurname(event.target.value) }}/>
+                                <Form.Control placeholder="Enter address" onChange={(event) => { setAddress(event.target.value) }}/>
+                                <Form.Control placeholder="Enter phone number" onChange={(event) => { setPhoneNumber(event.target.value) }}/>
                             </Form>
                         </td>
                         <td>
-                            <Button variant={'primary'} onClick={() => {/*TODO*/}}> Create profile </Button>
+                            <Button variant={'primary'} onClick={() => props.addProfile(email,name,surname,address,phoneNumber)}> Create profile </Button>
                         </td>
                     </tr>
                     <tr>
@@ -69,15 +85,31 @@ function Dashboard(props) {
                             fail if the email does not exist</td>
                         <td>
                             <Form>
-                                <Form.Control placeholder="Enter name"/>
-                                <Form.Control placeholder="Enter surname"/>
-                                <Form.Control placeholder="Enter phone number"/>
-                                <Form.Control placeholder="Enter address"/>
-                                <Form.Control placeholder="Enter email"/>
-                            </Form>
+                                <Form.Control placeholder='Enter email' onChange={(event) => { setUpdateEmail(event.target.value) }} disabled={openEdit}/>
+                                { openEdit && <>
+                                    <Form.Control placeholder='Enter name' defaultValue={updateName} onChange={(event) => { setUpdateName(event.target.value) }}/>
+                                    <Form.Control placeholder='Enter surname' defaultValue = {updateSurname} onChange={(event) => { setUpdateSurname(event.target.value) }}/>
+                                    <Form.Control placeholder='Enter address' defaultValue= {updateAddress} onChange={(event) => { setUpdateAddress(event.target.value) }}/>
+                                    <Form.Control placeholder='Enter phone number' defaultValue={updatePhoneNumber} onChange={(event) => { setUpdatePhoneNumber(event.target.value) }}/>
+                                </>}
+                             </Form>
                         </td>
                         <td>
-                            <Button variant={'primary'} onClick={() => {/*TODO*/}}> Edit profile </Button>
+                            {!openEdit ? <Button variant={'primary'} onClick={async () => {
+                                try {
+                                    let customer = await getProfileByEmail(updateEmail)
+                                    setOpenEdit(true);
+                                    setUpdateName(customer.name);
+                                    setUpdateSurname(customer.surname);
+                                    setUpdatePhoneNumber(customer.phonenumber);
+                                    setUpdateAddress(customer.address)
+                                }catch(ex){
+                                    setOpenEdit(false)
+                                    props.setView('error')
+                                    props.setError(ex.message)
+                                    props.setApiName('PUT /API/profiles/'+updateEmail)
+                                }}}> Edit profile </Button> :
+                                <Button variant={'primary'} onClick={async () => {await props.updateProfile(updateEmail,updateName,updateSurname,updateAddress,updatePhoneNumber); setOpenEdit(false); setUpdateName(''); setUpdateSurname(''); setUpdateAddress(''); setUpdatePhoneNumber('');}}> Save </Button> }
                         </td>
                     </tr>
                     </tbody>

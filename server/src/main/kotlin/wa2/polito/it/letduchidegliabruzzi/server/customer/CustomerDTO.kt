@@ -9,7 +9,7 @@ data class CustomerDTO (
 )
 
 fun Customer.toDTO(): CustomerDTO {
-    return CustomerDTO(email, name, surname, phonenumber, address )
+    return CustomerDTO(name, surname, phonenumber, address, email )
 }
 
 fun CustomerDTO.toCustomer(): Customer {

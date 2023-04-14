@@ -69,7 +69,7 @@ function Dashboard(props) {
                         <td>Details of product {'{productId}'} or fail if it does not exist</td>
                         <td>
                             <Form id="form_1" onSubmit={(event) => {props.getProduct(productId); event.preventDefault();}}>
-                                <Form.Control required placeholder="Enter productId" onChange={(event) => { setProductId(event.target.value) }}/>
+                                <Form.Control placeholder="Enter productId" onChange={(event) => { setProductId(event.target.value) }}/>
                             </Form>
                         </td>
                         <td>
@@ -81,7 +81,7 @@ function Dashboard(props) {
                         <td>Details of user profile {'{email}'} or fail if it does not exist</td>
                         <td>
                             <Form id="form_2" onSubmit={(event) => {props.getProfile(searchEmail); event.preventDefault();}}>
-                                <Form.Control required type="email" placeholder="Enter email" onChange={(event) => { setSearchEmail(event.target.value) }}/>
+                                <Form.Control type="text" placeholder="Enter email" onChange={(event) => { setSearchEmail(event.target.value) }}/>
                             </Form>
                         </td>
                         <td>
@@ -94,10 +94,10 @@ function Dashboard(props) {
                             provided that the email address does not exist</td>
                         <td>
                             <Form id="form_3" onSubmit={(event) => {props.addProfile(email,name,surname,address,phoneNumber); event.preventDefault();}}>
-                                <Form.Control required type="email" placeholder="Enter email" onChange={(event) => { setEmail(event.target.value) }}/>
-                                <Form.Control required placeholder="Enter name" onChange={(event) => { setName(event.target.value) }}/>
-                                <Form.Control required placeholder="Enter surname" onChange={(event) => { setSurname(event.target.value) }}/>
-                                <Form.Control required placeholder="Enter address" onChange={(event) => { setAddress(event.target.value) }}/>
+                                <Form.Control type="text" placeholder="Enter email" onChange={(event) => { setEmail(event.target.value) }}/>
+                                <Form.Control placeholder="Enter name" onChange={(event) => { setName(event.target.value) }}/>
+                                <Form.Control placeholder="Enter surname" onChange={(event) => { setSurname(event.target.value) }}/>
+                                <Form.Control placeholder="Enter address" onChange={(event) => { setAddress(event.target.value) }}/>
                                 <Form.Control placeholder="Enter phone number" onChange={(event) => { setPhoneNumber(event.target.value) }}/>
                             </Form>
                         </td>
@@ -111,11 +111,11 @@ function Dashboard(props) {
                             fail if the email does not exist</td>
                         <td>
                             <Form id="form_4" onSubmit={onSubmit}>
-                                <Form.Control required type="email" placeholder='Enter email' onChange={(event) => { setUpdateEmail(event.target.value) }} disabled={openEdit}/>
+                                <Form.Control type="text" placeholder='Enter email' onChange={(event) => { setUpdateEmail(event.target.value) }} disabled={openEdit}/>
                                 { openEdit && <>
-                                    <Form.Control required placeholder='Enter name' defaultValue={updateName} onChange={(event) => { setUpdateName(event.target.value) }}/>
-                                    <Form.Control required placeholder='Enter surname' defaultValue = {updateSurname} onChange={(event) => { setUpdateSurname(event.target.value) }}/>
-                                    <Form.Control required placeholder='Enter address' defaultValue= {updateAddress} onChange={(event) => { setUpdateAddress(event.target.value) }}/>
+                                    <Form.Control placeholder='Enter name' defaultValue={updateName} onChange={(event) => { setUpdateName(event.target.value) }}/>
+                                    <Form.Control placeholder='Enter surname' defaultValue = {updateSurname} onChange={(event) => { setUpdateSurname(event.target.value) }}/>
+                                    <Form.Control placeholder='Enter address' defaultValue= {updateAddress} onChange={(event) => { setUpdateAddress(event.target.value) }}/>
                                     <Form.Control placeholder='Enter phone number' defaultValue={updatePhoneNumber} onChange={(event) => { setUpdatePhoneNumber(event.target.value) }}/>
                                 </>}
                              </Form>

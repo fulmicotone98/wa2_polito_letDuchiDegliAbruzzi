@@ -1,5 +1,6 @@
 package wa2.polito.it.letduchidegliabruzzi.server
 
+import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
@@ -30,5 +31,11 @@ class ProblemDetailsHandler : ResponseEntityExceptionHandler() {
     fun handleDuplicateCustomer(e: DuplicateCustomerException): ResponseEntity<ProblemDetail> {
         val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.message!!)
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail)
+    }
+
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleBodyValidation(e: ConstraintViolationException): ResponseEntity<ProblemDetail>{
+        val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message!!)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail)
     }
 }

@@ -1,11 +1,15 @@
 package wa2.polito.it.letduchidegliabruzzi.server.customer
 
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
+import org.jetbrains.annotations.NotNull
+
 data class CustomerDTO (
-    val name: String,
-    val surname: String,
+    @field:NotBlank @field:NotNull val name: String,
+    @field:NotBlank @field:NotNull val surname: String,
     val phonenumber: String,
-    val address: String,
-    val email: String
+    @field:NotBlank @field:NotNull val address: String,
+    @field:Email @field:NotBlank val email: String
 )
 
 fun Customer.toDTO(): CustomerDTO {

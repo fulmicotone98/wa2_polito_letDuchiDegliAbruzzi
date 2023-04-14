@@ -9,7 +9,7 @@ data class CustomerDTO (
     @field:NotBlank @field:NotNull val surname: String,
     val phonenumber: String,
     @field:NotBlank @field:NotNull val address: String,
-    @field:Email @field:NotBlank val email: String
+    @field:Email val email: String
 )
 
 fun Customer.toDTO(): CustomerDTO {

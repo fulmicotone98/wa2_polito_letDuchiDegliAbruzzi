@@ -4,11 +4,9 @@ import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
-import wa2.polito.it.letduchidegliabruzzi.server.customer.BodyValidationException
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.customer.DuplicateCustomerException
 import wa2.polito.it.letduchidegliabruzzi.server.product.ProductNotFoundException
@@ -35,8 +33,8 @@ class ProblemDetailsHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail)
     }
 
-    @ExceptionHandler(BodyValidationException::class)
-    fun handleBodyValidation(e: BodyValidationException): ResponseEntity<ProblemDetail>{
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleBodyValidation(e: ConstraintViolationException): ResponseEntity<ProblemDetail>{
         val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message!!)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail)
     }

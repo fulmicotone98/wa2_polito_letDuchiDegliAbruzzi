@@ -41,5 +41,4 @@ class CustomerController(private val customerService: CustomerService) {
             throw CustomerNotFoundException("Customer not found with Email: $email")
         }
     }
-
 }

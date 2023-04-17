@@ -8,6 +8,7 @@ class ProductNotFoundException(message: String) : RuntimeException(message)
 
 @RestController
 class ProductController(private val productService: ProductService) {
+
     @GetMapping("/API/products/")
     fun getAll(): List<ProductDTO>{
         return productService.getAll()

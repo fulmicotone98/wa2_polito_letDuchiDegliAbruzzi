@@ -5,7 +5,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.customer.Customer
 import wa2.polito.it.letduchidegliabruzzi.server.employee.Employee
 import wa2.polito.it.letduchidegliabruzzi.server.ticket.Ticket
 
-class ChatDTO(
+data class ChatDTO(
     val chatID: Int? = null,
     val employee: Employee? = null,
     val customer: Customer? = null,

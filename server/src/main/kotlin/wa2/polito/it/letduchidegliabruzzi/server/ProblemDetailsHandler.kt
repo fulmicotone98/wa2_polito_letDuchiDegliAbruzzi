@@ -10,6 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.customer.DuplicateCustomerException
 import wa2.polito.it.letduchidegliabruzzi.server.product.ProductNotFoundException
+import wa2.polito.it.letduchidegliabruzzi.server.ticket.TicketNotFoundException
 
 
 @RestControllerAdvice
@@ -37,5 +38,11 @@ class ProblemDetailsHandler : ResponseEntityExceptionHandler() {
     fun handleBodyValidation(e: ConstraintViolationException): ResponseEntity<ProblemDetail>{
         val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message!!)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail)
+    }
+
+    @ExceptionHandler(TicketNotFoundException::class)
+    fun handleTicketNotFound(e: TicketNotFoundException): ResponseEntity<ProblemDetail> {
+        val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.message!!)
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail)
     }
 }

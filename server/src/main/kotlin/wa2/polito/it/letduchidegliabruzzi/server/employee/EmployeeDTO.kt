@@ -15,3 +15,7 @@ class EmployeeDTO(
 fun Employee.toDTO(): EmployeeDTO {
     return EmployeeDTO(employeeID, email, name, surname, role)
 }
+
+fun EmployeeDTO.toEmployee(): Employee {
+    return Employee(employeeID, email, name, surname, role)
+}

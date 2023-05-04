@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.customer.DuplicateCustomerException
+import wa2.polito.it.letduchidegliabruzzi.server.employee.EmployeeNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.product.ProductNotFoundException
+import wa2.polito.it.letduchidegliabruzzi.server.ticket.TicketDuplicatedException
 import wa2.polito.it.letduchidegliabruzzi.server.ticket.TicketNotFoundException
 
 
@@ -18,6 +20,11 @@ class ProblemDetailsHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(CustomerNotFoundException::class)
     fun handleProductNotFound(e: CustomerNotFoundException): ResponseEntity<ProblemDetail> {
+        val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.message!!)
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail)
+    }
+    @ExceptionHandler(EmployeeNotFoundException::class)
+    fun handleProductNotFound(e: EmployeeNotFoundException): ResponseEntity<ProblemDetail> {
         val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.message!!)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail)
     }
@@ -42,6 +49,12 @@ class ProblemDetailsHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(TicketNotFoundException::class)
     fun handleTicketNotFound(e: TicketNotFoundException): ResponseEntity<ProblemDetail> {
+        val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.message!!)
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail)
+    }
+
+    @ExceptionHandler(TicketDuplicatedException::class)
+    fun handleTicketNotFound(e: TicketDuplicatedException): ResponseEntity<ProblemDetail> {
         val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.message!!)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail)
     }

@@ -9,12 +9,12 @@ import wa2.polito.it.letduchidegliabruzzi.server.customer.Customer
 
 @Entity
 @Table(name="product")
-class Product {
+class Product(
     @Id
-    var ean = ""
-    var name = ""
-    var brand = ""
+    var ean: String,
+    var name:String,
+    var brand: String,
     @ManyToOne
-    @JoinColumn(name = "customerEmail")
+    @JoinColumn(name = "customer_email")
     var customer: Customer? = null
-}
+)

@@ -1,5 +1,6 @@
 package wa2.polito.it.letduchidegliabruzzi.server.product
 
+import jakarta.validation.constraints.NotEmpty
 import wa2.polito.it.letduchidegliabruzzi.server.customer.Customer
 
 data class ProductDTO(
@@ -11,4 +12,8 @@ data class ProductDTO(
 
 fun Product.toDTO(): ProductDTO {
     return ProductDTO(ean, name, brand, customer)
+}
+
+fun ProductDTO.toProduct():Product{
+    return Product(ean, name, brand, customer)
 }

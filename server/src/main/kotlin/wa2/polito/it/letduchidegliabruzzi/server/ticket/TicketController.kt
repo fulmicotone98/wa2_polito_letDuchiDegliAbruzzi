@@ -70,8 +70,13 @@ class TicketController(
     }
 
     @PutMapping("API/ticket/{id}/status")
-    fun editTicketStatus(){
-        TODO("Change the status of the ticket")
+    fun editTicketStatus(@PathVariable id: Int,@Valid @RequestBody body: BodyStatusTicket, br: BindingResult): Int?{
+        if(br.hasErrors())
+            throw ConstraintViolationException("Body validation failed")
+        val old = ticketService.getTicket(id)?: throw TicketNotFoundException("Ticket not found")
+        val newTicketDTO = Ticket(old.ticketID,old.description,body.status,old.priority,old.createdAt,old.customer,old.employee,old.product,old.statusHistory).toDTO()
+
+        return ticketService.editTicket(newTicketDTO).toTicket().ticketID
     }
 }
 
@@ -87,3 +92,5 @@ data class BodyAssignTicketObject(
 )
 
 data class BodyResponse(val id: Int?)
+
+data class BodyStatusTicket(@field:NotBlank val status: String)

@@ -1,6 +1,7 @@
 package wa2.polito.it.letduchidegliabruzzi.server.product
 
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.springframework.validation.BindingResult
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerDTO
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerService
+import wa2.polito.it.letduchidegliabruzzi.server.ticket.ConstraintViolationException
 
 class ProductNotFoundException(message: String) : RuntimeException(message)
 
@@ -29,31 +31,32 @@ class ProductController(private val productService: ProductService, private val 
     }
 
     @PostMapping("/API/products")
-    fun addProduct(@Valid @RequestBody body: BodyObject, br: BindingResult): ProductDTO?{
-        val customer: CustomerDTO?
+    @ResponseStatus(HttpStatus.CREATED)
+    fun addProduct(@Valid @RequestBody body: ProductRequestBody, br: BindingResult): ProductResponseBody?{
+        if(br.hasErrors())
+            throw ConstraintViolationException("Body validation failed")
 
-        if(body.customerEmail == null){
-            customer = null
-        }else {
-            customer = customerService.getProfile(body.customerEmail)
-            if (customer == null) {
-                throw CustomerNotFoundException("Customer not found with Email: ${body.customerEmail}")
-            }
+        if(body.customerEmail != null){
+            val customer: CustomerDTO? = customerService.getProfile(body.customerEmail)
+                ?: throw CustomerNotFoundException("Customer not found with Email: ${body.customerEmail}")
+            productService.addProduct(body.ean, body.brand,body.name,body.customerEmail)
+            return ProductResponseBody(body.ean,"","","")
         }
-
-        return productService.addProduct(body.ean, body.brand,body.name,body.customerEmail).toDTO()
+        productService.addProduct(body.ean, body.brand,body.name,null)
+        return ProductResponseBody(body.ean,"","","")
     }
 }
 
-data class BodyObject(
+data class ProductRequestBody(
     @field:NotBlank val ean: String,
     @field:NotBlank val name: String,
     @field:NotBlank val brand: String,
-    val customerEmail: String?)
+    @field:Email val customerEmail: String? = null
+)
 
 data class ProductResponseBody(
     @field:NotBlank @field:NotNull val ean: String,
     @field:NotBlank @field:NotNull val name: String,
     @field:NotBlank @field:NotNull val brand: String,
-    val customerEmail: String?
+    @field:Email val customerEmail: String? = null
 )

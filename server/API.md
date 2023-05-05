@@ -250,3 +250,25 @@ HTTP STATUS:
     - 400: BAD REQUEST "Path validation failed"
     - 404: NOT FOUND
 ```
+### POST /API/products
+```
+DESCRIPTION: 
+    - Add a new product
+    
+PATH VARIABLE: 
+    - none
+    
+REQUEST BODY:
+    - ean: required
+    - name: required
+    - brand: required
+    - customerEmail: optional, must be an email
+
+RESPONSE BODY: 
+    - ean: required
+    
+HTTP STATUS:
+    - 201: CREATED
+    - 400: BAD REQUEST "Body validation failed"
+    - 404: NOT FOUND "Customer not found"
+```

@@ -2,6 +2,7 @@ package wa2.polito.it.letduchidegliabruzzi.server.product
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -16,13 +17,15 @@ class ProductNotFoundException(message: String) : RuntimeException(message)
 class ProductController(private val productService: ProductService, private val customerService: CustomerService) {
 
     @GetMapping("/API/products")
-    fun getAll(): List<ProductDTO>{
-        return productService.getAll()
+    fun getAll(): List<ProductResponseBody>{
+        val p = productService.getAll()
+        return p.map { ProductResponseBody(it.ean,it.name,it.brand,it.customer?.email) }
     }
 
     @GetMapping("/API/products/{ean}")
-    fun getProduct(@PathVariable ean: String): ProductDTO? {
-        return productService.getProduct(ean)
+    fun getProduct(@PathVariable @NotBlank ean: String): ProductResponseBody? {
+        val p = productService.getProduct(ean)?: throw ProductNotFoundException("Product not found")
+        return ProductResponseBody(p.ean,p.name,p.brand,p.customer?.email)
     }
 
     @PostMapping("/API/products")
@@ -47,3 +50,10 @@ data class BodyObject(
     @field:NotBlank val name: String,
     @field:NotBlank val brand: String,
     val customerEmail: String?)
+
+data class ProductResponseBody(
+    @field:NotBlank @field:NotNull val ean: String,
+    @field:NotBlank @field:NotNull val name: String,
+    @field:NotBlank @field:NotNull val brand: String,
+    val customerEmail: String?
+)

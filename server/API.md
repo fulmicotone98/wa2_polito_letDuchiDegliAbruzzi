@@ -113,3 +113,48 @@ HTTP STATUS:
     - 201: CREATED
     - 400: BAD REQUEST "Body validation failed"
 ```
+## Product
+### GET /API/products
+```
+DESCRIPTION: 
+    - Get all the products
+    
+PATH VARIABLE: 
+    - email: none
+    
+REQUEST BODY: none
+
+RESPONSE BODY:
+    - [
+        {
+            - ean: required
+            - brand: required
+            - name: required
+            - customerEmail: optional
+        }
+      ]
+    
+HTTP STATUS:
+    - 200: OK
+```
+### GET /API/products/{ean}
+```
+DESCRIPTION: 
+    - Get the product with the specified ean
+    
+PATH VARIABLE: 
+    - ean: required
+    
+REQUEST BODY: none
+
+RESPONSE BODY: 
+    - ean: required
+    - brand: required
+    - name: required
+    - customerEmail: required, must be an email
+    
+HTTP STATUS:
+    - 200: OK
+    - 400: BAD REQUEST "Path validation failed"
+    - 404: NOT FOUND
+```

@@ -25,10 +25,9 @@ class ProductController(private val productService: ProductService, private val 
         return productService.getProduct(ean)
     }
 
-
     @PostMapping("/API/products")
     fun addProduct(@Valid @RequestBody body: BodyObject, br: BindingResult): ProductDTO?{
-        var customer: CustomerDTO?
+        val customer: CustomerDTO?
 
         if(body.customerEmail == null){
             customer = null

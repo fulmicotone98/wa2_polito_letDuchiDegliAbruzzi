@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerService
@@ -23,9 +22,8 @@ import wa2.polito.it.letduchidegliabruzzi.server.product.ProductService
 import wa2.polito.it.letduchidegliabruzzi.server.product.toProduct
 
 class TicketNotFoundException(message: String) : RuntimeException(message)
-class TicketDuplicatedException(message:String): RuntimeException(message)
-class ConstraintViolationException(message: String): RuntimeException(message)
-
+class TicketDuplicatedException(message: String) : RuntimeException(message)
+class ConstraintViolationException(message: String) : RuntimeException(message)
 
 
 @Validated
@@ -34,7 +32,8 @@ class TicketController(
     private val ticketService: TicketService,
     private val customerService: CustomerService,
     private val productService: ProductService,
-    private val employeeService: EmployeeService) {
+    private val employeeService: EmployeeService
+) {
 
     @GetMapping("/API/ticket/{id}")
     fun getTicket(@PathVariable id: Int): TicketDTO? {
@@ -44,37 +43,63 @@ class TicketController(
 
     @PostMapping("/API/ticket")
     fun addTicket(@Valid @RequestBody body: BodyObject, br: BindingResult): TicketDTO? {
-        if(br.hasErrors())
+        if (br.hasErrors())
             throw ConstraintViolationException("Body validation failed")
 
-        val customer = customerService.getProfile(body.customerEmail)?: throw CustomerNotFoundException("Customer not found")
-        val product = productService.getProduct(body.ean)?: throw ProductNotFoundException("Product not found")
-        if(product.customer?.email != customer.email)
+        val customer =
+            customerService.getProfile(body.customerEmail) ?: throw CustomerNotFoundException("Customer not found")
+        val product = productService.getProduct(body.ean) ?: throw ProductNotFoundException("Product not found")
+        if (product.customer?.email != customer.email)
             throw CustomerNotFoundException("No products for the given customer")
         ticketService.getTickets().forEach {
-            if(it.product?.ean == body.ean)
+            if (it.product?.ean == body.ean)
                 throw TicketDuplicatedException("An opened ticket already exists for the ean ${body.ean}")
         }
         return ticketService.addTicket(body.description, product.toProduct(), customer.toCustomer()).toDTO()
     }
 
     @PutMapping("API/ticket/{id}/assign")
-    fun assignTicket(@PathVariable id: Int, @Valid @RequestBody body: BodyAssignTicketObject, br: BindingResult): BodyResponse?{
-        if(br.hasErrors())
+    fun assignTicket(
+        @PathVariable id: Int,
+        @Valid @RequestBody body: BodyAssignTicketObject,
+        br: BindingResult
+    ): BodyResponse? {
+        if (br.hasErrors())
             throw ConstraintViolationException("Body validation failed")
-        val employee = employeeService.getEmployeeByID(body.employeeID)?: throw EmployeeNotFoundException("Employee not found")
-        val old = ticketService.getTicket(id)?: throw TicketNotFoundException("Ticket not found")
-        val newTicketDTO = Ticket(old.ticketID,old.description,"IN PROGRESS",body.priority,old.createdAt,old.customer,employee.toEmployee(),old.product,old.statusHistory).toDTO()
+        val employee =
+            employeeService.getEmployeeByID(body.employeeID) ?: throw EmployeeNotFoundException("Employee not found")
+        val old = ticketService.getTicket(id) ?: throw TicketNotFoundException("Ticket not found")
+        val newTicketDTO = Ticket(
+            old.ticketID,
+            old.description,
+            "IN PROGRESS",
+            body.priority,
+            old.createdAt,
+            old.customer,
+            employee.toEmployee(),
+            old.product,
+            old.statusHistory
+        ).toDTO()
 
         return BodyResponse(ticketService.editTicket(newTicketDTO).ticketID)
     }
 
     @PutMapping("API/ticket/{id}/status")
-    fun editTicketStatus(@PathVariable id: Int,@Valid @RequestBody body: BodyStatusTicket, br: BindingResult): Int?{
-        if(br.hasErrors())
+    fun editTicketStatus(@PathVariable id: Int, @Valid @RequestBody body: BodyStatusTicket, br: BindingResult): Int? {
+        if (br.hasErrors())
             throw ConstraintViolationException("Body validation failed")
-        val old = ticketService.getTicket(id)?: throw TicketNotFoundException("Ticket not found")
-        val newTicketDTO = Ticket(old.ticketID,old.description,body.status,old.priority,old.createdAt,old.customer,old.employee,old.product,old.statusHistory).toDTO()
+        val old = ticketService.getTicket(id) ?: throw TicketNotFoundException("Ticket not found")
+        val newTicketDTO = Ticket(
+            old.ticketID,
+            old.description,
+            body.status,
+            old.priority,
+            old.createdAt,
+            old.customer,
+            old.employee,
+            old.product,
+            old.statusHistory
+        ).toDTO()
 
         return ticketService.editTicket(newTicketDTO).toTicket().ticketID
     }

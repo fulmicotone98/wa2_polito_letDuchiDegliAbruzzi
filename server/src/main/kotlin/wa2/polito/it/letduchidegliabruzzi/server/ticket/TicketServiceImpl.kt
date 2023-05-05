@@ -5,42 +5,39 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import wa2.polito.it.letduchidegliabruzzi.server.customer.Customer
-import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerRepository
-import wa2.polito.it.letduchidegliabruzzi.server.employee.Employee
 import wa2.polito.it.letduchidegliabruzzi.server.product.Product
-import wa2.polito.it.letduchidegliabruzzi.server.product.ProductRepository
-import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistoryDTO
-import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistoryRepository
 import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistoryService
-import wa2.polito.it.letduchidegliabruzzi.server.status_history.toStatusHistory
 import java.time.LocalDate
 
 @Service
 class TicketServiceImpl(
     private val ticketRepository: TicketRepository,
-    private val statusHistoryService: StatusHistoryService): TicketService {
+    private val statusHistoryService: StatusHistoryService
+) : TicketService {
 
-        @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-        override fun getTicket(id: Int): TicketDTO? {
-            return ticketRepository.findByIdOrNull(id)?.toDTO()
-        }
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    override fun getTicket(id: Int): TicketDTO? {
+        return ticketRepository.findByIdOrNull(id)?.toDTO()
+    }
 
-        @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-        override fun getTickets(): List<TicketDTO> {
-            return ticketRepository.findAll().map { it.toDTO() }
-        }
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    override fun getTickets(): List<TicketDTO> {
+        return ticketRepository.findAll().map { it.toDTO() }
+    }
 
-        @Transactional(isolation = Isolation.SERIALIZABLE)
-        override fun addTicket(description: String, product: Product, customer: Customer): Ticket {
-            val timestamp = LocalDate.now().toString()
-            val newTicketDTO = TicketDTO(null, description, "OPEN", null,
-                timestamp, customer, null, product, null)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    override fun addTicket(description: String, product: Product, customer: Customer): Ticket {
+        val timestamp = LocalDate.now().toString()
+        val newTicketDTO = TicketDTO(
+            null, description, "OPEN", null,
+            timestamp, customer, null, product, null
+        )
 
-            val storedTicket = ticketRepository.save(newTicketDTO.toTicket())
-            statusHistoryService.addStatus(storedTicket, timestamp, "OPEN")
+        val storedTicket = ticketRepository.save(newTicketDTO.toTicket())
+        statusHistoryService.addStatus(storedTicket, timestamp, "OPEN")
 
-            return storedTicket
-        }
+        return storedTicket
+    }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     override fun editTicket(newTicketDTO: TicketDTO): TicketDTO {

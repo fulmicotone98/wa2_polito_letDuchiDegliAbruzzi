@@ -1,4 +1,96 @@
 # Ticketing API
+
+## Ticket 
+
+### GET /API/ticket/{id}
+```
+DESCRIPTION:
+    -Get the ticket with the specified ticketID
+
+PATH VARIABLE:
+    -id: id of the ticket to retrive
+    
+REQUEST BODY: none
+
+RESPONSE BODY:
+    - ticketID: required
+    - description: required
+    - status: required
+    - priority: required
+    - createdAt: required
+
+HTTP STATUS:
+    - 200: OK
+    - 400: BAD REQUEST "Path validation failed"
+    - 404: NOT FOUND
+    
+```
+### POST /API/ticket
+```
+DESCRIPTION:
+    -add a new ticket
+
+PATH VARIABLE: none
+
+REQUEST BODY: 
+    - ean: required
+    - description: required
+    - customerEmail: required
+    
+RESPONSE BODY:
+    - ticketID: required
+    - description: required
+    - status: required
+    - priority: required
+    - createdAt: required
+
+HTTP STATUS:
+    - 201: CREATED
+    - 400: BAD REQUEST "Body validation failed"
+    - 409: CONFLICTS "A ticket for the ean already exists"
+```
+
+### PUT API/ticket/{id}/assign
+```
+DESCRIPTION:
+    -Assign the ticket to an employee (expert)
+
+PATH VARIABLE: 
+    - id: id of the ticket to assign
+    
+REQUEST BODY: 
+    - employeeID: required
+    - priority: required
+
+RESPONSE BODY:
+    -ticketID: required
+
+HTTP STATUS:
+    - 204: NO CONTENT
+    - 400: BAD REQUEST "Body validation failed, path validation failed"
+    - 404: NOT FOUND "Ticket not found"
+```
+
+### PUT API/ticket/{id}/status
+```
+DESCRIPTION:
+    - Edit the ticket status
+
+PATH VARIABLE: 
+    - id: id of the ticket to assign
+
+REQUEST BODY: 
+    - status: required
+    
+RESPONSE BODY:
+    - ticketID: required
+
+HTTP STATUS:
+    - 204: NO CONTENT
+    - 400: BAD REQUEST "Body validation failed, path validation failed"
+    - 404: NOT FOUND "Ticket not found"
+```
+
 ## Customer
 
 ### GET /API/profiles/{email}

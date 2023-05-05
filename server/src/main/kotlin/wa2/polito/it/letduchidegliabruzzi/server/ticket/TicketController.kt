@@ -36,13 +36,14 @@ class TicketController(
 ) {
 
     @GetMapping("/API/ticket/{id}")
-    fun getTicket(@PathVariable id: Int): TicketDTO? {
-        return ticketService.getTicket(id)
+    fun getTicket(@PathVariable id: Int): TicketResponseBody? {
+        val ticket = ticketService.getTicket(id)
             ?: throw TicketNotFoundException("Ticket not found with Id: $id")
+        return TicketResponseBody(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt)
     }
 
     @PostMapping("/API/ticket")
-    fun addTicket(@Valid @RequestBody body: BodyObject, br: BindingResult): TicketDTO? {
+    fun addTicket(@Valid @RequestBody body: BodyObject, br: BindingResult): TicketResponseBody? {
         if (br.hasErrors())
             throw ConstraintViolationException("Body validation failed")
 
@@ -55,7 +56,9 @@ class TicketController(
             if (it.product?.ean == body.ean)
                 throw TicketDuplicatedException("An opened ticket already exists for the ean ${body.ean}")
         }
-        return ticketService.addTicket(body.description, product.toProduct(), customer.toCustomer()).toDTO()
+        val ticket = ticketService.addTicket(body.description, product.toProduct(), customer.toCustomer())
+
+        return TicketResponseBody(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt)
     }
 
     @PutMapping("API/ticket/{id}/assign")
@@ -105,6 +108,14 @@ class TicketController(
     }
 }
 
+data class TicketResponseBody(
+    @field:Positive val ticketID: Int?,
+    @field:NotBlank val description: String,
+    @field:NotBlank val status: String,
+    @field:NotBlank val priority: String?,
+    @field:NotBlank val createdAt: String
+)
+
 data class BodyObject(
     @field:NotBlank val ean: String,
     @field:NotBlank val description: String,
@@ -116,6 +127,6 @@ data class BodyAssignTicketObject(
     @field:NotBlank val priority: String
 )
 
-data class BodyResponse(val id: Int?)
+data class BodyResponse(val ticketID: Int?)
 
 data class BodyStatusTicket(@field:NotBlank val status: String)

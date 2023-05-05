@@ -69,3 +69,47 @@ HTTP STATUS:
     - 400: BAD REQUEST "Body validation failed, path validation failed"
     - 404: NOT FOUND "Customer not found"
 ```
+## Employee
+### GET /API/employees/{id}
+```
+DESCRIPTION: 
+    - Get the employee with the specified employeeID
+    
+PATH VARIABLE: 
+    - id: required
+    
+REQUEST BODY: none
+
+RESPONSE BODY: 
+    - employeeID: required
+    - email: required, must be an email
+    - name: required
+    - surname: required
+    - role: required
+    
+HTTP STATUS:
+    - 200: OK
+    - 400: BAD REQUEST "Path validation failed"
+    - 404: NOT FOUND
+```
+### POST /API/employee
+```
+DESCRIPTION: 
+    - Add a new employee
+    
+PATH VARIABLE: 
+    - none
+    
+REQUEST BODY:
+    - email: required
+    - role: required
+    - name: required
+    - surname: required
+
+RESPONSE BODY: 
+    - employeeID: required
+    
+HTTP STATUS:
+    - 201: CREATED
+    - 400: BAD REQUEST "Body validation failed"
+```

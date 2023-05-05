@@ -32,8 +32,8 @@ class ProblemDetailsHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(EmployeeRoleException::class)
     fun handleWrongEmployeeRole(e: EmployeeRoleException): ResponseEntity<ProblemDetail> {
-        val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.message!!)
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail)
+        val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message!!)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail)
     }
 
     @ExceptionHandler(ProductNotFoundException::class)

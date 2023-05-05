@@ -23,15 +23,15 @@ class ProductServiceImpl(
             return product.toDTO()
         }
 
-    @Transactional(readOnly = false, isolation = Isolation.SERIALIZABLE)
-    override fun addProduct(ean: String, brand: String, name: String, customer_email: String?): Product {
-        var customer: Customer?
-        if(customer_email == null) {
-            customer = null
-        }else{
-            customer = customerRepository.getReferenceById(customer_email)
-        }
-        val newProductDTO = ProductDTO(ean,name,brand, customer)
-        return productRepository.save(newProductDTO.toProduct())
+        @Transactional(readOnly = false, isolation = Isolation.SERIALIZABLE)
+        override fun addProduct(ean: String, brand: String, name: String, customer_email: String?): Product {
+            val customer: Customer?
+            if(customer_email == null) {
+                customer = null
+            }else{
+                customer = customerRepository.getReferenceById(customer_email)
+            }
+            val newProductDTO = ProductDTO(ean,name,brand, customer)
+            return productRepository.save(newProductDTO.toProduct())
         }
 }

@@ -8,7 +8,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistory
 
 @Entity
 @Table(name = "ticket")
-class Ticket (
+class Ticket(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val ticketID: Int? = null,

@@ -1,9 +1,5 @@
 package wa2.polito.it.letduchidegliabruzzi.server.employee
 
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-
 class EmployeeDTO(
     val employeeID: Int? = null,
     val email: String = "",

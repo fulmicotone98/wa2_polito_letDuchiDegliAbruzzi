@@ -2,6 +2,9 @@ package wa2.polito.it.letduchidegliabruzzi.server.customer
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import org.springframework.http.HttpStatus
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -9,7 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import wa2.polito.it.letduchidegliabruzzi.server.ticket.ConstraintViolationException
 
 class CustomerNotFoundException(message: String) : RuntimeException(message)
 class DuplicateCustomerException(message: String) : RuntimeException(message)
@@ -19,26 +24,52 @@ class DuplicateCustomerException(message: String) : RuntimeException(message)
 class CustomerController(private val customerService: CustomerService) {
 
     @GetMapping("/API/profiles/{email}")
-    fun getProfile(@PathVariable @Email(message = "Not an email") email: String): CustomerDTO? {
-        return customerService.getProfile(email)
+    fun getProfile(@PathVariable @Email(message = "Not an email") email: String): CustomerResponseBody? {
+        val c = customerService.getProfile(email)
             ?: throw CustomerNotFoundException("Customer not found with Email: $email")
+
+        return CustomerResponseBody(c.email,c.name,c.surname,c.address, c.phonenumber)
     }
 
     @PostMapping("/API/profiles")
-    fun addProfile(@Valid @RequestBody customerDTO: CustomerDTO, br: BindingResult): CustomerDTO? {
-        if (customerService.getProfile(customerDTO.email) != null) {
-            throw DuplicateCustomerException("Customer already exists with Email: ${customerDTO.email}")
-        }
-        return customerService.addProfile(customerDTO).toDTO()
+    @ResponseStatus(HttpStatus.CREATED)
+    fun addProfile(@Valid @RequestBody body: CustomerRequestBody, br: BindingResult): CustomerResponseBody? {
+        if(br.hasErrors())
+            throw ConstraintViolationException("Body validation failed")
+        if (customerService.getProfile(body.email) != null)
+            throw DuplicateCustomerException("Customer already exists with Email: ${body.email}")
+
+        val customerDTO = CustomerDTO(body.name,body.surname,body.phonenumber,body.address,body.email)
+        customerService.addProfile(customerDTO)
+        return CustomerResponseBody(body.email,null,null,null,null)
     }
 
     @PutMapping("/API/profiles/{email}")
-    fun updateProfile(@PathVariable @Email(message = "Not an email") email: String, @Valid @RequestBody newCustomerDTO: CustomerDTO,br: BindingResult): CustomerDTO? {
-        val customerForUpdate: CustomerDTO? = customerService.getProfile(email)
-        if (customerForUpdate != null) {
-            return customerService.updateProfile(customerForUpdate, newCustomerDTO).toDTO()
-        } else {
-            throw CustomerNotFoundException("Customer not found with Email: $email")
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun updateProfile(@PathVariable @Email(message = "Not an email") email: String, @Valid @RequestBody body: CustomerRequestBody,br: BindingResult): CustomerResponseBody? {
+        if(br.hasErrors())
+            throw ConstraintViolationException("Body validation failed")
+
+        val customerForUpdate: CustomerDTO = customerService.getProfile(email)
+            ?:throw CustomerNotFoundException("Customer not found with Email: $email")
+        val newCustomerDTO = CustomerDTO(body.name,body.surname,body.phonenumber, body.address, body.email)
+
+        customerService.updateProfile(customerForUpdate, newCustomerDTO)
+        return CustomerResponseBody(body.email,body.name,body.surname,body.address,body.phonenumber)
     }
 }
+
+data class CustomerResponseBody(
+    @field:NotNull @field:NotBlank @field:Email val email: String?,
+    @field:NotNull @field:NotBlank val name: String?,
+    @field:NotNull @field:NotBlank val surname: String?,
+    @field:NotNull @field:NotBlank val address: String?,
+    val phonenumber: String?
+)
+data class CustomerRequestBody(
+    @field:NotNull @field:NotBlank @field:Email val email: String = "",
+    @field:NotNull @field:NotBlank val name: String= "",
+    @field:NotNull @field:NotBlank val surname: String = "",
+    @field:NotNull @field:NotBlank val address: String = "",
+    val phonenumber: String = ""
+)

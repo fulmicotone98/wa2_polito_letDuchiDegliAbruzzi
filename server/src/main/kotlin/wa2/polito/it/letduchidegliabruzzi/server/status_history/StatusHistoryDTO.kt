@@ -7,11 +7,16 @@ import jakarta.persistence.JoinColumn
 import wa2.polito.it.letduchidegliabruzzi.server.ticket.Ticket
 
 class StatusHistoryDTO(
-    val statusID: Int? = null,
-    val ticket: Ticket? = null,
-    val createdAt: String = ""
+    val statusID: Int?,
+    val ticket: Ticket,
+    val createdAt: String,
+    val status: String
 )
 
 fun StatusHistory.toDTO(): StatusHistoryDTO {
-    return StatusHistoryDTO(statusID, ticket, createdAt)
+    return StatusHistoryDTO(statusID, ticket, createdAt,status)
+}
+
+fun StatusHistoryDTO.toStatusHistory(): StatusHistory {
+    return StatusHistory(statusID,ticket,createdAt,status)
 }

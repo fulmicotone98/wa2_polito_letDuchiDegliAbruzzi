@@ -16,7 +16,7 @@ class Chat {
     @JoinColumn(name = "employeeID")
     val employee :Employee? = null
     @ManyToOne
-    @JoinColumn(name = "customerEmail")
+    @JoinColumn(name = "customer_email")
     val customer :Customer? = null
     @OneToOne
     @JoinColumn(name = "ticketID")

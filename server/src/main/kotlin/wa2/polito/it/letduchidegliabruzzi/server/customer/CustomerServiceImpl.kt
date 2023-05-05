@@ -17,17 +17,6 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository) : 
         return customerRepository.save(customerDTO.toCustomer())
     }
 
-//    override fun updateProfile(oldCustomerDTO: CustomerDTO, newCustomerDTO: CustomerDTO): Customer {
-//        val oldCustomer: Customer = oldCustomerDTO.toCustpublicomer()
-//        oldCustomer.address = if (newCustomerDTO.address != "") newCustomerDTO.address else oldCustomer.address
-//        oldCustomer.email = if (newCustomerDTO.email != "") newCustomerDTO.email else oldCustomer.email
-//        oldCustomer.name = if (newCustomerDTO.name != "") newCustomerDTO.name else oldCustomer.name
-//        oldCustomer.surname = if (newCustomerDTO.surname != "") newCustomerDTO.surname else oldCustomer.surname
-//        oldCustomer.phonenumber =
-//            if (newCustomerDTO.phonenumber != "") newCustomerDTO.phonenumber else oldCustomer.phonenumber
-//        return customerRepository.save(oldCustomer)
-//    }
-
     @Transactional (isolation = Isolation.SERIALIZABLE)
     override fun updateProfile(oldCustomerDTO: CustomerDTO, newCustomerDTO: CustomerDTO): Customer {
         val oldCustomer: Customer = oldCustomerDTO.toCustomer()

@@ -16,6 +16,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import wa2.polito.it.letduchidegliabruzzi.server.customer.*
+import wa2.polito.it.letduchidegliabruzzi.server.employee.*
 
 @Testcontainers
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -205,6 +206,125 @@ class CustomerServerApplicationTests {
 
         // Assert that the response body contains the expected error message
         val expectedErrorMessage = "Customer not found with Email: $email"
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+}
+@Testcontainers
+@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestDatabase(replace=AutoConfigureTestDatabase.Replace.NONE)
+class EmployeeServerApplicationTests {
+    companion object {
+        @Container
+        val postgres = PostgreSQLContainer("postgres:latest")
+        @JvmStatic
+        @DynamicPropertySource
+        fun properties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.datasource.url", postgres::getJdbcUrl)
+            registry.add("spring.datasource.username", postgres::getUsername)
+            registry.add("spring.datasource.password", postgres::getPassword)
+            registry.add("spring.jpa.hibernate.ddl-auto") {"create-drop"}
+        }
+    }
+    @LocalServerPort
+    protected var port: Int = 0
+    @Autowired
+    lateinit var restTemplate: TestRestTemplate
+    @Autowired
+    lateinit var employeeRepository: EmployeeRepository
+    @Autowired
+    lateinit var employeeService: EmployeeService
+    @Test
+    fun `getEmployee should return the employee for a valid id`() {
+        // Create a new customer with a unique email
+        val employee = Employee(1,"johndoe@test.it","John","Doe","expert")
+        employeeRepository.save(employee)
+        // Make a GET request to the getProfile endpoint with the customer's email
+        val responseEntity = restTemplate.getForEntity("/API/employees/${employee.employeeID}", EmployeeResponseBody::class.java)
+
+        // Assert that the response has HTTP status 200 (OK)
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+
+        // Assert that the response body is not null
+        assertNotNull(responseEntity.body)
+        // Assert that the response body fields match the customer's data
+        assertEquals("johndoe@test.it", responseEntity.body?.email)
+        assertEquals("John", responseEntity.body?.name)
+        assertEquals("Doe", responseEntity.body?.surname)
+        assertEquals("expert", responseEntity.body?.role)
+    }
+
+    @Test
+    fun `getEmployee should return HTTP 404 for a non-existent id`() {
+        // Make a GET request to the getProfile endpoint with a non-existent email
+        val id = 54152
+        val responseEntity = restTemplate.getForEntity("/API/employees/$id", String::class.java)
+
+        // Assert that the response has HTTP status 404 (NOT FOUND)
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
+
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "Employee not found"
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+
+    @Test
+    fun `getEmployee should return HTTP 400 for an invalid id`() {
+        // Make a GET request to the getProfile endpoint with an invalid email
+        val invalidId = "notanid"
+        val responseEntity = restTemplate.getForEntity("/API/employees/$invalidId", String::class.java)
+
+        // Assert that the response has HTTP status 400 (BAD REQUEST)
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
+
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "Failed to convert 'id' with value: '$invalidId'"
+        println(responseEntity.body)
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+
+    @Test
+    fun `addEmployee should add a new employee`() {
+        // Create a new customer request body with valid data
+        val requestBody = BodyObject("mariorossi@example.com","Mario", "expert", "Rossi")
+
+        // Make a POST request to the addProfile endpoint with the request body
+        val responseEntity = restTemplate.postForEntity("/API/employee", requestBody, EmployeeResponseBody::class.java)
+
+        // Assert that the response has HTTP status 201 (CREATED)
+        assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
+
+        // Assert that the response body is not null
+        assertNotNull(responseEntity.body)
+
+        // Assert that the response body email field matches the request body email field
+        assertTrue(responseEntity.body?.employeeID!! >0)
+        println(responseEntity.body)
+        assertNull(responseEntity.body?.name)
+        assertNull(responseEntity.body?.surname)
+        assertNull(responseEntity.body?.email)
+        assertNull(responseEntity.body?.role)
+
+
+        // Assert that the customer was added to the database by checking if it can be retrieved
+        val employee = employeeService.getEmployeeByID(responseEntity.body!!.employeeID)
+        assertNotNull(employee)
+        assertEquals(requestBody.name, employee?.name)
+        assertEquals(requestBody.surname, employee?.surname)
+        assertEquals(requestBody.email, employee?.email)
+        assertEquals(requestBody.role, employee?.role)
+    }
+
+    @Test
+    fun `addEmployee should return 400 error for invalid input`() {
+        // Create a new customer request body with valid data
+        val requestBody = BodyObject("abc","John", "expert", "Doe")
+
+        // Make a POST request to the addProfile endpoint with the request body
+        val responseEntity = restTemplate.postForEntity("/API/employee", requestBody, String::class.java)
+        println(responseEntity)
+        // Assert that the response has HTTP status 201 (CREATED)
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
+        val expectedErrorMessage = "The email should be provided in a correct format"
         assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
 }

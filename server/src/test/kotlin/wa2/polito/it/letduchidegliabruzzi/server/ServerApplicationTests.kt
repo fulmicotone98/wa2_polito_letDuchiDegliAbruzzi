@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -87,13 +89,14 @@ class ServerApplicationTests {
 
         // Assert that the response body contains the expected error message
         val expectedErrorMessage = "Not an email"
+        println(responseEntity.body)
         assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
 
     @Test
     fun `addProfile should add a new customer profile`() {
         // Create a new customer request body with valid data
-        val requestBody = CustomerRequestBody("johndoe@example.com","John", "Doe", "123 Main St","1234567890")
+        val requestBody = CustomerRequestBody("mariorossi@example.com","Mario", "Rossi", "123 Main St","1234567890")
 
         // Make a POST request to the addProfile endpoint with the request body
         val responseEntity = restTemplate.postForEntity("/API/profiles", requestBody, CustomerResponseBody::class.java)
@@ -120,5 +123,88 @@ class ServerApplicationTests {
         assertEquals(requestBody.surname, customer?.surname)
         assertEquals(requestBody.phonenumber, customer?.phonenumber)
         assertEquals(requestBody.address, customer?.address)
+    }
+
+    @Test
+    fun `addProfile should return 400 error for invalid input`() {
+        // Create a new customer request body with valid data
+        val requestBody = CustomerRequestBody("abc","John", "Doe", "123 Main St","1234567890")
+
+        // Make a POST request to the addProfile endpoint with the request body
+        val responseEntity = restTemplate.postForEntity("/API/profiles", requestBody, String::class.java)
+
+        // Assert that the response has HTTP status 201 (CREATED)
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
+        val expectedErrorMessage = "The email should be provided in a correct format"
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+
+    @Test
+    fun `addProfile should return 409 error for duplicate insertion`() {
+        // Create a new customer request body with valid data
+        val requestBody = CustomerRequestBody("pincopallino@example.com","Pinco", "Pallino", "123 Main St","1234567890")
+
+        // Make a POST request to the addProfile endpoint with the request body
+        restTemplate.postForEntity("/API/profiles", requestBody, String::class.java)
+        val responseEntity = restTemplate.postForEntity("/API/profiles", requestBody, String::class.java)
+        // Assert that the response has HTTP status 201 (CREATED)
+        assertEquals(HttpStatus.CONFLICT, responseEntity.statusCode)
+        val expectedErrorMessage = "Customer already exists"
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+
+    @Test
+    fun `updateProfile should update an existing customer profile`() {
+        // Create a new customer request body with valid data
+        val customer = Customer("johndoe@example.com","John", "Doe", "123 Main St","1234567890")
+        customerRepository.save(customer)
+        val requestBody = CustomerRequestBody("johndoe@example.com","Mario", "Rossi", "2 Second St","1234567893")
+        // Make a PUT request to the updateProfile endpoint with the request body
+        val responseEntity = restTemplate.exchange("/API/profiles/${customer.email}", HttpMethod.PUT, HttpEntity(requestBody), String::class.java)
+        println(responseEntity)
+        // Assert that the response has HTTP status 204 (NO_CONTENT)
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.statusCode)
+
+        // Assert that the customer was added to the database by checking if it can be retrieved
+        val newCustomer = customerService.getProfile(requestBody.email)
+        assertNotNull(customer)
+        assertEquals(requestBody.name, newCustomer?.name)
+        assertEquals(requestBody.surname, newCustomer?.surname)
+        assertEquals(requestBody.phonenumber, newCustomer?.phonenumber)
+        assertEquals(requestBody.address, newCustomer?.address)
+    }
+
+    @Test
+    fun `updateProfile should return 400 error for invalid input`() {
+        // Create a new customer request body with valid data
+        val customer = Customer("johndoe@example.com","John", "Doe", "123 Main St","1234567890")
+        customerRepository.save(customer)
+        val requestBody = CustomerRequestBody("johndoe@example.com","", "Rossi", "2 Second St","1234567893")
+        // Make a PUT request to the updateProfile endpoint with the request body
+        val responseEntity = restTemplate.exchange("/API/profiles/${customer.email}", HttpMethod.PUT, HttpEntity(requestBody), String::class.java)
+        println(responseEntity)
+        // Assert that the response has HTTP status 204 (NO_CONTENT)
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
+
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "The name should not be blank"
+        println(responseEntity.body)
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+
+    @Test
+    fun `updateProfile should return HTTP 404 for a non-existent email`() {
+        // Make a GET request to the getProfile endpoint with a non-existent email
+        val email = "nonexistent@example.com"
+        val requestBody = CustomerRequestBody("johndoe@example.com","Mario", "Rossi", "2 Second St","1234567893")
+
+        val responseEntity = restTemplate.exchange("/API/profiles/${email}", HttpMethod.PUT, HttpEntity(requestBody), String::class.java)
+
+        // Assert that the response has HTTP status 404 (NOT FOUND)
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
+
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "Customer not found with Email: $email"
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
 }

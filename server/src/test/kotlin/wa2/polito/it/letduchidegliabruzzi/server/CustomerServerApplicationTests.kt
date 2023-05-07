@@ -20,7 +20,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.customer.*
 @Testcontainers
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace=AutoConfigureTestDatabase.Replace.NONE)
-class ServerApplicationTests {
+class CustomerServerApplicationTests {
     companion object {
         @Container
         val postgres = PostgreSQLContainer("postgres:latest")

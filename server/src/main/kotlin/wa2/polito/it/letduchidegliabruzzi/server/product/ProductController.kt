@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
-import org.springframework.format.annotation.NumberFormat
 import org.springframework.http.HttpStatus
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
@@ -43,23 +42,23 @@ class ProductController(private val productService: ProductService, private val 
             val customer: CustomerDTO? = customerService.getProfile(body.customerEmail)
                 ?: throw CustomerNotFoundException("Customer not found with Email: ${body.customerEmail}")
             productService.addProduct(body.ean, body.brand,body.name,body.customerEmail)
-            return ProductResponseBody(body.ean,"","","")
+            return ProductResponseBody(body.ean,null,null,null)
         }
         productService.addProduct(body.ean, body.brand,body.name,null)
-        return ProductResponseBody(body.ean,"","","")
+        return ProductResponseBody(body.ean,null,null,null)
     }
 }
 
 data class ProductRequestBody(
-    @field:NotBlank val ean: String,
+    @field:NotBlank @Pattern(regexp = "^[A-Za-z0-9]+\$", message = "The Ean should be alphanumeric") val ean: String,
     @field:NotBlank val name: String,
     @field:NotBlank val brand: String,
-    @field:Email val customerEmail: String? = null
+    @field:Email(message = "The email should be provided in a correct format") val customerEmail: String? = null
 )
 
 data class ProductResponseBody(
     @field:NotBlank @field:NotNull val ean: String,
-    @field:NotBlank @field:NotNull val name: String,
-    @field:NotBlank @field:NotNull val brand: String,
+    @field:NotBlank @field:NotNull val name: String? = "",
+    @field:NotBlank @field:NotNull val brand: String? = "",
     @field:Email val customerEmail: String? = null
 )

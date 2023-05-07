@@ -19,13 +19,14 @@ class EmployeeController(private val employeeService: EmployeeService) {
 
     @PostMapping("/API/employee")
     @ResponseStatus(HttpStatus.CREATED)
-    fun addEmployee(@Valid @RequestBody body: BodyObject, br: BindingResult): EmployeeDTO? {
+    fun addEmployee(@Valid @RequestBody body: BodyObject, br: BindingResult): EmployeeResponseBody? {
         if(br.hasErrors())
             throw ConstraintViolationException("Body validation failed")
         if(body.role != "expert" && body.role!="manager")
             throw EmployeeRoleException("Role must be expert or manager")
 
-        return employeeService.addEmployee(body.email,body.name,body.role,body.surname).toDTO()
+        val employee = employeeService.addEmployee(body.email,body.name,body.role,body.surname)
+        return employee.employeeID?.let { EmployeeResponseBody(it, null,null,null, null) }
     }
 
     @GetMapping("/API/employees/{id}")
@@ -37,7 +38,7 @@ class EmployeeController(private val employeeService: EmployeeService) {
 }
 
 data class BodyObject(
-    @field:NotBlank val email: String,
+    @field:NotBlank @field:Email(message ="The email should be provided in a correct format") val email: String,
     @field:NotBlank val name: String,
     @field:NotBlank val role: String,
     @field:NotBlank val surname: String
@@ -45,8 +46,8 @@ data class BodyObject(
 
 data class EmployeeResponseBody(
     @field:Positive @field:NotNull val employeeID: Int = 0,
-    @field:NotBlank @field:NotNull @field:Email val email: String = "",
-    @field:NotBlank @field:NotNull val name: String = "",
-    @field:NotBlank @field:NotNull val role: String = "",
-    @field:NotBlank @field:NotNull val surname: String = ""
+    @field:NotBlank @field:NotNull @field:Email val email: String? = "",
+    @field:NotBlank @field:NotNull val name: String? = "",
+    @field:NotBlank @field:NotNull val role: String? = "",
+    @field:NotBlank @field:NotNull val surname: String? = ""
 )

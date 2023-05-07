@@ -4,6 +4,8 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Pattern
+import org.springframework.format.annotation.NumberFormat
 import org.springframework.http.HttpStatus
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
@@ -26,7 +28,7 @@ class ProductController(private val productService: ProductService, private val 
     }
 
     @GetMapping("/API/products/{ean}")
-    fun getProduct(@PathVariable @NotBlank ean: String): ProductResponseBody? {
+    fun getProduct(@PathVariable @NotBlank @Pattern(regexp = "^[A-Za-z0-9]+\$", message = "The Ean should be alphanumeric") ean: String): ProductResponseBody? {
         val p = productService.getProduct(ean)?: throw ProductNotFoundException("Product not found")
         return ProductResponseBody(p.ean,p.name,p.brand,p.customer?.email)
     }

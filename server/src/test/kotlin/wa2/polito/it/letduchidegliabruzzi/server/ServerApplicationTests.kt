@@ -327,4 +327,18 @@ class EmployeeServerApplicationTests {
         val expectedErrorMessage = "The email should be provided in a correct format"
         assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
+
+    @Test
+    fun `addEmployee should return 400 error for invalid role`() {
+        // Create a new customer request body with valid data
+        val requestBody = BodyObject("test@gmail.com","John", "test", "Doe")
+
+        // Make a POST request to the addProfile endpoint with the request body
+        val responseEntity = restTemplate.postForEntity("/API/employee", requestBody, String::class.java)
+        println(responseEntity)
+        // Assert that the response has HTTP status 201 (CREATED)
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
+        val expectedErrorMessage = "Role must be expert or manager"
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
 }

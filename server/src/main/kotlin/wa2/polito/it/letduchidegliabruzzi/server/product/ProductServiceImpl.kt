@@ -24,13 +24,9 @@ class ProductServiceImpl(
         }
 
         @Transactional(readOnly = false, isolation = Isolation.SERIALIZABLE)
-        override fun addProduct(ean: String, brand: String, name: String, customer_email: String?): Product {
+        override fun addProduct(ean: String, brand: String, name: String, customerEmail: String): Product {
             val customer: Customer?
-            if(customer_email == null) {
-                customer = null
-            }else{
-                customer = customerRepository.getReferenceById(customer_email)
-            }
+            customer = customerRepository.getReferenceById(customerEmail)
             val newProductDTO = ProductDTO(ean,name,brand, customer)
             return productRepository.save(newProductDTO.toProduct())
         }

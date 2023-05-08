@@ -2,7 +2,7 @@
 
 ## Ticket 
 
-### GET /API/ticket/{id}/status_history
+### GET /API/ticket/{id}/history
 ```
 DESCRIPTION:
     -Get the status history of a ticket, ordered by date

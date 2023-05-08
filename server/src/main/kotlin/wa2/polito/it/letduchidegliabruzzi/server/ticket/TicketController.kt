@@ -44,7 +44,7 @@ class TicketController(
         return TicketResponseBody(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt)
     }
 
-    @GetMapping("API/ticket/{id}/status_history")
+    @GetMapping("/API/ticket/{id}/history")
     fun getHistory(@PathVariable id: Int): List<BodyStatusHistoryList> {
         val ticketDTO = ticketService.getTicket(id)
             ?: throw TicketNotFoundException("Ticket not found with Id: $id")

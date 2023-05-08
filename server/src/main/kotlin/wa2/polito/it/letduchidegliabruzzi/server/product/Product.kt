@@ -16,5 +16,5 @@ class Product(
     var brand: String,
     @ManyToOne
     @JoinColumn(name = "customer_email")
-    var customer: Customer? = null
+    var customer: Customer
 )

@@ -378,7 +378,7 @@ class ProductsServerApplicationTests {
         customerRepository.save(customer)
         // Create some test data
         productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", "johndoe@example.com")
-        productService.addProduct("2345678901234", "Test Brand 2", "Test Product 2", null)
+        productService.addProduct("2345678901234", "Test Brand 2", "Test Product 2", "johndoe@example.com")
 
         // Make a GET request to the /API/products endpoint
         val response = restTemplate.exchange("/API/products", HttpMethod.GET, null, object : ParameterizedTypeReference<List<ProductResponseBody>>() {})
@@ -396,7 +396,7 @@ class ProductsServerApplicationTests {
         assertEquals("2345678901234", responseBody[1].ean)
         assertEquals("Test Product 2", responseBody[1].name)
         assertEquals("Test Brand 2", responseBody[1].brand)
-        assertNull(responseBody[1].customerEmail)
+        assertEquals("johndoe@example.com", responseBody[1].customerEmail)
     }
     @Test
     fun `getProduct should return the product for a valid ean`() {

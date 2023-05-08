@@ -124,7 +124,37 @@ HTTP STATUS:
 ```
 
 ## Customer
+### GET /API/profile/{email}/tickets
+```
+DESCRIPTION:
+    -Get the list of tickets of the customer
 
+PATH VARIABLE:
+    - email: required, must be an email
+    
+REQUEST BODY: none
+
+RESPONSE BODY:
+    -[
+        {
+            -statusID: required
+            -ticketID: required
+            -createdAt: required
+            -status: required
+        },
+        {
+            ...
+        },
+        ...
+     ]
+
+HTTP STATUS:
+    - 200: OK
+    - 400: BAD REQUEST "Path validation failed"
+    - 404: NOT FOUND    
+
+
+```
 ### GET /API/profiles/{email}
 ```
 DESCRIPTION: 

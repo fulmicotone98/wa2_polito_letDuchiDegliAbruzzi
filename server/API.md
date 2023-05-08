@@ -1,5 +1,37 @@
 # Ticketing API
 
+## Status History
+
+### GET /API/ticket/{id}/status_history
+```
+DESCRIPTION:
+    -Get the status history of a ticket, ordered by date
+
+PATH VARIABLE:
+    --id: id of the ticket 
+    
+REQUEST BODY: none
+
+RESPONSE BODY:
+    -[
+        {
+            -statusID: required
+            -ticket: required
+            -createdAt: required
+            -status: required
+        },
+        {
+            ...
+        },
+        {
+            ...
+        }
+     ]
+     
+
+
+```
+
 ## Ticket 
 
 ### GET /API/ticket/{id}

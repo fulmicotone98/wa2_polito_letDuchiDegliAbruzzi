@@ -13,6 +13,6 @@ class StatusHistoryServiceImpl(
     }
 
     override fun getHistory(ticket: Ticket): List<StatusHistoryDTO>? {
-        return statusHistoryRepository.findByTicket(ticket)?.let { listOf(it.toDTO()).sortedBy { it.createdAt } }
+        return statusHistoryRepository.findByTicket(ticket)?.let { it -> listOf(it.toDTO()).sortedBy { it.createdAt } }
     }
 }

@@ -51,4 +51,9 @@ class TicketServiceImpl(
         statusHistoryService.addStatus(newTicketDTO.toTicket(), timestamp, newTicketDTO.status)
         return ticketRepository.save(newTicketDTO.toTicket()).toDTO()
     }
+
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    override fun getTicketsByCustomer(customerEmail: String): List<TicketDTO> {
+        return ticketRepository.findAll().filter { it.customer?.email == customerEmail}.map { it.toDTO() }
+    }
 }

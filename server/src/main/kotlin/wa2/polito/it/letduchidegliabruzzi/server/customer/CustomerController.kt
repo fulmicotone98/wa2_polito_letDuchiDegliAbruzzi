@@ -15,13 +15,23 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import wa2.polito.it.letduchidegliabruzzi.server.ticket.ConstraintViolationException
+import wa2.polito.it.letduchidegliabruzzi.server.ticket.Ticket
+import wa2.polito.it.letduchidegliabruzzi.server.ticket.TicketResponseBody
+import wa2.polito.it.letduchidegliabruzzi.server.ticket.TicketService
 
 class CustomerNotFoundException(message: String) : RuntimeException(message)
 class DuplicateCustomerException(message: String) : RuntimeException(message)
 
 @Validated
 @RestController
-class CustomerController(private val customerService: CustomerService) {
+class CustomerController(private val customerService: CustomerService, private val ticketService: TicketService) {
+
+    @GetMapping("/API/profile/{email}/tickets")
+    fun getTicketsByEmail(@PathVariable("email") @Email(message = "Not an email") email: String): List<TicketResponseBody>{
+        val c = customerService.getProfile(email)
+            ?: throw CustomerNotFoundException("Customer not found with Email: $email")
+        return ticketService.getTicketsByCustomer(email).map{ TicketResponseBody(it.ticketID,it.description,it.status,it.priority,it.createdAt) }
+    }
 
     @GetMapping("/API/profiles/{email}")
     fun getProfile(@PathVariable @Email(message = "Not an email") email: String): CustomerResponseBody? {

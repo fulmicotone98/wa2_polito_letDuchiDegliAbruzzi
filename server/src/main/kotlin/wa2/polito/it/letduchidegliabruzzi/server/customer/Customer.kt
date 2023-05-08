@@ -5,7 +5,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name="customers")
+@Table(name="customer")
 class Customer(
     @Id
     var email: String,

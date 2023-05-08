@@ -1,6 +1,6 @@
 # Ticketing API
 
-## Status History
+## Ticket 
 
 ### GET /API/ticket/{id}/status_history
 ```
@@ -16,16 +16,14 @@ RESPONSE BODY:
     -[
         {
             -statusID: required
-            -ticket: required
+            -ticketID: required
             -createdAt: required
             -status: required
         },
         {
             ...
         },
-        {
-            ...
-        }
+        ...
      ]
 
 HTTP STATUS:
@@ -35,8 +33,6 @@ HTTP STATUS:
 
 
 ```
-
-## Ticket 
 
 ### GET /API/ticket/{id}
 ```

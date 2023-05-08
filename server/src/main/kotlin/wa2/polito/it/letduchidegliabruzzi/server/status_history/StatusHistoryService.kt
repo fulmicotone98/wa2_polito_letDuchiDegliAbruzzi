@@ -4,6 +4,6 @@ import wa2.polito.it.letduchidegliabruzzi.server.ticket.Ticket
 
 interface StatusHistoryService {
     fun addStatus(ticket: Ticket, timestamp: String, status: String): StatusHistoryDTO
+    fun findByTicket(ticket: Ticket): List<StatusHistoryDTO>
 
-    fun getHistory(ticket: Ticket): List<StatusHistoryDTO>?
 }

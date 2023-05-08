@@ -27,7 +27,11 @@ RESPONSE BODY:
             ...
         }
      ]
-     
+
+HTTP STATUS:
+    - 200: OK
+    - 400: BAD REQUEST "Path validation failed"
+    - 404: NOT FOUND    
 
 
 ```

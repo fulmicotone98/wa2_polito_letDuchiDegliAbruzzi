@@ -22,5 +22,4 @@ class WebApplicationConfig : WebMvcConfigurer {
                 factory -> factory?.addErrorPages(ErrorPage(HttpStatus.NOT_FOUND, "/notFound"))
         }
     }
-
 }

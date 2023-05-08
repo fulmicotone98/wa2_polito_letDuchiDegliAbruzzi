@@ -2,6 +2,38 @@
 
 ## Ticket 
 
+### GET /API/ticket/{id}/history
+```
+DESCRIPTION:
+    -Get the status history of a ticket, ordered by date
+
+PATH VARIABLE:
+    --id: id of the ticket 
+    
+REQUEST BODY: none
+
+RESPONSE BODY:
+    -[
+        {
+            -statusID: required
+            -ticketID: required
+            -createdAt: required
+            -status: required
+        },
+        {
+            ...
+        },
+        ...
+     ]
+
+HTTP STATUS:
+    - 200: OK
+    - 400: BAD REQUEST "Path validation failed"
+    - 404: NOT FOUND    
+
+
+```
+
 ### GET /API/ticket/{id}
 ```
 DESCRIPTION:

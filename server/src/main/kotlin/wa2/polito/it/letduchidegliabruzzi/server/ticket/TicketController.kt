@@ -21,6 +21,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.employee.toEmployee
 import wa2.polito.it.letduchidegliabruzzi.server.product.ProductNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.product.ProductService
 import wa2.polito.it.letduchidegliabruzzi.server.product.toProduct
+import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistoryService
 
 class TicketNotFoundException(message: String) : RuntimeException(message)
 class TicketDuplicatedException(message: String) : RuntimeException(message)
@@ -31,6 +32,7 @@ class ConstraintViolationException(message: String) : RuntimeException(message)
 @RestController
 class TicketController(
     private val ticketService: TicketService,
+    private val statusHistoryService: StatusHistoryService,
     private val customerService: CustomerService,
     private val productService: ProductService,
     private val employeeService: EmployeeService
@@ -42,6 +44,15 @@ class TicketController(
             ?: throw TicketNotFoundException("Ticket not found with Id: $id")
         return TicketResponseBody(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt)
     }
+
+    @GetMapping("/API/ticket/{id}/history")
+    fun getHistory(@PathVariable id: Int): List<BodyStatusHistoryList> {
+        val ticketDTO = ticketService.getTicket(id)
+            ?: throw TicketNotFoundException("Ticket not found with Id: $id")
+        return statusHistoryService.findByTicket(ticketDTO.toTicket())
+            .map { BodyStatusHistoryList(it.statusID, it.ticket.ticketID, it.createdAt, it.status) }
+    }
+
 
     @PostMapping("/API/ticket")
     fun addTicket(@Valid @RequestBody body: BodyObject, br: BindingResult): TicketResponseBody? {
@@ -108,6 +119,13 @@ class TicketController(
         return ticketService.editTicket(newTicketDTO).toTicket().ticketID
     }
 }
+
+data class BodyStatusHistoryList(
+    @field:NotBlank val statusID: Int?,
+    @field:NotBlank val ticketID: Int?,
+    @field:NotBlank val createdAt: String,
+    @field:NotBlank val status: String
+)
 
 data class TicketResponseBody(
     @field:Positive val ticketID: Int?,

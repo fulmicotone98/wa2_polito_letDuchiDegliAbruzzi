@@ -1,9 +1,5 @@
 package wa2.polito.it.letduchidegliabruzzi.server.status_history
 
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
 import wa2.polito.it.letduchidegliabruzzi.server.ticket.Ticket
 
 class StatusHistoryDTO(

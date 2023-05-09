@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import wa2.polito.it.letduchidegliabruzzi.server.customer.Customer
 import wa2.polito.it.letduchidegliabruzzi.server.product.Product
+import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistoryDTO
 import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistoryService
 import java.time.LocalDate
 
@@ -23,6 +24,11 @@ class TicketServiceImpl(
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     override fun getTickets(): List<TicketDTO> {
         return ticketRepository.findAll().map { it.toDTO() }
+    }
+
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    override fun getHistory(ticket: Ticket): List<StatusHistoryDTO>? {
+        return statusHistoryService.findByTicket(ticket).sortedBy { it.createdAt }
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -44,5 +50,10 @@ class TicketServiceImpl(
         val timestamp = LocalDate.now().toString()
         statusHistoryService.addStatus(newTicketDTO.toTicket(), timestamp, newTicketDTO.status)
         return ticketRepository.save(newTicketDTO.toTicket()).toDTO()
+    }
+
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    override fun getTicketsByCustomer(customerEmail: String): List<TicketDTO> {
+        return ticketRepository.findAll().filter { it.customer?.email == customerEmail}.map { it.toDTO() }
     }
 }

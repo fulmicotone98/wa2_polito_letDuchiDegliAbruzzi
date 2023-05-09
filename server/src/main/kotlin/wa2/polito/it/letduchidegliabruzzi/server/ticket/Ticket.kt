@@ -12,14 +12,14 @@ class Ticket(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val ticketID: Int? = null,
-    val description: String = "",
-    val status: String = "",
+    val description: String,
+    val status: String,
     val priority: String? = null,
-    val createdAt: String = "",
+    val createdAt: String,
 
     @ManyToOne
     @JoinColumn(name = "customerEmail")
-    var customer: Customer? = null,
+    var customer: Customer,
 
     @ManyToOne
     @JoinColumn(name = "employeeID")
@@ -27,7 +27,7 @@ class Ticket(
 
     @ManyToOne
     @JoinColumn(name = "ean")
-    var product: Product? = null,
+    var product: Product,
 
     @OneToMany(mappedBy = "ticket")
     var statusHistory: List<StatusHistory>? = null

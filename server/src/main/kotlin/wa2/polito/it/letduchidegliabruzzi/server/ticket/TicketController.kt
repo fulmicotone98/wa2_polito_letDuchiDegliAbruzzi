@@ -2,6 +2,7 @@ package wa2.polito.it.letduchidegliabruzzi.server.ticket
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
@@ -50,10 +51,10 @@ class TicketController(
         val customer =
             customerService.getProfile(body.customerEmail) ?: throw CustomerNotFoundException("Customer not found")
         val product = productService.getProduct(body.ean) ?: throw ProductNotFoundException("Product not found")
-        if (product.customer?.email != customer.email)
+        if (product.customer.email != customer.email)
             throw CustomerNotFoundException("No products for the given customer")
         ticketService.getTickets().forEach {
-            if (it.product?.ean == body.ean)
+            if (it.product.ean == body.ean)
                 throw TicketDuplicatedException("An opened ticket already exists for the ean ${body.ean}")
         }
         val ticket = ticketService.addTicket(body.description, product.toProduct(), customer.toCustomer())
@@ -117,14 +118,14 @@ data class TicketResponseBody(
 )
 
 data class BodyObject(
-    @field:NotBlank val ean: String,
-    @field:NotBlank val description: String,
-    @field:NotBlank val customerEmail: String
+    @field:NotNull @field:NotBlank val ean: String,
+    @field:NotNull @field:NotBlank val description: String,
+    @field:NotNull @field:NotBlank val customerEmail: String
 )
 
 data class BodyAssignTicketObject(
-    @field:Positive val employeeID: Int,
-    @field:NotBlank val priority: String
+    @field:NotNull @field:Positive val employeeID: Int,
+    @field:NotNull @field:NotBlank val priority: String
 )
 
 data class BodyResponse(val ticketID: Int?)

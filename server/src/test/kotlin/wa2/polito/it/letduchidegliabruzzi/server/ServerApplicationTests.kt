@@ -597,7 +597,7 @@ class TicketsServerApplicationTests {
     @Autowired
     lateinit var restTemplate: TestRestTemplate
     @Autowired
-    lateinit var ticketRepository: TicketRepository
+    lateinit var customerRepository: CustomerRepository
     @Autowired
     lateinit var customerService: CustomerService
     @Autowired
@@ -658,59 +658,61 @@ class TicketsServerApplicationTests {
         println(responseEntity.body)
         assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
-/*    @Test
-    fun `getProduct should return the product for a valid ean`() {
+    @Test
+    fun `getTicket should return the ticket for a valid id`() {
         // Create a new customer with a unique email
-        val customer = Customer("johndoe@example.com","John", "Doe", "1234567890", "123 Main St")
-        customerRepository.save(customer)
-        // Create some test data
-        productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", "johndoe@example.com")
+        val email = "test@example.com"
+        // Create a mock customer and tickets associated with the email
+        val customer = CustomerDTO("Test", "Customer", "123456789", "123 Test Street", email)
+        customerService.addProfile(customer)
+        val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
+        val savedTicket = ticketService.addTicket("Ticket test1", product1.ean, email)
 
-        // Make a GET request to the getProfile endpoint with the customer's email
-        val responseEntity = restTemplate.getForEntity("/API/products/1234567890123", ProductResponseBody::class.java)
+        val responseEntity = restTemplate.getForEntity("/API/ticket/${savedTicket.ticketID}", TicketResponseBody::class.java)
 
         // Assert that the response has HTTP status 200 (OK)
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
 
         // Assert that the response body is not null
         assertNotNull(responseEntity.body)
-
-        // Assert that the response body fields match the customer's data
-        assertEquals("1234567890123", responseEntity.body?.ean)
-        assertEquals("Test Brand 1", responseEntity.body?.brand)
-        assertEquals("Test Product 1", responseEntity.body?.name)
-        assertEquals("johndoe@example.com", responseEntity.body?.customerEmail)
+        assertTrue(responseEntity.body?.ticketID!! > 0)
+        assertEquals(savedTicket.description, responseEntity.body?.description)
+        assertEquals(savedTicket.status,  responseEntity.body?.status)
+        assertEquals(savedTicket.priority,  responseEntity.body?.priority)
+        assertEquals(savedTicket.product.ean,  responseEntity.body?.productEan)
+        assertEquals(savedTicket.customer.email,  responseEntity.body?.customerEmail)
+        assertEquals(savedTicket.employee?.employeeID,  responseEntity.body?.employeeId)
     }
 
     @Test
-    fun `getProduct should return HTTP 404 for a non-existent product`() {
+    fun `getTicket should return HTTP 404 for a non-existent ticket`() {
         // Make a GET request to the getProfile endpoint with a non-existent email
-        val ean = "11111111111"
-        val responseEntity = restTemplate.getForEntity("/API/products/$ean", String::class.java)
+        val id = -111
+        val responseEntity = restTemplate.getForEntity("/API/ticket/$id", String::class.java)
 
         // Assert that the response has HTTP status 404 (NOT FOUND)
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
 
         // Assert that the response body contains the expected error message
-        val expectedErrorMessage = "Product not found"
+        val expectedErrorMessage = "Ticket not found"
         assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
 
     @Test
-    fun `getProduct should return HTTP 400 for an invalid ean`() {
+    fun `getTicket should return HTTP 400 for an invalid id`() {
         // Make a GET request to the getProfile endpoint with an invalid email
-        val invalidEan = "%&$"
-        val responseEntity = restTemplate.getForEntity("/API/products/$invalidEan", String::class.java)
+        val invalidId = "%&$"
+        val responseEntity = restTemplate.getForEntity("/API/ticket/$invalidId", String::class.java)
 
         // Assert that the response has HTTP status 400 (BAD REQUEST)
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
 
         // Assert that the response body contains the expected error message
-        val expectedErrorMessage = "The Ean should be alphanumeric"
+        val expectedErrorMessage = "Failed to convert 'id' with value: '$invalidId'"
         println(responseEntity.body)
         assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
-
+/*
     @Test
     fun `addProduct should add a new product`() {
         val customer = Customer("johndoe@example.com","John", "Doe", "1234567890", "123 Main St")

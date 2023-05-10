@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import wa2.polito.it.letduchidegliabruzzi.server.ticket.ConstraintViolationException
-import wa2.polito.it.letduchidegliabruzzi.server.ticket.Ticket
 import wa2.polito.it.letduchidegliabruzzi.server.ticket.TicketResponseBody
 import wa2.polito.it.letduchidegliabruzzi.server.ticket.TicketService
 
@@ -30,7 +29,7 @@ class CustomerController(private val customerService: CustomerService, private v
     fun getTicketsByEmail(@PathVariable("email") @Email(message = "Not an email") email: String): List<TicketResponseBody>{
         val c = customerService.getProfile(email)
             ?: throw CustomerNotFoundException("Customer not found with Email: $email")
-        return ticketService.getTicketsByCustomer(email).map{ TicketResponseBody(it.ticketID,it.description,it.status,it.priority,it.createdAt) }
+        return ticketService.getTicketsByCustomer(email).map{ TicketResponseBody(it.ticketID,it.description,it.status,it.priority,it.createdAt, it.product.ean, it.customer.email, it.employee?.employeeID ) }
     }
 
     @GetMapping("/API/profiles/{email}")

@@ -14,13 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerService
-import wa2.polito.it.letduchidegliabruzzi.server.customer.toCustomer
 import wa2.polito.it.letduchidegliabruzzi.server.employee.EmployeeNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.employee.EmployeeService
 import wa2.polito.it.letduchidegliabruzzi.server.employee.toEmployee
 import wa2.polito.it.letduchidegliabruzzi.server.product.ProductNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.product.ProductService
-import wa2.polito.it.letduchidegliabruzzi.server.product.toProduct
 import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistoryService
 
 class TicketNotFoundException(message: String) : RuntimeException(message)
@@ -42,7 +40,7 @@ class TicketController(
     fun getTicket(@PathVariable id: Int): TicketResponseBody? {
         val ticket = ticketService.getTicket(id)
             ?: throw TicketNotFoundException("Ticket not found with Id: $id")
-        return TicketResponseBody(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt)
+        return TicketResponseBody(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customer.email, ticket.employee?.employeeID)
     }
 
     @GetMapping("/API/ticket/{id}/history")
@@ -70,7 +68,7 @@ class TicketController(
         }
         val ticket = ticketService.addTicket(body.description, product.ean, customer.email)
 
-        return TicketResponseBody(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt)
+        return TicketResponseBody(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customer.email, ticket.employee?.employeeID)
     }
 
     @PutMapping("API/ticket/{id}/assign")
@@ -132,7 +130,10 @@ data class TicketResponseBody(
     @field:NotBlank val description: String,
     @field:NotBlank val status: String,
     @field:NotBlank val priority: String?,
-    @field:NotBlank val createdAt: String
+    @field:NotBlank val createdAt: String,
+    @field:NotBlank val productEan: String,
+    @field:NotBlank val customerEmail: String,
+    val employeeId: Int?
 )
 
 data class BodyObject(

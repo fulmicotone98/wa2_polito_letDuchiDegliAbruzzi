@@ -1,8 +1,7 @@
 package wa2.polito.it.letduchidegliabruzzi.server
 
-import junit.framework.TestCase.*
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions
+import org.junit.Assert.*
+import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest

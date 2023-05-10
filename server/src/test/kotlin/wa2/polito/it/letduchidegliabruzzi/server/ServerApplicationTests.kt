@@ -2,6 +2,7 @@ package wa2.polito.it.letduchidegliabruzzi.server
 
 import junit.framework.TestCase.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,7 +19,9 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import wa2.polito.it.letduchidegliabruzzi.server.customer.*
 import wa2.polito.it.letduchidegliabruzzi.server.employee.*
+import wa2.polito.it.letduchidegliabruzzi.server.employee.BodyObject
 import wa2.polito.it.letduchidegliabruzzi.server.product.*
+import wa2.polito.it.letduchidegliabruzzi.server.ticket.*
 
 @Testcontainers
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -44,6 +47,10 @@ class CustomerServerApplicationTests {
     lateinit var customerRepository: CustomerRepository
     @Autowired
     lateinit var customerService: CustomerService
+    @Autowired
+    lateinit var productService: ProductService
+    @Autowired
+    lateinit var ticketService: TicketService
     @Test
     fun `getProfile should return the customer profile for a valid email`() {
         // Create a new customer with a unique email
@@ -95,7 +102,66 @@ class CustomerServerApplicationTests {
         println(responseEntity.body)
         assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
+    @Test
+    fun `getCustomerTickets should return the customer's tickets for a valid email`() {
+        // Create a new customer with a unique email
+        val email = "test@example.com"
+        // Create a mock customer and tickets associated with the email
+        val customer = CustomerDTO("Test", "Customer", "123456789", "123 Test Street", email)
+        customerService.addProfile(customer)
+        val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
+        val product2 = productService.addProduct("1234567890124", "Test Brand 2", "Test Product 2", email)
+        val savedTicket1 = ticketService.addTicket("Ticket test1", product1.ean, email)
+        val savedTicket2 = ticketService.addTicket("Ticket test2", product2.ean, email)
 
+        // Make a GET request to the getProfile endpoint with the customer's email
+        val response = restTemplate.exchange("/API/profile/${email}/tickets", HttpMethod.GET, null, object : ParameterizedTypeReference<List<TicketResponseBody>>() {})
+        val responseBody = response.body!!
+        // Assert that the response has HTTP status 200 (OK)
+        assertEquals(HttpStatus.OK, response.statusCode)
+
+        // Assert that the response body is not null
+        assertNotNull(responseBody)
+        assertEquals(2, responseBody.size)
+        assertNotNull(responseBody[0].ticketID)
+        assertNotNull(responseBody[1].ticketID)
+        // Assert that the response body fields match the customer's data
+        assertEquals(savedTicket1.description, responseBody[0].description)
+        assertEquals(savedTicket2.description, responseBody[1].description)
+        assertEquals(savedTicket1.status, responseBody[0].status)
+        assertEquals(savedTicket2.status, responseBody[1].status)
+        assertNotNull(responseBody[0].createdAt)
+        assertNotNull(responseBody[1].createdAt)
+    }
+
+    @Test
+    fun `getCustomerTickets should return HTTP 404 for a non-existent email`() {
+        // Make a GET request to the getProfile endpoint with a non-existent email
+        val email = "nonexistent@example.com"
+        val responseEntity = restTemplate.getForEntity("/API/profile/$email/tickets", String::class.java)
+
+        // Assert that the response has HTTP status 404 (NOT FOUND)
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
+
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "Customer not found with Email: $email"
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+
+    @Test
+    fun `getCustomerTickets should return HTTP 400 for an invalid email`() {
+        // Make a GET request to the getProfile endpoint with an invalid email
+        val invalidEmail = "notanemail"
+        val responseEntity = restTemplate.getForEntity("/API/profile/$invalidEmail/tickets", String::class.java)
+
+        // Assert that the response has HTTP status 400 (BAD REQUEST)
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
+
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "Not an email"
+        println(responseEntity.body)
+        assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
     @Test
     fun `addProfile should add a new customer profile`() {
         // Create a new customer request body with valid data

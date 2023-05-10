@@ -10,7 +10,7 @@ data class TicketDTO(
     val description: String,
     val status: String,
     val priority: String? = null,
-    val createdAt: String,
+    val createdAt: String = "",
     var customer: Customer,
     var employee: Employee? = null,
     var product: Product,

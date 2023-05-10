@@ -15,7 +15,7 @@ class Ticket(
     val description: String,
     val status: String,
     val priority: String? = null,
-    val createdAt: String,
+    val createdAt: String = "",
 
     @ManyToOne
     @JoinColumn(name = "customerEmail")

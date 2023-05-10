@@ -68,7 +68,7 @@ class TicketController(
             if (it.product.ean == body.ean)
                 throw TicketDuplicatedException("An opened ticket already exists for the ean ${body.ean}")
         }
-        val ticket = ticketService.addTicket(body.description, product.toProduct(), customer.toCustomer())
+        val ticket = ticketService.addTicket(body.description, product.ean, customer.email)
 
         return TicketResponseBody(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt)
     }

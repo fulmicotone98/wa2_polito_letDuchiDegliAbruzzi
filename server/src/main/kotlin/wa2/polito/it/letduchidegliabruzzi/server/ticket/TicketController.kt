@@ -4,14 +4,10 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
+import org.springframework.http.HttpStatus
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerService
 import wa2.polito.it.letduchidegliabruzzi.server.employee.EmployeeNotFoundException
@@ -53,6 +49,7 @@ class TicketController(
 
 
     @PostMapping("/API/ticket")
+    @ResponseStatus(HttpStatus.CREATED)
     fun addTicket(@Valid @RequestBody body: BodyObject, br: BindingResult): TicketResponseBody? {
         if (br.hasErrors())
             throw ConstraintViolationException("Body validation failed")

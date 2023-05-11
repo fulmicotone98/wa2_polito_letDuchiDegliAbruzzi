@@ -7,13 +7,13 @@ import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistory
 
 data class TicketDTO(
     val ticketID: Int? = null,
-    val description: String = "",
-    val status: String = " ",
+    val description: String,
+    val status: String,
     val priority: String? = null,
     val createdAt: String = "",
-    var customer: Customer? = null,
+    var customer: Customer,
     var employee: Employee? = null,
-    var product: Product? = null,
+    var product: Product,
     var statusHistory: List<StatusHistory>? = null
 )
 

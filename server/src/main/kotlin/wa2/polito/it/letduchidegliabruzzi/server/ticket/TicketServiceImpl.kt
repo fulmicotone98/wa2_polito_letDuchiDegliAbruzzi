@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import wa2.polito.it.letduchidegliabruzzi.server.customer.Customer
+import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerRepository
 import wa2.polito.it.letduchidegliabruzzi.server.product.Product
+import wa2.polito.it.letduchidegliabruzzi.server.product.ProductRepository
 import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistoryDTO
 import wa2.polito.it.letduchidegliabruzzi.server.status_history.StatusHistoryService
 import java.time.LocalDate
@@ -13,7 +15,9 @@ import java.time.LocalDate
 @Service
 class TicketServiceImpl(
     private val ticketRepository: TicketRepository,
-    private val statusHistoryService: StatusHistoryService
+    private val customerRepository: CustomerRepository,
+    private val productRepository: ProductRepository,
+    private val statusHistoryService: StatusHistoryService,
 ) : TicketService {
 
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
@@ -32,8 +36,10 @@ class TicketServiceImpl(
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    override fun addTicket(description: String, product: Product, customer: Customer): Ticket {
+    override fun addTicket(description: String, productEan: String, customerEmail: String): Ticket {
         val timestamp = LocalDate.now().toString()
+        val customer= customerRepository.getReferenceById(customerEmail)
+        val product = productRepository.getReferenceById(productEan)
         val newTicketDTO = TicketDTO(
             null, description, "OPEN", null,
             timestamp, customer, null, product, null
@@ -54,6 +60,6 @@ class TicketServiceImpl(
 
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     override fun getTicketsByCustomer(customerEmail: String): List<TicketDTO> {
-        return ticketRepository.findAll().filter { it.customer?.email == customerEmail}.map { it.toDTO() }
+        return ticketRepository.findAll().filter { it.customer.email == customerEmail}.map { it.toDTO() }
     }
 }

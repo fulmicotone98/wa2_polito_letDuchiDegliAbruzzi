@@ -432,8 +432,6 @@ class ProductsServerApplicationTests {
     @Autowired
     lateinit var restTemplate: TestRestTemplate
     @Autowired
-    lateinit var productRepository: ProductRepository
-    @Autowired
     lateinit var customerRepository: CustomerRepository
     @Autowired
     lateinit var productService: ProductService
@@ -598,13 +596,13 @@ class TicketsServerApplicationTests {
     @Autowired
     lateinit var restTemplate: TestRestTemplate
     @Autowired
-    lateinit var customerRepository: CustomerRepository
-    @Autowired
     lateinit var customerService: CustomerService
     @Autowired
     lateinit var productService: ProductService
     @Autowired
     lateinit var ticketService: TicketService
+    @Autowired
+    lateinit var employeeService: EmployeeService
 
     @Test
     fun `test getTicketHistory method should return the status history of a ticket`() {
@@ -716,12 +714,12 @@ class TicketsServerApplicationTests {
     @Test
     fun `addTicket should create a new ticket for a valid request`() {
         // Create a new customer with a unique email
-        val email = "test@example.com"
+        val email = "validemail@example.com"
         val customer = CustomerDTO("Test", "Customer", "123456789", "123 Test Street", email)
         customerService.addProfile(customer)
 
         // Create a mock product associated with the email
-        val product = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
+        val product = productService.addProduct("123456", "Test Brand 1", "Test Product 1", email)
 
         // Create a request body with valid data
         val requestBody = wa2.polito.it.letduchidegliabruzzi.server.ticket.BodyObject(product.ean, "Test Description", email)
@@ -750,7 +748,7 @@ class TicketsServerApplicationTests {
         val email = "test@example.com"
 
         // Create a request body with an invalid product ean
-        val requestBody = wa2.polito.it.letduchidegliabruzzi.server.ticket.BodyObject("New Ticket", "%%%", email)
+        val requestBody = wa2.polito.it.letduchidegliabruzzi.server.ticket.BodyObject("", "New Ticket",email)
 
         // Make a POST request to the addTicket endpoint with the request body
         val responseEntity = restTemplate.postForEntity("/API/ticket", requestBody, String::class.java)
@@ -759,7 +757,7 @@ class TicketsServerApplicationTests {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
 
         // Assert that the response body contains the expected error message
-        val expectedErrorMessage = "Product not found"
+        val expectedErrorMessage = "ean"
         Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
     @Test
@@ -807,5 +805,152 @@ class TicketsServerApplicationTests {
         val expectedErrorMessage = "No products for the given customer"
         Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
 
+    }
+    @Test
+    fun `assignTicket should assign ticket to a valid employee`() {
+        // Create a new customer with a unique email
+        val email = "test@example.com"
+        // Create a mock customer and tickets associated with the email
+        val customer = CustomerDTO("Test", "Customer", "123456789", "123 Test Street", email)
+        customerService.addProfile(customer)
+        val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
+        val savedTicket = ticketService.addTicket("Ticket test1", product1.ean, email)
+
+        // Create a new employee
+        val employee = employeeService.addEmployee("test@test.it", "Name", "expert", "Surname")
+
+        // Assign the ticket to the employee using the API
+        val body = BodyAssignTicketObject(employee.employeeID!!, "Low")
+        val responseEntity = restTemplate.exchange("/API/ticket/${savedTicket.ticketID}/assign", HttpMethod.PUT, HttpEntity(body), BodyResponse::class.java)
+
+        // Assert that the response has HTTP status 200 (OK)
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.statusCode)
+
+        // Assert that the response body is not null and contains the updated ticket ID
+        Assertions.assertNotNull(responseEntity.body)
+        Assertions.assertTrue(responseEntity.body?.ticketID!! > 0)
+    }
+
+    @Test
+    fun `assignTicket should return HTTP 404 for a non-existent ticket`() {
+        // Create a new employee
+        val employee = employeeService.addEmployee("test2@test.it", "Name", "expert", "Surname")
+
+        // Assign the ticket to the employee using the API with a non-existent ticket ID
+        val body = BodyAssignTicketObject(employee.employeeID!!, "Low")
+        val responseEntity = restTemplate.exchange("/API/ticket/-111/assign", HttpMethod.PUT, HttpEntity(body), String::class.java)
+
+        // Assert that the response has HTTP status 404 (NOT FOUND)
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
+
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "Ticket not found"
+        Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+
+    @Test
+    fun `assignTicket should return HTTP 400 for an invalid employee id`() {
+        // Create a new customer with a unique email
+        val email = "test@example.com"
+        // Create a mock customer and tickets associated with the email
+        val customer = CustomerDTO("Test", "Customer", "123456789", "123 Test Street", email)
+        customerService.addProfile(customer)
+        val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
+        val savedTicket = ticketService.addTicket("Ticket test1", product1.ean, email)
+        // Create a mock request body with an invalid employee id
+        val body = BodyAssignTicketObject(-1, "Low")
+
+        val responseEntity = restTemplate.exchange(
+            "/API/ticket/${savedTicket.ticketID}/assign",
+            HttpMethod.PUT,
+            HttpEntity(body),
+            String::class.java
+        )
+
+        // Assert that the response has HTTP status 400 (BAD REQUEST)
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
+        println(responseEntity)
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "employeeID"
+        Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+    @Test
+    fun `editTicketStatus should update the ticket status for a valid id and request body`() {
+        // Create a new customer with a unique email
+        val email = "test@example.com"
+        // Create a mock customer and tickets associated with the email
+        val customer = CustomerDTO("Test", "Customer", "123456789", "123 Test Street", email)
+        customerService.addProfile(customer)
+        val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
+        val savedTicket = ticketService.addTicket("Ticket test1", product1.ean, email)
+
+        // Create a request body with a new status for the ticket
+        val newStatus = "COMPLETED"
+        val requestBody = BodyStatusTicket(newStatus)
+
+        // Make a PUT request to the editTicketStatus endpoint with the request body
+        val response = restTemplate.exchange(
+            "/API/ticket/${savedTicket.ticketID}/status",
+            HttpMethod.PUT,
+            HttpEntity(requestBody),
+            Int::class.java
+        )
+
+        // Assert that the response has HTTP status 200 (OK)
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+
+        // Assert that the response body is not null and contains the updated ticket id
+        Assertions.assertNotNull(response.body)
+        Assertions.assertEquals(savedTicket.ticketID, response.body)
+
+        // Assert that the ticket status has been updated to the new status
+        val updatedTicket = ticketService.getTicket(savedTicket.ticketID!!)
+        Assertions.assertEquals(newStatus, updatedTicket?.status)
+    }
+
+    @Test
+    fun `editTicketStatus should return HTTP 404 for a non-existent ticket`() {
+        // Create a request body with a new status for the ticket
+        val newStatus = "IN PROGRESS"
+        val requestBody = BodyStatusTicket(newStatus)
+
+        // Make a PUT request to the editTicketStatus endpoint with a non-existent ticket id and the request body
+        val id = -111
+        val responseEntity = restTemplate.exchange(
+            "/API/ticket/$id/status",
+            HttpMethod.PUT,
+            HttpEntity(requestBody),
+            String::class.java
+        )
+
+        // Assert that the response has HTTP status 404 (NOT FOUND)
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
+
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "Ticket not found"
+        Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+
+    @Test
+    fun `editTicketStatus should return HTTP 400 for an invalid id`() {
+        // Create a request body with a new status for the ticket
+        val newStatus = "IN PROGRESS"
+        val requestBody = BodyStatusTicket(newStatus)
+
+        // Make a PUT request to the editTicketStatus endpoint with an invalid ticket id and the request body
+        val invalidId = "%&$"
+        val responseEntity = restTemplate.exchange(
+            "/API/ticket/$invalidId/status",
+            HttpMethod.PUT,
+            HttpEntity(requestBody),
+            String::class.java
+        )
+
+        // Assert that the response has HTTP status 400 (BAD REQUEST)
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
+
+        // Assert that the response body contains the expected error message
+        val expectedErrorMessage = "Failed to convert 'id' with value: '$invalidId'"
+        Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
 }

@@ -13,18 +13,22 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 class WebSecurityConfig {
 
-    val admin: String = "admin"
-    val user: String = "user"
+    val manager: String = "Manager"
+    val expert: String = "Expert"
+    val customer: String = "Client"
+
     private val jwtAuthConverter: JwtAuthConverter? = null
 
     @Bean
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain? {
         http.authorizeHttpRequests()
-            .requestMatchers(HttpMethod.GET, "/test/anonymous", "/test/anonymous/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/test/admin", "/test/admin/**").hasRole(admin)
-            .requestMatchers(HttpMethod.GET, "/test/user").hasAnyRole(admin, user)
+            .requestMatchers(HttpMethod.GET, "/**").hasAnyRole(manager, expert, customer)
+            //.requestMatchers(HttpMethod.GET, "/**").permitAll()
+            //.requestMatchers(HttpMethod.GET, "/test/admin", "/test/admin/**").hasRole(admin)
+            //.requestMatchers(HttpMethod.GET, "/test/user").hasAnyRole(admin, user)
             .anyRequest().authenticated()
+
         http.oauth2ResourceServer()
             .jwt()
             .jwtAuthenticationConverter(jwtAuthConverter)

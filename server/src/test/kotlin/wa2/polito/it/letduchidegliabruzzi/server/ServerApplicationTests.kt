@@ -1,6 +1,5 @@
 package wa2.polito.it.letduchidegliabruzzi.server
 
-import org.junit.Assert.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,11 +16,11 @@ import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import wa2.polito.it.letduchidegliabruzzi.server.customer.*
-import wa2.polito.it.letduchidegliabruzzi.server.employee.*
-import wa2.polito.it.letduchidegliabruzzi.server.employee.BodyObject
-import wa2.polito.it.letduchidegliabruzzi.server.product.*
-import wa2.polito.it.letduchidegliabruzzi.server.ticket.*
+import wa2.polito.it.letduchidegliabruzzi.server.controller.*
+import wa2.polito.it.letduchidegliabruzzi.server.entity.customer.*
+import wa2.polito.it.letduchidegliabruzzi.server.entity.employee.*
+import wa2.polito.it.letduchidegliabruzzi.server.entity.product.ProductService
+import wa2.polito.it.letduchidegliabruzzi.server.entity.ticket.*
 
 @Testcontainers
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -722,7 +721,8 @@ class TicketsServerApplicationTests {
         val product = productService.addProduct("123456", "Test Brand 1", "Test Product 1", email)
 
         // Create a request body with valid data
-        val requestBody = wa2.polito.it.letduchidegliabruzzi.server.ticket.BodyObject(product.ean, "Test Description", email)
+        val requestBody =
+            BodyObject(product.ean, "Test Description", email)
 
         // Make a POST request to the addTicket endpoint with the request body
         val responseEntity = restTemplate.postForEntity("/API/ticket", requestBody, TicketResponseBody::class.java)
@@ -748,7 +748,7 @@ class TicketsServerApplicationTests {
         val email = "test@example.com"
 
         // Create a request body with an invalid product ean
-        val requestBody = wa2.polito.it.letduchidegliabruzzi.server.ticket.BodyObject("", "New Ticket",email)
+        val requestBody = BodyObject("", "New Ticket", email)
 
         // Make a POST request to the addTicket endpoint with the request body
         val responseEntity = restTemplate.postForEntity("/API/ticket", requestBody, String::class.java)
@@ -771,7 +771,8 @@ class TicketsServerApplicationTests {
         val product = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
         ticketService.addTicket("Test double ticket", product.ean, email)
         // Create a request body with valid data
-        val requestBody = wa2.polito.it.letduchidegliabruzzi.server.ticket.BodyObject(product.ean, "Test Description", email)
+        val requestBody =
+            BodyObject(product.ean, "Test Description", email)
 
         // Make a POST request to the addTicket endpoint with the request body
         val responseEntity = restTemplate.postForEntity("/API/ticket", requestBody, String::class.java)
@@ -795,7 +796,11 @@ class TicketsServerApplicationTests {
         val product = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
         ticketService.addTicket("Test double ticket", product.ean, email)
         // Create a request body with valid data
-        val requestBody = wa2.polito.it.letduchidegliabruzzi.server.ticket.BodyObject(product.ean, "Test Description", "wrong@test.com")
+        val requestBody = BodyObject(
+            product.ean,
+            "Test Description",
+            "wrong@test.com"
+        )
 
         // Make a POST request to the addTicket endpoint with the request body
         val responseEntity = restTemplate.postForEntity("/API/ticket", requestBody, String::class.java)

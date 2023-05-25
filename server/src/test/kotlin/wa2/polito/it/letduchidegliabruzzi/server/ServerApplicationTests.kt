@@ -121,7 +121,13 @@ class CustomerServerApplicationTests {
     fun `getProfile should return HTTP 400 for an invalid email`() {
         // Make a GET request to the getProfile endpoint with an invalid email
         val invalidEmail = "notanemail"
-        val responseEntity = restTemplate.getForEntity("/API/profiles/$invalidEmail", String::class.java)
+        val credentials = Credentials("manager", "manager")
+        val jwtToken = restTemplate
+            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
+        val headers = HttpHeaders()
+        headers.setBearerAuth(jwtToken)
+        httpEntity = HttpEntity(null, headers)
+        val responseEntity = restTemplate.exchange("/API/profiles/$invalidEmail", HttpMethod.GET, httpEntity, String::class.java)
 
         // Assert that the response has HTTP status 400 (BAD REQUEST)
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)

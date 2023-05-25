@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate
 @Transactional
 class AuthenticationServiceImpl(): AuthenticationService {
     override fun authenticate(credentials: Credentials): String? {
-        val keycloak = "http://localhost:8080/realms/SpringBootKeycloak/protocol/openid-connect/token"
+        val keycloak = "http://localhost:8080/realms/myrealm/protocol/openid-connect/token"
         val restTemplate = RestTemplate()
 
         val headers = HttpHeaders()

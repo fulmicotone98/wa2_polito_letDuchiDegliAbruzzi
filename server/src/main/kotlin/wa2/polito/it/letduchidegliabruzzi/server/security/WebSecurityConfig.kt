@@ -1,5 +1,6 @@
 package wa2.polito.it.letduchidegliabruzzi.server.security
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -36,14 +37,14 @@ class WebSecurityConfig {
             .requestMatchers(HttpMethod.GET, "/API/profiles/**").hasAnyRole(manager, expert, customer)
             .requestMatchers(HttpMethod.POST, "API/profiles").hasAnyRole(manager, customer)
             .requestMatchers(HttpMethod.PUT, "/API/profiles/**").hasAnyRole(manager, customer)
-            .requestMatchers(HttpMethod.POST, "API/login").permitAll()
+            .requestMatchers(HttpMethod.POST, "/API/login").permitAll()
             .anyRequest().authenticated()
 
         http.oauth2ResourceServer()
             .jwt()
             .jwtAuthenticationConverter(jwtAuthConverter)
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        http.csrf().disable()
         return http.build()
     }
-
 }

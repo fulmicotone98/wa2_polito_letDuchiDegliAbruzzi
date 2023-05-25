@@ -2,6 +2,8 @@ package wa2.polito.it.letduchidegliabruzzi.server.security
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.transaction.Transactional
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -13,8 +15,11 @@ import org.springframework.web.client.RestTemplate
 @Service
 @Transactional
 class AuthenticationServiceImpl(): AuthenticationService {
+    @Autowired
+    private lateinit var environment: Environment
     override fun authenticate(credentials: Credentials): String? {
-        val keycloak = "http://localhost:8080/realms/myrealm/protocol/openid-connect/token"
+
+        val keycloak = "${environment.getProperty("spring.security.oauth2.resourceserver.jwt.issuer-uri")}/protocol/openid-connect/token"
         val restTemplate = RestTemplate()
 
         val headers = HttpHeaders()

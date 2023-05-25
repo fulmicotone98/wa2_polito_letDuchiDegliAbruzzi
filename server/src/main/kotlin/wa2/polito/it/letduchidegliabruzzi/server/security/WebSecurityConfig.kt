@@ -18,25 +18,29 @@ class WebSecurityConfig {
     val expert: String = "Expert"
     val customer: String = "Client"
 
-    private val jwtAuthConverter: JwtAuthConverter? = null
+    val jwtAuthConverter :JwtAuthConverter = JwtAuthConverter()
 
     @Bean
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain? {
         http.authorizeHttpRequests()
-            .requestMatchers(HttpMethod.PUT, "/API/ticket/**/assign").hasRole(manager)
-            .requestMatchers(HttpMethod.PUT, "/API/ticket/**/status").hasAnyRole(manager, expert)
-            .requestMatchers(HttpMethod.GET, "/API/ticket/**").hasAnyRole(manager, expert, customer)
             .requestMatchers(HttpMethod.POST, "/API/ticket").hasAnyRole(manager, expert, customer)
-            .requestMatchers(HttpMethod.GET, "/API/products/**").hasAnyRole(manager, expert, customer)
-            .requestMatchers(HttpMethod.GET, "/API/products").hasAnyRole(manager, expert)
+            .requestMatchers(HttpMethod.PUT, "/API/ticket/*/assign").hasRole(manager)
+            .requestMatchers(HttpMethod.PUT, "/API/ticket/*/status").hasAnyRole(manager, expert)
+            .requestMatchers(HttpMethod.GET, "/API/ticket/**").hasAnyRole(manager, expert, customer)
+
             .requestMatchers(HttpMethod.POST, "/API/products").hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.GET, "/API/products").hasAnyRole(manager, expert)
+            .requestMatchers(HttpMethod.GET, "/API/products/**").hasAnyRole(manager, expert, customer)
+
             .requestMatchers(HttpMethod.POST, "/API/employee").hasRole(manager)
             .requestMatchers(HttpMethod.GET, "/API/employees/**").hasAnyRole(manager, expert, customer)
-            .requestMatchers(HttpMethod.GET, "/API/profile/**/tickets").hasAnyRole(manager, expert, customer)
-            .requestMatchers(HttpMethod.GET, "/API/profiles/**").hasAnyRole(manager, expert, customer)
+
             .requestMatchers(HttpMethod.POST, "/API/profiles").hasAnyRole(manager, customer)
+            .requestMatchers(HttpMethod.GET, "/API/profile/*/tickets").hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.GET, "/API/profiles/**").authenticated()//.hasAnyRole(manager, expert, customer)
             .requestMatchers(HttpMethod.PUT, "/API/profiles/**").hasAnyRole(manager, customer)
+
             .requestMatchers(HttpMethod.POST, "/API/login").permitAll()
             .anyRequest().authenticated()
 

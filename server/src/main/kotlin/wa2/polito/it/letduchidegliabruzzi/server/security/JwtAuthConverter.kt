@@ -14,8 +14,7 @@ import java.util.stream.Stream
 
 
 @Component
-class JwtAuthConverter(private val properties: JwtAuthConverterProperties) :
-    Converter<Jwt?, AbstractAuthenticationToken?> {
+class JwtAuthConverter(private val properties: JwtAuthConverterProperties = JwtAuthConverterProperties()) : Converter<Jwt?, AbstractAuthenticationToken?> {
     private val jwtGrantedAuthoritiesConverter = JwtGrantedAuthoritiesConverter()
     override fun convert(jwt: Jwt): AbstractAuthenticationToken {
         val authorities: Collection<GrantedAuthority> = Stream.concat(
@@ -27,7 +26,7 @@ class JwtAuthConverter(private val properties: JwtAuthConverterProperties) :
 
     private fun getPrincipalClaimName(jwt: Jwt): String {
         var claimName: String? = JwtClaimNames.SUB
-        if (properties.principalAttribute != null) {
+        if (properties.principalAttribute != "") {
             claimName = properties.principalAttribute
         }
 
@@ -36,7 +35,7 @@ class JwtAuthConverter(private val properties: JwtAuthConverterProperties) :
 
     private fun extractResourceRoles(jwt: Jwt): Collection<GrantedAuthority> {
         val resourceAccess: Map<String, Any> = jwt.getClaim("resource_access")
-        val resource: Map<String?, Any?> = resourceAccess[properties.resourceID] as Map<String?, Any?>
+        val resource: Map<String, Any> = resourceAccess[properties.resourceID] as Map<String, Any>
         val resourceRoles: Collection<String> = resource["roles"] as Collection<String>
         return if (
             resourceAccess[properties.resourceID] == null || resource["roles"] == null) {

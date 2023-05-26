@@ -23,9 +23,11 @@ class KeycloakServiceImpl(): KeycloakService {
         user.email = userDTO.emailID
         user.credentials = Collections.singletonList(credentials)
         user.isEnabled = true
+        user.isEmailVerified = true
 
         val instance: UsersResource = getInstance()
         instance.create(user)
+        println(instance.create(user).status)
     }
 
     fun getInstance(): UsersResource {

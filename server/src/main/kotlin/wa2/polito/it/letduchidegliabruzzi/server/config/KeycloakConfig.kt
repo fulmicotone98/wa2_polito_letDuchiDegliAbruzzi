@@ -5,20 +5,24 @@ import org.keycloak.OAuth2Constants
 import org.keycloak.admin.client.Keycloak
 import org.keycloak.admin.client.KeycloakBuilder
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Configurable
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
 
 @Configuration
-class KeycloakConfig() {
-    lateinit var keycloak: Keycloak
+@Configurable
+class KeycloakConfig(keycloakProperties: KeycloakProperties = KeycloakProperties()) {
+    var keycloak: Keycloak? = null
 
-    @Autowired
-    private lateinit var environment:Environment
+//    @Autowired
+//    private lateinit var environment:Environment
 
-    val serverUrl: String = "${environment.getProperty("keycloak.server")}"
-    val username: String = "${environment.getProperty("keycloak.admin.username")}"
-    val password: String = "${environment.getProperty("keycloak.admin.password")}"
-
+//    val serverUrl: String = "${environment.getProperty("keycloak.server")}"
+//    val username: String = "${environment.getProperty("keycloak.admin.username")}"
+//    val password: String = "${environment.getProperty("keycloak.admin.password")}"
+    val serverUrl: String = keycloakProperties.serverUri
+    val username: String = keycloakProperties.username
+    val password: String = keycloakProperties.password
     val realm: String = "myrealm"
     val clientID: String = "springboot-keycloak-client"
     //val clientSecret: String = "YOUR_CLIENT_SECRET_KEY"
@@ -37,7 +41,7 @@ class KeycloakConfig() {
                 .build()
         }
 
-        return keycloak
+        return keycloak!!
     }
 
 }

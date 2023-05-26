@@ -42,6 +42,7 @@ class WebSecurityConfig {
             .requestMatchers(HttpMethod.PUT, "/API/profiles/**").hasAnyRole(manager, customer)
 
             .requestMatchers(HttpMethod.POST, "/API/login").permitAll()
+            .requestMatchers(HttpMethod.POST, "/API/signup").permitAll()
             .anyRequest().authenticated()
 
         http.oauth2ResourceServer()

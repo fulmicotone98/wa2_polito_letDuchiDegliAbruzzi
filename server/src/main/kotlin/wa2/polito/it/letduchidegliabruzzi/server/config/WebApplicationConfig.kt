@@ -1,4 +1,4 @@
-package wa2.polito.it.letduchidegliabruzzi.server
+package wa2.polito.it.letduchidegliabruzzi.server.config
 
 import org.springframework.boot.web.server.ErrorPage
 import org.springframework.boot.web.server.WebServerFactoryCustomizer

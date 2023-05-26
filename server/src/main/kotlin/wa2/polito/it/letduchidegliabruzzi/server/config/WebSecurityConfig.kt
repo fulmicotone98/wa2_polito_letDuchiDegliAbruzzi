@@ -1,6 +1,5 @@
-package wa2.polito.it.letduchidegliabruzzi.server.security
+package wa2.polito.it.letduchidegliabruzzi.server.config
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -8,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
+import wa2.polito.it.letduchidegliabruzzi.server.security.JwtAuthConverter
 
 
 @Configuration
@@ -18,7 +18,7 @@ class WebSecurityConfig {
     val expert: String = "Expert"
     val customer: String = "Client"
 
-    val jwtAuthConverter :JwtAuthConverter = JwtAuthConverter()
+    val jwtAuthConverter : JwtAuthConverter = JwtAuthConverter()
 
     @Bean
     @Throws(Exception::class)

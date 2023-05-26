@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   API:
-    image: 'webapp2-ticketing'
+    image: 'arashhonarvar93/web2-ticketing-group12'
     ports:
       - "8081:8081"
     depends_on:

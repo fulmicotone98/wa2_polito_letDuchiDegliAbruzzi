@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.7.22"
     kotlin("plugin.spring") version "1.7.22"
     kotlin("plugin.jpa") version "1.7.22"
+    id("com.google.cloud.tools.jib") version "3.3.1"
 }
 
 group = "wa2.polito.it.letDuchiDegliAbruzzi"
@@ -26,10 +27,14 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation ("org.testcontainers:junit-jupiter:1.16.3")
     testImplementation("org.testcontainers:postgresql:1.17.6")
+    compileOnly("org.projectlombok:lombok:1.18.4")
+    annotationProcessor("org.projectlombok:lombok:1.18.4")
 }
 
 dependencyManagement {
@@ -47,4 +52,13 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+jib {
+    from {
+        image = "azul/zulu-openjdk:17-jre"
+    }
+    to {
+        image = "webapp2-ticketing"
+    }
 }

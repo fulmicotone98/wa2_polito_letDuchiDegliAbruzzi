@@ -7,13 +7,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
-import wa2.polito.it.letduchidegliabruzzi.server.customer.CustomerNotFoundException
-import wa2.polito.it.letduchidegliabruzzi.server.customer.DuplicateCustomerException
-import wa2.polito.it.letduchidegliabruzzi.server.employee.EmployeeNotFoundException
-import wa2.polito.it.letduchidegliabruzzi.server.employee.EmployeeRoleException
-import wa2.polito.it.letduchidegliabruzzi.server.product.ProductNotFoundException
-import wa2.polito.it.letduchidegliabruzzi.server.ticket.TicketDuplicatedException
-import wa2.polito.it.letduchidegliabruzzi.server.ticket.TicketNotFoundException
+import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.*
 
 
 @RestControllerAdvice

@@ -1,28 +1,31 @@
 # wa2_polito_letDuchiDegliAbruzzi
 Laboratory activities from Web Application II course (Politecnico di Torino)
 
-## Postgres docker
-Default password: ```1234```
-```
-docker run --name wa-postgres -p 5432:5432 -d --rm -e POSTGRES_PASSWORD=mysecretpassword postgres
-```
-## Customer
-```
-    {
-        "email": "test@gmail.com",
-        "name": "Jack",
-        "surname": "Sparrow",
-        "address": "Via Po",
-        "phonenumber": "1234"
-    }
-```
+## Running the application
+In order to start the application server you have to run the following command:
+`docker compose up -d`
 
-## Product
-```
-    {
-        "ean": "A12B35",
-        "name": "GE62VR",
-        "brand": "MSI",
-        "customerEmail": "test@gmail.com",
-    }
-```
+## Running the tests
+In order to run the TESTS you should do the following steps
+### STEP 1
+`docker compose -f .\docker-compose.test.yml up -d`
+### STEP 2
+Run the tests using the gradle command
+
+
+
+
+
+## Keycloak users
+    - manager: 
+        username: manager
+        password: manager
+
+    - expert:
+        username: expert
+        password: expert
+
+    - customer:
+        username: client
+        password: client
+

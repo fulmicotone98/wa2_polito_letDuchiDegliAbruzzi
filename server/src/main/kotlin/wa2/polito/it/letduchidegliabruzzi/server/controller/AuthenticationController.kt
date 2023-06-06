@@ -24,10 +24,11 @@ class AuthenticationController(private val authenticationService: Authentication
     @PostMapping("/API/login")
     fun login(@RequestBody credentials: Credentials): ResponseEntity<Any>{
         val jwt: String? = authenticationService.authenticate(credentials)
-        log.info("recieve login API")
         return if(jwt!= null){
+            log.info("Created Login Token $jwt")
             ResponseEntity.ok(JwtResponse(jwt))
         } else{
+            log.error("Login error: UNAUTHORIZED")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
     }

@@ -11,21 +11,15 @@ import org.springframework.core.env.Environment
 
 @Configuration
 @Configurable
-class KeycloakConfig(keycloakProperties: KeycloakProperties = KeycloakProperties()) {
+class KeycloakConfig(keycloakProperties: KeycloakProperties) {
     var keycloak: Keycloak? = null
 
-//    @Autowired
-//    private lateinit var environment:Environment
-
-//    val serverUrl: String = "${environment.getProperty("keycloak.server")}"
-//    val username: String = "${environment.getProperty("keycloak.admin.username")}"
-//    val password: String = "${environment.getProperty("keycloak.admin.password")}"
     val serverUrl: String = keycloakProperties.serverUri
     val username: String = keycloakProperties.username
     val password: String = keycloakProperties.password
-    val realm: String = "spring_boot_webapp2_realm"
-    val clientID: String = "springboot-keycloak-client"
-    //val clientSecret: String = "YOUR_CLIENT_SECRET_KEY"
+    val realm: String = "master"
+    val clientID: String = "admin-cli"
+    val clientSecret: String = keycloakProperties.adminCliSecret
 
     fun getInstance(): Keycloak {
         if (keycloak == null) {
@@ -36,7 +30,7 @@ class KeycloakConfig(keycloakProperties: KeycloakProperties = KeycloakProperties
                 .username(username)
                 .password(password)
                 .clientId(clientID)
-                //.clientSecret(clientSecret)
+                .clientSecret(clientSecret)
                 .resteasyClient(ResteasyClientBuilder().connectionPoolSize(10).build())
                 .build()
         }

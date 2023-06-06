@@ -8,5 +8,7 @@ data class UserDTO(
     @field:NotBlank @field:Email val emailID: String,
     @field:NotBlank val password: String,
     @field:NotBlank val firstName: String,
-    @field:NotBlank val lastName: String
+    @field:NotBlank val lastName: String,
+    val phoneNumber: String?,
+    val address: String
 )

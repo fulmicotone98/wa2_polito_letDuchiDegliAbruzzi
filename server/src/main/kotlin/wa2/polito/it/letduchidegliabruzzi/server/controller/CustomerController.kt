@@ -41,18 +41,18 @@ class CustomerController(private val customerService: CustomerService, private v
         return CustomerResponseBody(c.email,c.name,c.surname,c.address, c.phonenumber)
     }
 
-    @PostMapping("/API/profiles")
-    @ResponseStatus(HttpStatus.CREATED)
-    fun addProfile(@Valid @RequestBody body: CustomerRequestBody, br: BindingResult): CustomerResponseBody? {
-        if(br.hasErrors())
-            throw ConstraintViolationException("Body validation failed")
-        if (customerService.getProfile(body.email) != null)
-            throw DuplicateCustomerException("Customer already exists with Email: ${body.email}")
-
-        val customerDTO = CustomerDTO(body.name,body.surname,body.phonenumber,body.address,body.email)
-        customerService.addProfile(customerDTO)
-        return CustomerResponseBody(body.email,null,null,null,null)
-    }
+//    @PostMapping("/API/profiles")
+//    @ResponseStatus(HttpStatus.CREATED)
+//    fun addProfile(@Valid @RequestBody body: CustomerRequestBody, br: BindingResult): CustomerResponseBody? {
+//        if(br.hasErrors())
+//            throw ConstraintViolationException("Body validation failed")
+//        if (customerService.getProfile(body.email) != null)
+//            throw DuplicateCustomerException("Customer already exists with Email: ${body.email}")
+//
+//        val customerDTO = CustomerDTO(body.name,body.surname,body.phonenumber,body.address,body.email)
+//        customerService.addProfile(customerDTO)
+//        return CustomerResponseBody(body.email,null,null,null,null)
+//    }
 
     @PutMapping("/API/profiles/{email}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

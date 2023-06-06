@@ -6,12 +6,13 @@ import org.keycloak.representations.idm.CredentialRepresentation
 import org.keycloak.representations.idm.UserRepresentation
 import org.springframework.stereotype.Service
 import wa2.polito.it.letduchidegliabruzzi.server.config.KeycloakConfig
+import wa2.polito.it.letduchidegliabruzzi.server.config.KeycloakProperties
 import wa2.polito.it.letduchidegliabruzzi.server.entity.authentication.UserDTO
 import wa2.polito.it.letduchidegliabruzzi.server.security.Credentials
 import java.util.Collections
 
 @Service
-class KeycloakServiceImpl(): KeycloakService {
+class KeycloakServiceImpl(val keycloakProperties: KeycloakProperties): KeycloakService {
 
     override fun addUser(userDTO: UserDTO, groups: List<String>): Int {
         val credentials: CredentialRepresentation = Credentials().createPasswordCredentials(userDTO.password)
@@ -33,7 +34,7 @@ class KeycloakServiceImpl(): KeycloakService {
     }
 
     fun getInstance(): UsersResource {
-        return KeycloakConfig().getInstance().realm(KeycloakConfig().realm).users()
+        return KeycloakConfig(keycloakProperties).getInstance().realm("spring_boot_webapp2_realm").users()
     }
 
 }

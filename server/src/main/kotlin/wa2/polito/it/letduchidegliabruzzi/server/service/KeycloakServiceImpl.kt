@@ -13,7 +13,7 @@ import java.util.Collections
 @Service
 class KeycloakServiceImpl(): KeycloakService {
 
-    override fun addUser(userDTO: UserDTO) {
+    override fun addUser(userDTO: UserDTO, groups: List<String>): Int {
         val credentials: CredentialRepresentation = Credentials().createPasswordCredentials(userDTO.password)
 
         val user:UserRepresentation = UserRepresentation()
@@ -24,10 +24,12 @@ class KeycloakServiceImpl(): KeycloakService {
         user.credentials = Collections.singletonList(credentials)
         user.isEnabled = true
         user.isEmailVerified = true
+        user.groups = groups
 
         val instance: UsersResource = getInstance()
         instance.create(user)
         println(instance.create(user).status)
+        return instance.create(user).status
     }
 
     fun getInstance(): UsersResource {

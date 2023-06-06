@@ -33,10 +33,6 @@ class WebSecurityConfig {
             .requestMatchers(HttpMethod.GET, "/API/products").hasAnyRole(manager, expert)
             .requestMatchers(HttpMethod.GET, "/API/products/**").hasAnyRole(manager, expert, customer)
 
-            /*
-            It will become /API/employee/createExpert
-            //.requestMatchers(HttpMethod.POST, "/API/employee")
-            */
             .requestMatchers(HttpMethod.POST, "/API/employee/createExpert").hasRole(manager)
             .requestMatchers(HttpMethod.GET, "/API/employees/**").hasAnyRole(manager, expert)
 

@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate
 class AuthenticationServiceImpl(): AuthenticationService {
     @Autowired
     private lateinit var environment: Environment
-    override fun authenticate(credentials: Credentials): String? {
+    override fun authenticate(credentials: CredentialsLogin): String? {
 
         val keycloak = "${environment.getProperty("spring.security.oauth2.resourceserver.jwt.issuer-uri")}/protocol/openid-connect/token"
         val restTemplate = RestTemplate()
@@ -45,7 +45,7 @@ class AuthenticationServiceImpl(): AuthenticationService {
     }
 
 }
-data class Credentials (
+data class CredentialsLogin (
     val username: String,
     val password: String
 )

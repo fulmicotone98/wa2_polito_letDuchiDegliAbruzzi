@@ -24,27 +24,28 @@ import wa2.polito.it.letduchidegliabruzzi.server.entity.employee.EmployeeService
 @RestController
 @Observed
 @Slf4j
+@RequestMapping("/API")
 class EmployeeController(private val employeeService: EmployeeService) {
 
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
-    @PostMapping("/API/employee")
-    @ResponseStatus(HttpStatus.CREATED)
-    fun addEmployee(@Valid @RequestBody body: EmployeeBodyRequest, br: BindingResult): EmployeeBodyResponse? {
-        if(br.hasErrors()) {
-            log.error("Error adding a new Employee: Body validation failed with error ${br.allErrors}")
-            throw ConstraintViolationException("Body validation failed")
-        }
-        if(body.role != "expert" && body.role!="manager") {
-            log.error("Error adding a new Employee: Role must be Expert or Manager")
-            throw EmployeeRoleException("Role must be expert or manager")
-        }
-        val employee = employeeService.addEmployee(body.email,body.name,body.role,body.surname)
-        log.info("Correctly added a new employee with id ${employee.employeeID}")
-        return employee.employeeID?.let { EmployeeBodyResponse(it, null,null,null, null) }
-    }
+//    @PostMapping("/API/employee")
+//    @ResponseStatus(HttpStatus.CREATED)
+//    fun addEmployee(@Valid @RequestBody body: EmployeeBodyRequest, br: BindingResult): EmployeeBodyResponse? {
+//        if(br.hasErrors()) {
+//            log.error("Error adding a new Employee: Body validation failed with error ${br.allErrors}")
+//            throw ConstraintViolationException("Body validation failed")
+//        }
+//        if(body.role != "expert" && body.role!="manager") {
+//            log.error("Error adding a new Employee: Role must be Expert or Manager")
+//            throw EmployeeRoleException("Role must be expert or manager")
+//        }
+//        val employee = employeeService.addEmployee(body.email,body.name,body.role,body.surname)
+//        log.info("Correctly added a new employee with id ${employee.employeeID}")
+//        return employee.employeeID?.let { EmployeeBodyResponse(it, null,null,null, null) }
+//    }
 
-    @GetMapping("/API/employees/{id}")
+    @GetMapping("/employees/{id}")
     fun getEmployee(@PathVariable @Positive id: Int): EmployeeBodyResponse? {
         val e = employeeService.getEmployeeByID(id)
         if(e==null){

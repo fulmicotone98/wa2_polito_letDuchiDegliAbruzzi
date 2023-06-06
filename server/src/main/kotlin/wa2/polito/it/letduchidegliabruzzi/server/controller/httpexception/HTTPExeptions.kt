@@ -7,6 +7,7 @@ class DuplicateCustomerException(message: String) : RuntimeException(message)
 /* --- EMPLOYEE EXCEPTIONS --- */
 class EmployeeNotFoundException(message: String): RuntimeException(message)
 class EmployeeRoleException(message: String): RuntimeException(message)
+class DuplicateEmployeeException(message: String): RuntimeException(message)
 
 /* --- PRODUCT EXCEPTIONS --- */
 class ProductNotFoundException(message: String) : RuntimeException(message)

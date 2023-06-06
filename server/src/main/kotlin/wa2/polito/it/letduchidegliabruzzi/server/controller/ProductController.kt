@@ -1,8 +1,11 @@
 package wa2.polito.it.letduchidegliabruzzi.server.controller
 
+import io.micrometer.observation.annotation.Observed
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
@@ -17,8 +20,10 @@ import wa2.polito.it.letduchidegliabruzzi.server.entity.product.ProductService
 
 @Validated
 @RestController
+@Observed
 class ProductController(private val productService: ProductService, private val customerService: CustomerService) {
 
+    private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
     @GetMapping("/API/products")
     fun getAll(): List<ProductResponseBody>{
         val p = productService.getAll()

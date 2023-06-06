@@ -7,6 +7,6 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationProperties(prefix = "spring.keycloak")
 data class KeycloakProperties(
     var serverUri: String = "http://localhost:8080",
-    var username: String = "administrator",
-    var password: String = "admin",
+    var username: String = "manager",
+    var password: String = "manager",
 )

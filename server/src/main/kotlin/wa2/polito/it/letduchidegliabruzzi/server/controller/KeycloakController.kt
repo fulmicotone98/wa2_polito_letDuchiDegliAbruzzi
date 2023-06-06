@@ -28,7 +28,7 @@ class KeycloakController(private val authenticationService: AuthenticationServic
         }
     }*/
     
-    @PostMapping("/signup")
+    @PostMapping("/employee/createExpert")
     @ResponseStatus(HttpStatus.CREATED)
     fun addUser(@RequestBody userDTO: UserDTO): UserDTO {
         service.addUser(userDTO)

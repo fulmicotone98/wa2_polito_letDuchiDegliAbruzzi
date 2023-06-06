@@ -23,7 +23,7 @@ class KeycloakConfig(keycloakProperties: KeycloakProperties = KeycloakProperties
     val serverUrl: String = keycloakProperties.serverUri
     val username: String = keycloakProperties.username
     val password: String = keycloakProperties.password
-    val realm: String = "myrealm"
+    val realm: String = "spring_boot_webapp2_realm"
     val clientID: String = "springboot-keycloak-client"
     //val clientSecret: String = "YOUR_CLIENT_SECRET_KEY"
 

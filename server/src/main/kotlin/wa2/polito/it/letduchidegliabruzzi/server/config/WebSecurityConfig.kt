@@ -33,16 +33,23 @@ class WebSecurityConfig {
             .requestMatchers(HttpMethod.GET, "/API/products").hasAnyRole(manager, expert)
             .requestMatchers(HttpMethod.GET, "/API/products/**").hasAnyRole(manager, expert, customer)
 
-            .requestMatchers(HttpMethod.POST, "/API/employee").hasRole(manager)
-            .requestMatchers(HttpMethod.GET, "/API/employees/**").hasAnyRole(manager, expert, customer)
+            /*
+            It will become /API/employee/createExpert
+            //.requestMatchers(HttpMethod.POST, "/API/employee")
+            */
+            .requestMatchers(HttpMethod.POST, "/API/employee/createExpert").hasRole(manager)
+            .requestMatchers(HttpMethod.GET, "/API/employees/**").hasAnyRole(manager, expert)
 
-            .requestMatchers(HttpMethod.POST, "/API/profiles").hasAnyRole(manager, customer)
+            /*
+            It will become signup
+            //.requestMatchers(HttpMethod.POST, "/API/profiles").hasAnyRole(manager, customer)
+            */
             .requestMatchers(HttpMethod.GET, "/API/profile/*/tickets").hasAnyRole(manager, expert, customer)
-            .requestMatchers(HttpMethod.GET, "/API/profiles/**").authenticated()//.hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.GET, "/API/profiles/**").hasAnyRole(manager, expert, customer)
             .requestMatchers(HttpMethod.PUT, "/API/profiles/**").hasAnyRole(manager, customer)
 
             .requestMatchers(HttpMethod.POST, "/API/login").permitAll()
-            .requestMatchers(HttpMethod.POST, "/API/signup").permitAll()
+
             .anyRequest().authenticated()
 
         http.oauth2ResourceServer()

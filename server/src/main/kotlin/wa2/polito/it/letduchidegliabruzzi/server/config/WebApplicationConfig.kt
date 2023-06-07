@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-@EnableConfigurationProperties(KeycloakProperties::class)
+@EnableConfigurationProperties(KeycloakProperties::class, LokiProperties::class)
 class WebApplicationConfig : WebMvcConfigurer {
 
     override fun addViewControllers(registry: ViewControllerRegistry) {
@@ -30,4 +30,8 @@ class WebApplicationConfig : WebMvcConfigurer {
         return KeycloakProperties()
     }
 
+    @Bean
+    fun lokiConfiguration(): LokiProperties{
+        return LokiProperties()
+    }
 }

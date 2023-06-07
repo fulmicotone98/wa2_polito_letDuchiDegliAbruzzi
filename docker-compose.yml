@@ -1,8 +1,7 @@
 version: '3.1'
 services:
   API:
-    #image: 'arashhonarvar93/web2-ticketing-group12'
-    image: 'webapp2-ticketing:1.1'
+    image: 'arashhonarvar93/web2-ticketing-group12:1.2'
     ports:
       - "8081:8081"
     depends_on:
@@ -16,6 +15,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI=http://keycloak.wa2_polito_letduchidegliabruzzi_default:8080/realms/spring_boot_webapp2_realm
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET-URI=http://keycloak.wa2_polito_letduchidegliabruzzi_default:8080/realms/spring_boot_webapp2_realm/protocol/openid-connect/certs
+      - LOKI_URL=http://loki:3100
 
   PostgreSQL:
     image: postgres
@@ -54,6 +54,7 @@ services:
 
   loki:
     image: grafana/loki
+    container_name: loki
     extra_hosts: [ 'host.docker.internal:host-gateway' ]
     command: [ "-config.file=/etc/loki/local-config.yaml" ]
     ports:

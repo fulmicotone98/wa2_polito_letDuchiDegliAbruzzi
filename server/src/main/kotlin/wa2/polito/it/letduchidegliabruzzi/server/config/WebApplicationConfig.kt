@@ -1,5 +1,6 @@
-package wa2.polito.it.letduchidegliabruzzi.server
+package wa2.polito.it.letduchidegliabruzzi.server.config
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.server.ErrorPage
 import org.springframework.boot.web.server.WebServerFactoryCustomizer
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory
@@ -10,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
+@EnableConfigurationProperties(KeycloakProperties::class, LokiProperties::class)
 class WebApplicationConfig : WebMvcConfigurer {
 
     override fun addViewControllers(registry: ViewControllerRegistry) {
@@ -23,4 +25,13 @@ class WebApplicationConfig : WebMvcConfigurer {
         }
     }
 
+    @Bean
+    fun keycloakConfiguration(): KeycloakProperties {
+        return KeycloakProperties()
+    }
+
+    @Bean
+    fun lokiConfiguration(): LokiProperties{
+        return LokiProperties()
+    }
 }

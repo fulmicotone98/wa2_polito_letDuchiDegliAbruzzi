@@ -17,4 +17,9 @@ class EmployeeServiceImpl(private val employeeRepository: EmployeeRepository) : 
     override fun getEmployeeByID(id: Int): EmployeeDTO? {
         return employeeRepository.findAll().find { it.employeeID == id }?.toDTO()
     }
+
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    override fun getEmployeeByEmail(email: String): EmployeeDTO? {
+        return employeeRepository.findAll().find{ it.email == email}?.toDTO()
+    }
 }

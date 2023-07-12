@@ -32,6 +32,7 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         user.isEnabled = true
         user.isEmailVerified = true
         user.groups = groups
+        user.attributes = mapOf("address" to listOf(userBody.address) , "phonenumber" to listOf(userBody.phoneNumber))
 
         instance.create(user)
         println(instance.create(user).status)

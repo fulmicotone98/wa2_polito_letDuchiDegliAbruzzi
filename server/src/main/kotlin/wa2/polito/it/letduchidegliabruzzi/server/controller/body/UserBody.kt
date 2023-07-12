@@ -9,6 +9,6 @@ data class UserBody(
     @field:NotBlank val password: String,
     @field:NotBlank val firstName: String,
     @field:NotBlank val lastName: String,
-    val phoneNumber: String?,
-    val address: String
+    @field:NotBlank val phoneNumber: String,
+    @field:NotBlank val address: String
 )

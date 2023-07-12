@@ -18,10 +18,10 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.*
-import wa2.polito.it.letduchidegliabruzzi.server.entity.customer.*
-import wa2.polito.it.letduchidegliabruzzi.server.entity.employee.*
-import wa2.polito.it.letduchidegliabruzzi.server.entity.product.ProductService
-import wa2.polito.it.letduchidegliabruzzi.server.entity.ticket.*
+import wa2.polito.it.letduchidegliabruzzi.server.dal.customer.*
+import wa2.polito.it.letduchidegliabruzzi.server.dal.employee.*
+import wa2.polito.it.letduchidegliabruzzi.server.dal.product.ProductService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.ticket.*
 import wa2.polito.it.letduchidegliabruzzi.server.security.CredentialsLogin
 import wa2.polito.it.letduchidegliabruzzi.server.security.JwtResponse
 

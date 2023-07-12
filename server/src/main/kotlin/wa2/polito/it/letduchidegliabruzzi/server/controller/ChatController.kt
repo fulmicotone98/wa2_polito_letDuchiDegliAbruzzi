@@ -1,11 +1,8 @@
 package wa2.polito.it.letduchidegliabruzzi.server.controller
 
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
-import wa2.polito.it.letduchidegliabruzzi.server.entity.chat.ChatDTO
-import wa2.polito.it.letduchidegliabruzzi.server.entity.chat.ChatService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatService
 
 @Validated
 @RestController

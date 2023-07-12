@@ -16,14 +16,14 @@ import wa2.polito.it.letduchidegliabruzzi.server.controller.body.ProductResponse
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ConstraintViolationException
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.CustomerNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ProductNotFoundException
-import wa2.polito.it.letduchidegliabruzzi.server.entity.customer.CustomerService
-import wa2.polito.it.letduchidegliabruzzi.server.entity.product.ProductService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserServiceImpl
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductService
 
 @Validated
 @RestController
 @Observed
 @Slf4j
-class ProductController(private val productService: ProductService, private val customerService: CustomerService) {
+class ProductController(private val productService: ProductService, private val userService: UserServiceImpl,) {
 
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
     @GetMapping("/API/products")
@@ -49,11 +49,11 @@ class ProductController(private val productService: ProductService, private val 
             log.error("Add product error: Body validation failed with error ${br.allErrors}")
             throw ConstraintViolationException("Body validation failed")
         }
-        if(customerService.getProfile(body.customerEmail) == null){
-            log.error("Add product error: Customer not found with Email: ${body.customerEmail}")
-            throw CustomerNotFoundException("Customer not found with Email: ${body.customerEmail}")
+        if(userService.getUserByUsername(body.customerUsername) == null){
+            log.error("Add product error: Customer not found with Email: ${body.customerUsername}")
+            throw CustomerNotFoundException("Customer not found with Email: ${body.customerUsername}")
         }
-        productService.addProduct(body.ean, body.brand,body.name,body.customerEmail)
+        productService.addProduct(body.ean, body.brand,body.name,body.customerUsername)
         log.info("New product with ean ${body.ean} added correctly")
         return ProductResponseBody(body.ean,null,null,null)
     }

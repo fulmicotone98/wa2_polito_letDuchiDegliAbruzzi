@@ -9,7 +9,7 @@ data class ProductRequestBody(
     @field:NotBlank @Pattern(regexp = "^[A-Za-z0-9]+\$", message = "The Ean should be alphanumeric") val ean: String,
     @field:NotBlank val name: String,
     @field:NotBlank val brand: String,
-    @field:NotBlank @field:Email(message = "The email should be provided in a correct format") val customerEmail: String
+    @field:NotBlank @field:Email(message = "The email should be provided in a correct format") val customerUsername: String
 )
 
 data class ProductResponseBody(

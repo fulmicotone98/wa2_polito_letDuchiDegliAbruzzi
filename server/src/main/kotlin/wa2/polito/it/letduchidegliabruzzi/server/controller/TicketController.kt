@@ -2,9 +2,6 @@ package wa2.polito.it.letduchidegliabruzzi.server.controller
 
 import io.micrometer.observation.annotation.Observed
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Positive
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,15 +11,15 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.*
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.*
-import wa2.polito.it.letduchidegliabruzzi.server.entity.customer.CustomerService
-import wa2.polito.it.letduchidegliabruzzi.server.entity.employee.EmployeeService
-import wa2.polito.it.letduchidegliabruzzi.server.entity.employee.toEmployee
-import wa2.polito.it.letduchidegliabruzzi.server.entity.product.ProductService
-import wa2.polito.it.letduchidegliabruzzi.server.entity.status_history.StatusHistoryService
-import wa2.polito.it.letduchidegliabruzzi.server.entity.ticket.Ticket
-import wa2.polito.it.letduchidegliabruzzi.server.entity.ticket.TicketService
-import wa2.polito.it.letduchidegliabruzzi.server.entity.ticket.toDTO
-import wa2.polito.it.letduchidegliabruzzi.server.entity.ticket.toTicket
+import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserServiceImpl
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.toProduct
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.status_history.StatusHistoryService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.status_history.toStatusHistory
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.Ticket
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toDTO
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toTicket
 
 @Validated
 @RestController
@@ -31,9 +28,8 @@ import wa2.polito.it.letduchidegliabruzzi.server.entity.ticket.toTicket
 class TicketController(
     private val ticketService: TicketService,
     private val statusHistoryService: StatusHistoryService,
-    private val customerService: CustomerService,
     private val productService: ProductService,
-    private val employeeService: EmployeeService
+    private val userService: UserServiceImpl
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
@@ -45,7 +41,7 @@ class TicketController(
             log.error("Error getting ticket: Ticket not found with Id $id")
             throw TicketNotFoundException("Ticket not found with Id: $id")
         }
-        return TicketBodyResponse(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customer.email, ticket.employee?.employeeID)
+        return TicketBodyResponse(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customer.email, ticket.employee?.username)
     }
 
     @GetMapping("/API/ticket/{id}/history")
@@ -68,9 +64,9 @@ class TicketController(
             throw ConstraintViolationException("Body validation failed")
         }
         val customer =
-            customerService.getProfile(body.customerEmail)
+            userService.getUserByUsername(body.customerUsername)
         if(customer == null){
-            log.error("Error adding a Ticket: customer not found with email ${body.customerEmail}")
+            log.error("Error adding a Ticket: customer not found with email ${body.customerUsername}")
             throw CustomerNotFoundException("Customer not found")
         }
         val product = productService.getProduct(body.ean)
@@ -91,7 +87,7 @@ class TicketController(
         }
         val ticket = ticketService.addTicket(body.description, product.ean, customer.email)
         log.info("Correctly added a new ticket with id ${ticket.ticketID}")
-        return TicketBodyResponse(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customer.email, ticket.employee?.employeeID)
+        return TicketBodyResponse(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customerUsername, ticket.expertUsername)
     }
 
     @PutMapping("API/ticket/{id}/assign")
@@ -104,9 +100,9 @@ class TicketController(
             log.error("Error assigning a ticket: Body validation failed with errors ${br.allErrors}")
             throw ConstraintViolationException("Body validation failed")
         }
-        val employee = employeeService.getEmployeeByID(body.employeeID)
+        val employee = userService.getUserByUsername(body.employeeUsername)
         if(employee == null){
-            log.error("Error Assigning the ticket $id to the employee ${body.employeeID}: Employee not found")
+            log.error("Error Assigning the ticket $id to the employee ${body.employeeUsername}: Employee not found")
             throw EmployeeNotFoundException("Employee not found")
         }
         val old = ticketService.getTicket(id)
@@ -120,12 +116,13 @@ class TicketController(
             "IN PROGRESS",
             body.priority,
             old.createdAt,
-            old.customer,
-            employee.toEmployee(),
-            old.product,
-            old.statusHistory
-        ).toDTO()
-        log.info("Ticket with id ${old.ticketID} correctly assigned to ${employee.employeeID}")
+            old.customer.username,
+            employee.username,
+            old.product.toProduct(),
+            old.statusHistory.map { it.toStatusHistory() },
+            null
+        ).toDTO(old.customer, employee)
+        log.info("Ticket with id ${old.ticketID} correctly assigned to ${employee.username}")
         return TicketIDBodyResponse(ticketService.editTicket(newTicketDTO).ticketID)
     }
 
@@ -146,11 +143,12 @@ class TicketController(
             body.status,
             old.priority,
             old.createdAt,
-            old.customer,
-            old.employee,
-            old.product,
-            old.statusHistory
-        ).toDTO()
+            old.customer.username,
+            old.employee?.username,
+            old.product.toProduct(),
+            old.statusHistory.map { it.toStatusHistory() },
+            null
+        ).toDTO(old.customer, old.employee)
         log.info("Ticket $id status correctly edited to from ${old.status} to ${body.status}")
         return ticketService.editTicket(newTicketDTO).toTicket().ticketID
     }

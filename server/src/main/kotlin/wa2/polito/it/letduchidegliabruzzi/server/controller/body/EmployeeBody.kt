@@ -13,7 +13,7 @@ data class EmployeeBodyRequest(
 )
 
 data class EmployeeBodyResponse(
-    @field:Positive @field:NotNull val employeeID: Int = 0,
+    @field:Positive @field:NotNull val username: String,
     @field:NotBlank @field:NotNull @field:Email val email: String? = "",
     @field:NotBlank @field:NotNull val name: String? = "",
     @field:NotBlank @field:NotNull val role: String? = "",

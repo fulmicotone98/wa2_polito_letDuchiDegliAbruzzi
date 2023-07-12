@@ -10,5 +10,5 @@ class Chat (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val chatID :Int?,
-    @OneToOne(mappedBy = "ticketID") val ticket : Ticket
+    @OneToOne @JoinColumn(name = "ticketID") val ticket : Ticket
 )

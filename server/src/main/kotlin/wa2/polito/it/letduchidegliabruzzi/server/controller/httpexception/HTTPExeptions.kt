@@ -11,6 +11,7 @@ class DuplicateEmployeeException(message: String): RuntimeException(message)
 
 /* --- PRODUCT EXCEPTIONS --- */
 class ProductNotFoundException(message: String) : RuntimeException(message)
+class DuplicateProductException(message: String) : RuntimeException(message)
 
 /* --- TICKET EXCEPTIONS ---*/
 class TicketNotFoundException(message: String) : RuntimeException(message)

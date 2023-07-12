@@ -21,8 +21,7 @@ class ProductServiceImpl(
 
         @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
         override fun getProduct(ean: String): ProductDTO? {
-            val product = productRepository.findByIdOrNull(ean)
-                ?: throw ProductNotFoundException("Product not found with EAN: $ean")
+            val product = productRepository.findByIdOrNull(ean)?: return null
             val customer = userService.getUserByUsername(product.customerUsername)
             return product.toDTO(customer!!)
         }

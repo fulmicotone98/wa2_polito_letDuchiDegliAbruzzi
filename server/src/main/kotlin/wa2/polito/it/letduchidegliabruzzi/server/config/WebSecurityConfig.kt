@@ -24,14 +24,14 @@ class WebSecurityConfig {
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain? {
         http.authorizeHttpRequests()
-            .requestMatchers(HttpMethod.POST, "/API/ticket").hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.POST, "/API/ticket").hasAnyRole(customer)
             .requestMatchers(HttpMethod.PUT, "/API/ticket/*/assign").hasRole(manager)
             .requestMatchers(HttpMethod.PUT, "/API/ticket/*/status").hasAnyRole(manager, expert)
             .requestMatchers(HttpMethod.GET, "/API/ticket/**").hasAnyRole(manager, expert, customer)
 
-            .requestMatchers(HttpMethod.POST, "/API/products").hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.POST, "/API/products").hasAnyRole(customer)
             .requestMatchers(HttpMethod.GET, "/API/products").hasAnyRole(manager, expert)
-            .requestMatchers(HttpMethod.GET, "/API/products/**").hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.GET, "/API/products/**").hasAnyRole(manager, expert)
 
             .requestMatchers(HttpMethod.POST, "/API/employee/createExpert").hasRole(manager)
             .requestMatchers(HttpMethod.GET, "/API/employees/**").hasAnyRole(manager, expert)

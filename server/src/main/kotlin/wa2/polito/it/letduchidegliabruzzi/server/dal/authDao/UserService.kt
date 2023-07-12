@@ -6,4 +6,6 @@ interface UserService {
     fun getUserByUsername(username: String): UserDTO?
     fun addUser(userBody: UserBody, groups: List<String>): Int
     fun updateUserByUsername(username: String, user: UserDTO)
+
+    fun getUserInfo(): UserDTO
 }

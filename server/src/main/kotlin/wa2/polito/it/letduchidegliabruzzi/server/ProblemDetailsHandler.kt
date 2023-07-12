@@ -42,6 +42,12 @@ class ProblemDetailsHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail)
     }
 
+    @ExceptionHandler(DuplicateProductException::class)
+    fun handleProductNotFound(e: DuplicateProductException): ResponseEntity<ProblemDetail> {
+        val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message!!)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail)
+    }
+
     @ExceptionHandler(DuplicateCustomerException::class)
     fun handleDuplicateCustomer(e: DuplicateCustomerException): ResponseEntity<ProblemDetail> {
         val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.message!!)

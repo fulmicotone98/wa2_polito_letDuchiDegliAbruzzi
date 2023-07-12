@@ -42,4 +42,8 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         TODO("Not yet implemented")
     }
 
+    override fun getUserInfo(): UserDTO {
+        TODO("Not yet implemented")
+    }
+
 }

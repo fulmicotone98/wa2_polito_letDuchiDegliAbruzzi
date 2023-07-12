@@ -9,7 +9,9 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductReposito
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.toDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.status_history.StatusHistoryDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.status_history.StatusHistoryService
+import java.time.Instant
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Service
 class TicketServiceImpl(
@@ -46,7 +48,7 @@ class TicketServiceImpl(
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     override fun addTicket(description: String, productEan: String, customerUsername: String): Ticket {
-        val timestamp = LocalDate.now().toString()
+        val timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).toString()
         val customer = userService.getUserByUsername(customerUsername)
         val product = productRepository.getReferenceById(productEan)
         val newTicketDTO = TicketDTO(
@@ -61,7 +63,7 @@ class TicketServiceImpl(
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     override fun editTicket(newTicketDTO: TicketDTO): TicketDTO {
-        val timestamp = LocalDate.now().toString()
+        val timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).toString()
         statusHistoryService.addStatus(newTicketDTO.toTicket(), timestamp, newTicketDTO.status)
         val modified = ticketRepository.save(newTicketDTO.toTicket())
         val customer = userService.getUserByUsername(modified.customerUsername)

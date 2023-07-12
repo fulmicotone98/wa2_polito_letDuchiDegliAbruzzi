@@ -24,12 +24,11 @@ data class TicketBodyResponse(
 
 data class TicketBodyRequest(
     @field:NotNull @field:NotBlank val ean: String,
-    @field:NotNull @field:NotBlank val description: String,
-    @field:NotNull @field:NotBlank val customerUsername: String
+    @field:NotNull @field:NotBlank val description: String
 )
 
 data class AssignTicketBodyRequest(
-    @field:NotNull @field:Positive val employeeUsername: String,
+    @field:NotNull val employeeUsername: String,
     @field:NotNull @field:NotBlank val priority: String
 )
 

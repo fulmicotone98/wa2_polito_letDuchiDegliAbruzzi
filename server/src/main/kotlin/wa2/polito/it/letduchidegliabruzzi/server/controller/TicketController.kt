@@ -20,6 +20,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.Ticket
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toTicket
+import java.security.Principal
 
 @Validated
 @RestController
@@ -41,7 +42,7 @@ class TicketController(
             log.error("Error getting ticket: Ticket not found with Id $id")
             throw TicketNotFoundException("Ticket not found with Id: $id")
         }
-        return TicketBodyResponse(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customer.email, ticket.employee?.username)
+        return TicketBodyResponse(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customer.username, ticket.employee?.username)
     }
 
     @GetMapping("/API/ticket/{id}/history")
@@ -55,74 +56,77 @@ class TicketController(
             .map { StatusHistoryBodyResponse(it.statusID, it.ticket.ticketID, it.createdAt, it.status) }
     }
 
-
     @PostMapping("/API/ticket")
     @ResponseStatus(HttpStatus.CREATED)
-    fun addTicket(@Valid @RequestBody body: TicketBodyRequest, br: BindingResult): TicketBodyResponse? {
+    fun addTicket(@Valid @RequestBody body: TicketBodyRequest, br: BindingResult, principal: Principal): TicketBodyResponse? {
+        // Check if the body is valid
         if (br.hasErrors()) {
             log.error("Error adding a Ticket: Body validation failed with errors ${br.allErrors}")
             throw ConstraintViolationException("Body validation failed")
         }
-        val customer =
-            userService.getUserByUsername(body.customerUsername)
-        if(customer == null){
-            log.error("Error adding a Ticket: customer not found with email ${body.customerUsername}")
-            throw CustomerNotFoundException("Customer not found")
-        }
+
+        val customerUsername = principal.name
+
+        // Check if the product exists
         val product = productService.getProduct(body.ean)
         if(product == null){
             log.error("Error adding a Ticket: product not found with ean ${body.ean}")
             throw ProductNotFoundException("Product not found")
         }
-        if (product.customer.email != customer.email){
-            log.error("Error adding a Ticket: No products for the customer ${customer.email}")
-            throw CustomerNotFoundException("No products for the given customer")
+
+        // Check if the customer owns that product
+        if (product.customer.username != customerUsername){
+            log.error("Error adding a Ticket: No products for the customer $customerUsername")
+            throw ProductNotFoundException("Product not found")
         }
 
-        ticketService.getTickets().forEach {
-            if (it.product.ean == body.ean) {
-                log.error("Error adding a Ticket: An opened ticket already exists for the ean ${body.ean}")
-                throw TicketDuplicatedException("An opened ticket already exists for the ean ${body.ean}")
-            }
+        // Check if the ticket has been already opened or if it is not close
+        val ok = ticketService.getTickets().all { it.product.ean != product.ean || it.status == "CLOSED"}
+        if (!ok) {
+            log.error("Error adding a Ticket: An opened ticket already exists for the ean ${body.ean}")
+            throw TicketDuplicatedException("An opened ticket already exists for the ean ${body.ean}")
         }
-        val ticket = ticketService.addTicket(body.description, product.ean, customer.email)
+
+        val ticket = ticketService.addTicket(body.description, product.ean, customerUsername)
         log.info("Correctly added a new ticket with id ${ticket.ticketID}")
         return TicketBodyResponse(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customerUsername, ticket.expertUsername)
     }
 
     @PutMapping("API/ticket/{id}/assign")
-    fun assignTicket(
-        @PathVariable id: Int,
-        @Valid @RequestBody body: AssignTicketBodyRequest,
-        br: BindingResult
-    ): TicketIDBodyResponse? {
+    fun assignTicket(@PathVariable id: Int, @Valid @RequestBody body: AssignTicketBodyRequest, br: BindingResult): TicketIDBodyResponse? {
+        // Check if the body is valid
         if (br.hasErrors()) {
             log.error("Error assigning a ticket: Body validation failed with errors ${br.allErrors}")
             throw ConstraintViolationException("Body validation failed")
         }
+
+        // Check if the employee exists
         val employee = userService.getUserByUsername(body.employeeUsername)
         if(employee == null){
             log.error("Error Assigning the ticket $id to the employee ${body.employeeUsername}: Employee not found")
             throw EmployeeNotFoundException("Employee not found")
         }
-        val old = ticketService.getTicket(id)
-        if(old == null){
+
+        // Check if the ticket exists
+        val ticket = ticketService.getTicket(id)
+        if(ticket == null){
             log.error("Error Assigning the ticket $id: Ticket not found")
             throw TicketNotFoundException("Ticket not found")
         }
+
         val newTicketDTO = Ticket(
-            old.ticketID,
-            old.description,
+            ticket.ticketID,
+            ticket.description,
             "IN PROGRESS",
             body.priority,
-            old.createdAt,
-            old.customer.username,
+            ticket.createdAt,
+            ticket.customer.username,
             employee.username,
-            old.product.toProduct(),
-            old.statusHistory.map { it.toStatusHistory() },
+            ticket.product.toProduct(),
+            ticket.statusHistory.map { it.toStatusHistory() },
             null
-        ).toDTO(old.customer, employee)
-        log.info("Ticket with id ${old.ticketID} correctly assigned to ${employee.username}")
+        ).toDTO(ticket.customer, employee)
+        log.info("Ticket with id ${ticket.ticketID} correctly assigned to ${employee.username}")
         return TicketIDBodyResponse(ticketService.editTicket(newTicketDTO).ticketID)
     }
 
@@ -132,24 +136,24 @@ class TicketController(
             log.error("Error editing the ticket status: Body validation failed with error ${br.allErrors}")
             throw ConstraintViolationException("Body validation failed")
         }
-        val old = ticketService.getTicket(id)
-        if(old == null){
+        val ticket = ticketService.getTicket(id)
+        if(ticket == null){
             log.error("Error editing the ticket status: Ticket not found with id $id")
             throw TicketNotFoundException("Ticket not found")
         }
         val newTicketDTO = Ticket(
-            old.ticketID,
-            old.description,
+            ticket.ticketID,
+            ticket.description,
             body.status,
-            old.priority,
-            old.createdAt,
-            old.customer.username,
-            old.employee?.username,
-            old.product.toProduct(),
-            old.statusHistory.map { it.toStatusHistory() },
+            ticket.priority,
+            ticket.createdAt,
+            ticket.customer.username,
+            ticket.employee?.username,
+            ticket.product.toProduct(),
+            ticket.statusHistory.map { it.toStatusHistory() },
             null
-        ).toDTO(old.customer, old.employee)
-        log.info("Ticket $id status correctly edited to from ${old.status} to ${body.status}")
+        ).toDTO(ticket.customer, ticket.employee)
+        log.info("Ticket $id status correctly edited to from ${ticket.status} to ${body.status}")
         return ticketService.editTicket(newTicketDTO).toTicket().ticketID
     }
 }

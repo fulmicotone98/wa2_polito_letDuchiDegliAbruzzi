@@ -26,7 +26,7 @@ function LoginForm(props) {
                 </Form.Group>
 
                 <div className="d-grid gap-2">
-                    <Button variant="primary" size="lg">
+                    <Button variant="primary" size="lg" type="submit">
                         Submit
                     </Button>
                 </div>

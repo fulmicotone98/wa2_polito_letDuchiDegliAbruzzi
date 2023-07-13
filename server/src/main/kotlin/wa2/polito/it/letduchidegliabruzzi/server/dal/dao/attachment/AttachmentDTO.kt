@@ -7,10 +7,14 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.message.Message
 
 class AttachmentDTO(
     @field:Id val attachmentID: Int? = null,
-    @field:NotBlank @field:NotNull val path: String = "",
-    @field:NotBlank @field:NotNull val message: Message? = null
+    @field:NotBlank @field:NotNull val fileBase64: String?,
+    @field:NotBlank @field:NotNull val message: Message
 )
 
 fun Attachment.toDTO(): AttachmentDTO {
-    return AttachmentDTO(attachmentID, path, message)
+    return AttachmentDTO(attachmentID, fileBase64, message)
+}
+
+fun AttachmentDTO.toAttachment(): Attachment {
+    return Attachment(attachmentID, fileBase64, message)
 }

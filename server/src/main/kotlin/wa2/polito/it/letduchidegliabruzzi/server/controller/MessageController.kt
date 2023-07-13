@@ -17,9 +17,14 @@ import wa2.polito.it.letduchidegliabruzzi.server.controller.body.MessageBodyResp
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.*
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.attachment.Attachment
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.attachment.AttachmentDTO
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.attachment.AttachmentService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.attachment.toDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.message.MessageService
 import java.security.Principal
+import java.util.Base64
 
 @Validated
 @RestController
@@ -28,7 +33,8 @@ import java.security.Principal
 class MessageController(
     private val messageService: MessageService,
     private val chatService: ChatService,
-    private val userService: UserService
+    private val userService: UserService,
+    private val attachmentService: AttachmentService
 ) {
     private val log: Logger = LoggerFactory.getLogger(MessageController::class.java)
 
@@ -51,7 +57,8 @@ class MessageController(
             message.createdAt,
             message.senderUsername,
             userInfo.name,
-            userInfo.surname
+            userInfo.surname,
+            message.attachments.map { attachment ->  attachment.toDTO() }
         )
     }
 
@@ -66,7 +73,7 @@ class MessageController(
 
         val users = mutableMapOf<String, UserDTO>()
 
-        val listMessages :List<MessageBodyResponse> = messages.map {
+        val listMessages: List<MessageBodyResponse> = messages.map {
             if (users[it.senderUsername] == null) {
                 val user = userService.getUserByUsername(it.senderUsername)
                 if (user != null) {
@@ -80,7 +87,8 @@ class MessageController(
                 it.createdAt,
                 it.senderUsername,
                 users[it.senderUsername]!!.name,
-                users[it.senderUsername]!!.surname
+                users[it.senderUsername]!!.surname,
+                it.attachments.map { attachment ->  attachment.toDTO() }
             )
         }
         return listMessages
@@ -88,7 +96,11 @@ class MessageController(
 
     @PostMapping("/API/message")
     @ResponseStatus(HttpStatus.CREATED)
-    fun addMessage(@Valid @RequestBody body: MessageBodyRequest, br: BindingResult, principal: Principal): MessageBodyResponse? {
+    fun addMessage(
+        @Valid @RequestBody body: MessageBodyRequest,
+        br: BindingResult,
+        principal: Principal
+    ): MessageBodyResponse? {
         // Check if the body is valid
         if (br.hasErrors()) {
             log.error("Error adding a Message: Body validation failed with errors ${br.allErrors}")
@@ -115,8 +127,27 @@ class MessageController(
             throw UsernameNotFoundException("User not found with username $username")
         }
 
-        val message = messageService.addMessage(body.chatID,username,body.text)
+        val message = messageService.addMessage(body.chatID, username, body.text)
+        val messageAttachments :MutableList<AttachmentDTO> = mutableListOf()
+        if(body.attachments != null){
+            body.attachments.forEach{
+                val fileBase64 = Base64.getEncoder().encodeToString(it.bytes)
+                val newAttachment = message.messageID?.let { it1 -> attachmentService.addAttachment(it1,fileBase64) }
+                if(newAttachment != null){
+                    messageAttachments.add(newAttachment.toDTO())
+                }
+            }
+        }
         log.info("Correctly added a new message with id ${message.messageID}")
-        return MessageBodyResponse(message.messageID,message.chat.chatID,message.text,message.createdAt,message.senderUsername,user.name,user.surname)
+        return MessageBodyResponse(
+            message.messageID,
+            message.chat.chatID,
+            message.text,
+            message.createdAt,
+            message.senderUsername,
+            user.name,
+            user.surname,
+            messageAttachments
+        )
     }
 }

@@ -1,0 +1,32 @@
+nav{
+    background-color: #fd6d0d;
+}
+
+.navigationBar{
+    width: 100%;
+    margin: 0 0 0 0;
+}
+
+.title{
+    display: flex;
+    justify-content: left;
+    padding: 0 0 0 20px;
+    margin: 0 0 0 0;
+}
+
+@media (max-width: 767px){
+    .title{
+        display: flex;
+        justify-content: center;
+        padding: 0 0 0 0;
+        margin: 0 0 0 0;
+    }
+}
+
+.title #name{
+    color: #310dfd;
+    margin-left: 20px;
+    font-size: 32px;
+    font-style: italic;
+    text-decoration: none !important;
+}

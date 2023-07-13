@@ -8,13 +8,14 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toTicket
 
 data class ChatDTO(
-    val chatID: Int?
+    val chatID: Int?,
+    val ticket: Ticket
 )
 
 fun Chat.toDTO(ticket: Ticket): ChatDTO {
-    return ChatDTO(chatID)
+    return ChatDTO(chatID, ticket)
 }
 
-fun ChatDTO.toChat(ticket: TicketDTO): Chat{
-    return Chat(chatID,ticket.toTicket())
+fun ChatDTO.toChat(): Chat{
+    return Chat(chatID,ticket)
 }

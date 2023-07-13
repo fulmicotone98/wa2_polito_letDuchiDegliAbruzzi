@@ -14,7 +14,7 @@ class Message (
     val messageID :Int? = null,
     val text :String,
     val senderUsername: String,
-    val timestamp :Timestamp = Timestamp(System.currentTimeMillis()),
+    val createdAt: String,
     @ManyToOne @JoinColumn(name = "chatID") val chat : Chat,
     @OneToMany(mappedBy = "message") val attachments: List<Attachment>
 )

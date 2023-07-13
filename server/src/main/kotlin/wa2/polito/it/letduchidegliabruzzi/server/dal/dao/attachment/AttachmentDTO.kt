@@ -8,7 +8,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.message.Message
 class AttachmentDTO(
     @field:Id val attachmentID: Int? = null,
     @field:NotBlank @field:NotNull val path: String = "",
-    @field:NotBlank @field:NotNull val message: wa2.polito.it.letduchidegliabruzzi.server.dal.dao.message.Message? = null
+    @field:NotBlank @field:NotNull val message: Message? = null
 )
 
 fun Attachment.toDTO(): AttachmentDTO {

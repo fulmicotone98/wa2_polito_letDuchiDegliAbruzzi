@@ -104,7 +104,7 @@ class MessageController(
         }
 
         // Check if the user is authorized to send message
-        if (chat.ticket.customerUsername != username || chat.ticket.expertUsername != username) {
+        if (chat.ticket.customerUsername != username && chat.ticket.expertUsername != username) {
             log.error("Error adding a Message: User is not authorized with username $username")
             throw MessageUserNotAuthorizedException("User is not authorized")
         }

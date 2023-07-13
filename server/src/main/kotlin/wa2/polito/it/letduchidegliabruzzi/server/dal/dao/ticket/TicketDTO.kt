@@ -31,5 +31,5 @@ fun Ticket.toDTO(customer: UserDTO, employee: UserDTO?): TicketDTO {
 }
 
 fun TicketDTO.toTicket(): Ticket {
-    return Ticket(ticketID, description, status, priority, createdAt, customer.username, employee?.username, product.toProduct(), statusHistory.map{it.toStatusHistory()}, chat?.toChat(this))
+    return Ticket(ticketID, description, status, priority, createdAt, customer.username, employee?.username, product.toProduct(), statusHistory.map{it.toStatusHistory()}, chat?.toChat())
 }

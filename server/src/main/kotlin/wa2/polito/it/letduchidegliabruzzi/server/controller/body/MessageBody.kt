@@ -16,7 +16,7 @@ data class MessageBodyResponse(
 )
 
 data class MessageBodyRequest(
-    @field:NotNull @field:NotBlank val chatID: Int,
+    @field:NotNull val chatID: Int,
     @field:NotNull @field:NotBlank val text: String,
     @field:NotNull @field:NotBlank val senderUsername: String,
 )

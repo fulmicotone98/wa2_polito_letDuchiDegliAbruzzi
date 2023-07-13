@@ -11,5 +11,5 @@ data class ChatBodyResponse(
 )
 
 data class ChatBodyRequest(
-    @field:NotNull @field:NotBlank val ticketID: Int,
+    @field:NotNull val ticketID: Int,
 )

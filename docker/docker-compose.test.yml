@@ -8,11 +8,13 @@ services:
     volumes:
     - ./volumes/postgres_keycloak:/postgresKeycloak
     - ./volumes/postgres_server:/postgresServer
-    - ./postgres:/postgres
+    - postgres_keycloak:/keycloak
+    - postgres_server:/server
+    # - ./postgres:/postgres
     command: >
-      sh -c " mkdir /postgres/postgres_keycloak /postgres/postgres_server
-      		  cd /postgres/postgres_keycloak && tar xvf /postgresKeycloak/data.tar.gz --strip=4 &&
-      		  cd /postgres/postgres_server && tar xvf /postgresServer/data.tar.gz --strip=4"
+      sh -c "
+      		  cd /keycloak && tar xvf /postgresKeycloak/data.tar.gz --strip=4 &&
+      		  cd /server && tar xvf /postgresServer/data.tar.gz --strip=4 "
     
   postgres_serverDB:
     image: postgres
@@ -32,7 +34,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-    - ./postgres/postgres_server:/var/lib/postgresql/data
+    - postgres_server:/var/lib/postgresql/data
     
   postgres_keycloakDB:
     image: postgres
@@ -45,7 +47,7 @@ services:
       initializator:
         condition: service_completed_successfully
     volumes:
-    - ./postgres/postgres_keycloak:/var/lib/postgresql/data
+    - postgres_keycloak:/var/lib/postgresql/data
   
   keycloak:
     image: quay.io/keycloak/keycloak
@@ -63,5 +65,9 @@ services:
     - postgres_keycloakDB
     command:
       - start-dev
+volumes:
+  postgres_keycloak: 
+  postgres_server:
+    
     
 

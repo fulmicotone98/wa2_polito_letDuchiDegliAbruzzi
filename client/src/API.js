@@ -3,13 +3,13 @@ import Customer from "./models/Customer"
 
 const baseURL8081 = 'http://localhost:8081';
 
-async function logOut(jwtAndRefreshToken){
+async function logOut(keycloakResponse){
     const response = await fetch(baseURL8081 + "/API/logout", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(jwtAndRefreshToken),
+        body: JSON.stringify(keycloakResponse),
     });
     if (response.ok) {
         return await response.json()

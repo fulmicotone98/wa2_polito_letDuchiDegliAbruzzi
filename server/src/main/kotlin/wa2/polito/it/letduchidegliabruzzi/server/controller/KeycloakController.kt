@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import wa2.polito.it.letduchidegliabruzzi.server.controller.body.CredentialsLogin
+import wa2.polito.it.letduchidegliabruzzi.server.controller.body.KeycloakResponse
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ConstraintViolationException
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.DuplicateCustomerException
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.DuplicateEmployeeException
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.UserBody
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserServiceImpl
 import wa2.polito.it.letduchidegliabruzzi.server.security.AuthenticationService
-import wa2.polito.it.letduchidegliabruzzi.server.security.CredentialsLogin
-import wa2.polito.it.letduchidegliabruzzi.server.security.JwtResponse
 
 @RestController
 @Observed
@@ -35,16 +35,16 @@ class KeycloakController(
     private val log: Logger = LoggerFactory.getLogger(KeycloakController::class.java)
     @PostMapping("/login")
     fun login(@RequestBody credentials: CredentialsLogin): ResponseEntity<Any>{
-        val jwt: String? = authenticationService.authenticate(credentials)
-        return if(jwt!= null){
-            log.info("Created Login Token $jwt")
-            ResponseEntity.ok(JwtResponse(jwt))
+        val keycloakResponse = authenticationService.authenticate(credentials)
+        return if(keycloakResponse?.accessToken!= null){
+            log.info("Created Login Token ${keycloakResponse.accessToken}")
+            ResponseEntity.ok(keycloakResponse)
         } else{
             log.error("Login error: UNAUTHORIZED")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
     }
-    
+
     @PostMapping("/employee/createExpert")
     @ResponseStatus(HttpStatus.CREATED)
     fun createExpert(@Valid @RequestBody userBody: UserBody, br: BindingResult): UserBody {
@@ -78,6 +78,12 @@ class KeycloakController(
         userService.addUser(userBody, listOf("Customers_group"))
         log.info("Correctly added a new Profile with the email ${userBody.emailID}")
         return userBody
+    }
+
+    @PostMapping("/logout")
+    fun logout(@RequestBody oauth: KeycloakResponse): ResponseEntity<Any>{
+        val httpStatus = authenticationService.logout(oauth)
+        return ResponseEntity.status(httpStatus).build()
     }
 
 }

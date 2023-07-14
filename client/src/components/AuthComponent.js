@@ -9,7 +9,7 @@ function LoginForm(props) {
         event.preventDefault();
         const credentials = { username, password };
 
-        props.login(credentials);
+         props.login(credentials);
     }
 
     return (
@@ -26,9 +26,7 @@ function LoginForm(props) {
                 </Form.Group>
 
                 <div className="d-grid gap-2">
-                    <Button variant="primary" size="lg" type="submit">
-                        Submit
-                    </Button>
+                    <Button variant="primary" size="lg" type="submit"> Submit </Button>
                 </div>
             </Form>
         </>

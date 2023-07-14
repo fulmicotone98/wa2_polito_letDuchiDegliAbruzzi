@@ -8,14 +8,14 @@ function LoginRoute(props) {
             <Row>
                 <Col>
                     <MainNavbar loggedIn={props.loggedIn} setLoggedIn={props.setLoggedIn} logOut={props.logOut}
-                                jwtAndResfreshToken={props.jwtAndRefreshToken}
-                                setJwtAndRefreshToken={props.setJwtAndRefreshToken}/>
+                                keycloackResponse={props.keycloakResponse}
+                                setKeycloakResponse={props.setKeycloakResponse}/>
                 </Col>
             </Row>
             <Row>
                 <Col></Col>
                 <Col>
-                    <LoginForm login={props.login} />
+                    <LoginForm login={props.login} keycloackResponse={props.keycloakResponse}/>
                 </Col>
                 <Col></Col>
             </Row>

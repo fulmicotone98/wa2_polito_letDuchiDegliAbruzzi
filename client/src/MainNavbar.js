@@ -15,8 +15,8 @@ function MainNavbar(props) {
                 <Col xs={8} sm={8} md={5}>
                     <Navbar.Brand className='title' onClick={() => { handleNavigation('/') }}>
                         <i id="logo" className="bi bi-easel2-fill"></i>
-                        <span href="" onClick={() => { handleNavigation('/') }} id='name'>
-                            G12 Ticketing Application</span>
+                        <span href="/" onClick={() => { handleNavigation('/') }} id='name'>
+                            G12 Ticketing Application </span>
                     </Navbar.Brand>
                 </Col>
 
@@ -25,7 +25,7 @@ function MainNavbar(props) {
                         {
                             <Col xs={2} sm={2} md={2}>
                                 <Button variant="danger" onClick={() => {
-                                    props.logOut(props.jwtAndResfreshToken);
+                                    props.logOut(props.keycloackResponse);
                                     handleNavigation('/')
                                 }}> Logout </Button>
                             </Col>

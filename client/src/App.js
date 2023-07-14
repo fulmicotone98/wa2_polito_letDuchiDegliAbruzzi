@@ -13,21 +13,21 @@ import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 function App() {
 
     const [loggedIn, setLoggedIn] = useState(false);
-    const [jwtAndRefreshToken, setJwtAndRefreshToken] = useState('');
+    const [keycloakResponse, setKeycloakResponse] = useState('');
     const [message, setMessage] = useState('');
     const handleLogin = async (credentials) => {
         try {
-            const jwt = await API.logIn(credentials);
+            const keycloakResp = await API.logIn(credentials);
             setLoggedIn(true);
-            setJwtAndRefreshToken(jwt);
+            setKeycloakResponse(keycloakResp);
         }
         catch (err) {
             setMessage({ msg: err, type: 'danger' });
         }
     };
 
-    const handleLogout = async (jwtAndRefreshToken) => {
-        await API.logOut(jwtAndRefreshToken);
+    const handleLogout = async (keycloakResponse) => {
+        await API.logOut(keycloakResponse);
         setLoggedIn(false);
         setMessage('');
     };
@@ -98,8 +98,8 @@ function App() {
         <Router>
             <Routes>
                 <Route path='/' element={<LoginRoute loggedIn={loggedIn} setLoggedIn={setLoggedIn}
-                                                     jwtAndRefreshToken={jwtAndRefreshToken}
-                                                     setJwtAndRefreshToken={setJwtAndRefreshToken}
+                                                     keycloakResponse={keycloakResponse}
+                                                     setKeycloakResponse={setKeycloakResponse}
                                                      login={handleLogin} logOut={handleLogout}/>} />
             </Routes>
         </Router>

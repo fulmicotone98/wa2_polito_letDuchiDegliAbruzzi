@@ -1,0 +1,55 @@
+# Start postgres databases from a backup
+version: '3.1'
+services:
+
+  postgres_serverDB:
+    image: postgres
+    container_name: postgers_serverDB
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+    - docker_postgres_server:/var/lib/postgresql/data
+    
+  postgres_keycloakDB:
+    image: postgres
+    container_name: postgres_keycloakDB
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+      POSTGRES_DB: keycloak
+    volumes:
+    - docker_postgres_keycloak:/var/lib/postgresql/data
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    container_name: keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres_keycloakDB/keycloak
+      KC_DB_USERNAME: admin
+      KC_DB_PASSWORD: admin
+    depends_on:
+    - postgres_keycloakDB
+    command:
+      - start-dev
+volumes:
+  docker_postgres_keycloak:
+    external: true
+  docker_postgres_server:
+    external: true
+    
+    
+

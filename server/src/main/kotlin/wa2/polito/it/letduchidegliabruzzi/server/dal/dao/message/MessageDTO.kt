@@ -9,10 +9,14 @@ data class MessageDTO(
     val chat: Chat,
     val senderUsername: String,
     val text: String,
-    val timestamp: Timestamp,
+    val createdAt: String,
     var attachments: List<Attachment>
 )
 
 fun Message.toDTO(): MessageDTO {
-    return MessageDTO(messageID, chat, senderUsername, text, timestamp, attachments)
+    return MessageDTO(messageID, chat, senderUsername, text, createdAt, attachments)
+}
+
+fun MessageDTO.toMessage() :Message{
+    return Message(messageID,text,senderUsername,createdAt,chat,attachments)
 }

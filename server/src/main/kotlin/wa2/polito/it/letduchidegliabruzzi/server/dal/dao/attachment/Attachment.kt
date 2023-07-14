@@ -10,6 +10,7 @@ class Attachment (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val attachmentID :Int?,
-    val path :String,
+    @Lob
+    val fileBase64 :String?,
     @ManyToOne @JoinColumn(name = "messageID") val message : Message
 )

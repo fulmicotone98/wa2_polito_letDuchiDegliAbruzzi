@@ -17,6 +17,14 @@ class DuplicateProductException(message: String) : RuntimeException(message)
 class TicketNotFoundException(message: String) : RuntimeException(message)
 class TicketDuplicatedException(message: String) : RuntimeException(message)
 
+/* --- CHAT EXCEPTIONS ---*/
+class ChatNotFoundException(message: String) : RuntimeException(message)
+class DuplicateChatException(message: String) : RuntimeException(message)
+
+/* --- MESSAGE EXCEPTIONS ---*/
+class MessageNotFoundException(message: String) : RuntimeException(message)
+class MessageUserNotAuthorizedException(message: String) : RuntimeException(message)
+
 /* --- GENERAL EXCEPTIONS ---*/
 class ConstraintViolationException(message: String): RuntimeException(message)
 

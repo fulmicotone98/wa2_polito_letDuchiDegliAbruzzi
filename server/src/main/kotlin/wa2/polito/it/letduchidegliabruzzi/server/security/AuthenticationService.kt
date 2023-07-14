@@ -6,6 +6,5 @@ import wa2.polito.it.letduchidegliabruzzi.server.controller.body.KeycloakRespons
 
 interface AuthenticationService {
     fun authenticate(credentials: CredentialsLogin) : KeycloakResponse?
-
     fun logout(auth: KeycloakResponse): HttpStatusCode
 }

@@ -26,10 +26,10 @@ data class TicketDTO(
     val chat: ChatDTO?
 )
 
-fun Ticket.toDTO(customer: UserDTO, employee: UserDTO?): TicketDTO {
-    return TicketDTO(ticketID, description, status, priority, createdAt, customer, employee, product.toDTO(customer), statusHistory.map { it.toDTO() }, chat?.toDTO(this))
+fun Ticket.toDTO(customer: UserDTO, employee: UserDTO?,statusHistory: List<StatusHistoryDTO>): TicketDTO {
+    return TicketDTO(ticketID, description, status, priority, createdAt, customer, employee, product.toDTO(customer), statusHistory, chat?.toDTO(this))
 }
 
 fun TicketDTO.toTicket(): Ticket {
-    return Ticket(ticketID, description, status, priority, createdAt, customer.username, employee?.username, product.toProduct(), statusHistory.map{it.toStatusHistory()}, chat?.toChat())
+    return Ticket(ticketID, description, status, priority, createdAt, customer.username, employee?.username, product.toProduct(), chat?.toChat())
 }

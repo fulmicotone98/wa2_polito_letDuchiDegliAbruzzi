@@ -26,7 +26,8 @@ class TicketServiceImpl(
         val ticket = ticketRepository.findByIdOrNull(id)?: return null
         val customer = userService.getUserByUsername(ticket.customerUsername) ?: return null
         val expert = userService.getUserByUsername(ticket.expertUsername?:"")
-        return ticket.toDTO(customer,expert)
+        val ticketHistory = statusHistoryService.findByTicket(ticket)
+        return ticket.toDTO(customer,expert,ticketHistory)
     }
 
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
@@ -36,7 +37,8 @@ class TicketServiceImpl(
             .map{
                 val customer = userService.getUserByUsername(it.customerUsername)
                 val expert = userService.getUserByUsername(it.expertUsername?:"")
-                it.toDTO(customer!!, expert)
+                val ticketHistory = statusHistoryService.findByTicket(it)
+                it.toDTO(customer!!, expert,ticketHistory)
             }
         return tickets
     }
@@ -68,14 +70,16 @@ class TicketServiceImpl(
         val modified = ticketRepository.save(newTicketDTO.toTicket())
         val customer = userService.getUserByUsername(modified.customerUsername)
         val expert = userService.getUserByUsername(modified.expertUsername?:"")
-        return modified.toDTO(customer!!,expert)
+        val ticketHistory = statusHistoryService.findByTicket(newTicketDTO.toTicket())
+        return modified.toDTO(customer!!,expert,ticketHistory)
     }
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     override fun getTicketsByCustomer(customerUsername: String): List<TicketDTO> {
         return ticketRepository.findAll().filter { it.customerUsername == customerUsername}.map{
             val customer = userService.getUserByUsername(it.customerUsername)
             val expert = userService.getUserByUsername(it.expertUsername?:"")
-            it.toDTO(customer!!, expert)
+            val ticketHistory = statusHistoryService.findByTicket(it)
+            it.toDTO(customer!!, expert,ticketHistory)
         }
     }
 }

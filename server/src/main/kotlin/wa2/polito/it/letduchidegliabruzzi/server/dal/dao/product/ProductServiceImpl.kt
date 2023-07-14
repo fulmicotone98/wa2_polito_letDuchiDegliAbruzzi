@@ -12,24 +12,33 @@ class ProductServiceImpl(
     private val productRepository: ProductRepository,
     private val userService: UserServiceImpl
 ) : ProductService {
-        @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-        override fun getAll(): List<ProductDTO> {
-            return productRepository.findAll().map {
-                val customer = userService.getUserByUsername(it.customerUsername)
-                it.toDTO(customer!!) }
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    override fun getAll(): List<ProductDTO> {
+        return productRepository.findAll().map {
+            val customer = userService.getUserByUsername(it.customerUsername)
+            it.toDTO(customer!!)
         }
+    }
 
-        @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-        override fun getProduct(ean: String): ProductDTO? {
-            val product = productRepository.findByIdOrNull(ean)?: return null
-            val customer = userService.getUserByUsername(product.customerUsername)
-            return product.toDTO(customer!!)
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    override fun getAllByUser(customerUsername: String): List<ProductDTO> {
+        return productRepository.findAll().filter { it.customerUsername == customerUsername }.map {
+            val customer = userService.getUserByUsername(it.customerUsername)
+            it.toDTO(customer!!)
         }
+    }
 
-        @Transactional(readOnly = false, isolation = Isolation.SERIALIZABLE)
-        override fun addProduct(ean: String, brand: String, name: String, customerUsername: String): Product {
-            val customer = userService.getUserByUsername(customerUsername)
-            val newProductDTO = ProductDTO(ean, name, brand, customer!!)
-            return productRepository.save(newProductDTO.toProduct())
-        }
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    override fun getProduct(ean: String): ProductDTO? {
+        val product = productRepository.findByIdOrNull(ean) ?: return null
+        val customer = userService.getUserByUsername(product.customerUsername)
+        return product.toDTO(customer!!)
+    }
+
+    @Transactional(readOnly = false, isolation = Isolation.SERIALIZABLE)
+    override fun addProduct(ean: String, brand: String, name: String, customerUsername: String): Product {
+        val customer = userService.getUserByUsername(customerUsername)
+        val newProductDTO = ProductDTO(ean, name, brand, customer!!)
+        return productRepository.save(newProductDTO.toProduct())
+    }
 }

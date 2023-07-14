@@ -14,11 +14,6 @@ data class UserBody(
     @field:NotBlank val address: String
 )
 
-data class CredentialsLogin (
-    val username: String,
-    val password: String
-)
-
 data class KeycloakResponse(
     @JsonProperty("access_token")
     val accessToken: String?,
@@ -36,6 +31,11 @@ data class KeycloakResponse(
     val sessionState: String?,
     @JsonProperty("scope")
     val scope: String?
+)
+
+data class CredentialsLogin (
+    val username: String,
+    val password: String
 )
 
 data class JwtResponse(

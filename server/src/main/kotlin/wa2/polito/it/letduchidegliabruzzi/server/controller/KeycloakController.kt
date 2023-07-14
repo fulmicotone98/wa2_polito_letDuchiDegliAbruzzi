@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.CredentialsLogin
+import wa2.polito.it.letduchidegliabruzzi.server.controller.body.JwtResponse
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.KeycloakResponse
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ConstraintViolationException
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.DuplicateCustomerException
@@ -85,5 +86,4 @@ class KeycloakController(
         val httpStatus = authenticationService.logout(oauth)
         return ResponseEntity.status(httpStatus).build()
     }
-
 }

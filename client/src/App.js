@@ -5,24 +5,31 @@ import View from "./components/View";
 import Dashboard from "./components/Dashboard";
 import {getAllProducts, getProductById, getProfileByEmail, addCustomer, updateCustomer} from "./API";*/
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import LoginRoute from './LoginRoute';
 import API from './API';
-import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import {BrowserRouter as Router, Navigate, Route, Routes} from "react-router-dom";
+import UserDashboard from "./UserDashboard";
+import Layout from "./components/Layout";
+import AddProducts from "./AddProducts";
+import AddTickets from "./AddTickets";
+import ShowTickets from "./ShowTickets";
 
 function App() {
 
     const [loggedIn, setLoggedIn] = useState(false);
+    const [accessToken, setAccessToken] = useState(null)
     const [keycloakResponse, setKeycloakResponse] = useState('');
     const [message, setMessage] = useState('');
+    const [tickets, setTickets] = useState([]);
     const handleLogin = async (credentials) => {
         try {
             const keycloakResp = await API.logIn(credentials);
+            setAccessToken(keycloakResp.access_token)
             setLoggedIn(true);
             setKeycloakResponse(keycloakResp);
-        }
-        catch (err) {
-            setMessage({ msg: err, type: 'danger' });
+        } catch (err) {
+            setMessage({msg: err, type: 'danger'});
         }
     };
 
@@ -31,6 +38,19 @@ function App() {
         setLoggedIn(false);
         setMessage('');
     };
+
+    useEffect(() => {
+        const getAllTickets = async (accessToken) => {
+            try {
+                const allTickets = await API.getAllTickets(accessToken);
+                console.log(allTickets);
+                setTickets(allTickets);
+            } catch (error) {
+                console.log(error)
+            }
+        };
+        getAllTickets(accessToken);
+    }, [accessToken]);
 
     /*    const [products, setProducts] = useState([])
         const [product, setProduct] = useState({})
@@ -97,15 +117,22 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path='/' element={<LoginRoute loggedIn={loggedIn} setLoggedIn={setLoggedIn}
-                                                     keycloakResponse={keycloakResponse}
-                                                     setKeycloakResponse={setKeycloakResponse}
-                                                     login={handleLogin} logOut={handleLogout}/>} />
+                <Route path='/login' element={loggedIn ? <Navigate replace to='/'/> :
+                    <LoginRoute loggedIn={loggedIn} setLoggedIn={setLoggedIn}
+                                keycloakResponse={keycloakResponse}
+                                setKeycloakResponse={setKeycloakResponse}
+                                login={handleLogin} logOut={handleLogout}/>}/>
+                <Route path='/' element={<Layout keycloakResponse={keycloakResponse} loggedIn={loggedIn} logOut={handleLogout}/>}>
+                    <Route path="" element={loggedIn ? <UserDashboard accessToken={accessToken} tickets={tickets}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/add-product" element={loggedIn ? <AddProducts accessToken={accessToken}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/add-ticket/:ean" element={loggedIn ? <AddTickets accessToken={accessToken} tickets={tickets} setTickets={setTickets}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/show-ticket/:id" element={loggedIn ? <ShowTickets accessToken={accessToken} tickets={tickets}/> : <Navigate replace to='/login'/>}/>
+                </Route>
             </Routes>
         </Router>
     );
 
-    {/*<Row>
+    /*<Row>
                     <Col>
                          Dashboard with all commands to test the APIs
                         <Dashboard setApiName={setApiName} setError={setError} setView={setView} getProducts = {getProducts} getProduct = {getProduct} getProfile={getProfile} addProfile={addProfile} updateProfile={editProfile}/>
@@ -115,7 +142,8 @@ function App() {
                     <Col>
                         <View error={error} view={view} apiName={apiName} products = {products} product = {product} profile = {profile}/>
                     </Col>
-                </Row>*/}
+                </Row>*/
+
 }
 
 export default App;

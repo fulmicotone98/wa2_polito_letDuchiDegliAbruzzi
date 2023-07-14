@@ -26,7 +26,7 @@ function MainNavbar(props) {
                             <Col xs={2} sm={2} md={2}>
                                 <Button variant="danger" onClick={() => {
                                     props.logOut(props.keycloackResponse);
-                                    handleNavigation('/')
+                                    handleNavigation('/login')
                                 }}> Logout </Button>
                             </Col>
                         }

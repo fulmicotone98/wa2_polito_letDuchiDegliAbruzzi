@@ -29,15 +29,16 @@ function App() {
             setAccessToken(keycloakResp.access_token)
             setLoggedIn(true);
             setKeycloakResponse(keycloakResp);
+            setMessage('');
         } catch (err) {
             setMessage({msg: err, type: 'danger'});
         }
     };
 
     const handleLogout = async (keycloakResponse) => {
-        await API.logOut(keycloakResponse);
         setLoggedIn(false);
         setMessage('');
+        await API.logOut(keycloakResponse);
     };
 
     useEffect(() => {
@@ -122,7 +123,8 @@ function App() {
                     <LoginRoute loggedIn={loggedIn} setLoggedIn={setLoggedIn}
                                 keycloakResponse={keycloakResponse}
                                 setKeycloakResponse={setKeycloakResponse}
-                                login={handleLogin} logOut={handleLogout}/>}/>
+                                login={handleLogin} logOut={handleLogout}
+                                message={message} setMessage={setMessage}/>}/>
                 <Route path='/' element={<Layout keycloakResponse={keycloakResponse} loggedIn={loggedIn} logOut={handleLogout}/>}>
                     <Route path="" element={loggedIn ? <UserDashboard accessToken={accessToken} tickets={tickets}/> : <Navigate replace to='/login'/>}/>
                     <Route path="/add-product" element={loggedIn ? <AddProducts accessToken={accessToken}/> : <Navigate replace to='/login'/>}/>

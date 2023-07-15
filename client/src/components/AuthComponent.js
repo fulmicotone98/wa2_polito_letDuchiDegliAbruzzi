@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Form } from "react-bootstrap";
+import {Alert, Button, Form} from "react-bootstrap";
 
 function LoginForm(props) {
     const [username, setUsername] = useState('');
@@ -8,8 +8,7 @@ function LoginForm(props) {
     const handleSubmit = (event) => {
         event.preventDefault();
         const credentials = { username, password };
-
-         props.login(credentials);
+        props.login(credentials);
     }
 
     return (
@@ -29,6 +28,18 @@ function LoginForm(props) {
                     <Button variant="primary" size="lg" type="submit"> Submit </Button>
                 </div>
             </Form>
+
+            {props.message.type === "danger" ?
+                <>
+                    {['warning'].map((variant) => (
+                        <Alert key={variant} variant={variant} style={{marginTop:"20px", background:"yellow"}}>
+                            Warning! Wrong credentials or missing user.
+                        </Alert>
+                    ))}
+                </> : <> </>
+            }
+
+
         </>
     );
 }

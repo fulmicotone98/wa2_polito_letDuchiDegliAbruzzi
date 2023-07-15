@@ -15,7 +15,8 @@ function LoginRoute(props) {
             <Row>
                 <Col></Col>
                 <Col>
-                    <LoginForm login={props.login} keycloackResponse={props.keycloakResponse}/>
+                    <LoginForm login={props.login} keycloackResponse={props.keycloakResponse}
+                                message={props.message} setMessage={props.setMessage}/>
                 </Col>
                 <Col></Col>
             </Row>

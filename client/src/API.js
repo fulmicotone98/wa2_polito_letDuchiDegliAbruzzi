@@ -1,15 +1,18 @@
 import Product from "./models/Product";
 import Customer from "./models/Customer"
 import Ticket from "./models/Ticket";
-import StatusHistory from "./models/StatusHistory";
 
 const baseURL8081 = 'http://localhost:8081';
 
 async function logOut(keycloakResponse) {
+    const jsonStr = JSON.stringify(keycloakResponse);
+    const obj = JSON.parse(jsonStr);
+    
     const response = await fetch(baseURL8081 + "/API/logout", {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + obj.access_token
         },
         body: JSON.stringify(keycloakResponse),
     });
@@ -25,6 +28,7 @@ async function logIn(credentials) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+
         },
         credentials: 'include',
         body: JSON.stringify(credentials),
@@ -32,7 +36,9 @@ async function logIn(credentials) {
     if (response.ok) {
         return await response.json();
     } else {
-        throw await response.text(); //return errDetails
+        console.log(response.statusText);
+        const error = await response.json();
+        throw new TypeError(error.detail);
     }
 }
 

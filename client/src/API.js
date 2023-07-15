@@ -82,32 +82,6 @@ async function getAllProductsByUser(accessToken) {
     }
 }
 
-async function getAllStatusHistory(accessToken, ticketID) {
-    try {
-        const response = await fetch(baseURL8081 + '/API/ticket/' + ticketID+ '/history', {
-            headers: {
-                'Authorization': 'Bearer ' + accessToken,
-                'Content-Type': 'application/json'
-            },
-        });
-
-        if (response.ok) {
-            // process the response
-            const list = await response.json();
-            return list;
-            // return list.map((s) => new StatusHistory(s.statusID, s.ticketID, s.createdAt, s.status));
-        } else {
-            // application error (404, 500, ...)
-            console.log(response.statusText);
-            const error = await response.json();
-            throw new TypeError(error.detail);
-        }
-    } catch (ex) {
-        // network error
-        console.log(ex);
-        throw ex;
-    }
-}
 
 async function addProduct(accessToken, ean, name, brand) {
     try {
@@ -148,7 +122,33 @@ async function getAllTickets(accessToken) {
         if (response.ok) {
             // process the response
             const list = await response.json();
-            return list.map((t) => new Ticket(t.ticketID, t.description, t.status, t.priority, t.createdAt, t.product.ean, t.customer.username, t.employee.username,t.statusHistory));
+            return list.map((t) => new Ticket(t.ticketID, t.description, t.status, t.priority, t.createdAt, t.product.ean, t.product.brand, t.product.name, t.customer.username, t.customer.name, t.customer.surname, t.employee.username, t.employee.name, t.employee.surname, t.statusHistory));
+        } else {
+            // application error (404, 500, ...)
+            console.log(response.statusText);
+            const error = await response.json();
+            throw new TypeError(error.detail);
+        }
+    } catch (ex) {
+        // network error
+        console.log(ex);
+        throw ex;
+    }
+}
+
+async function getAllExperts(accessToken) {
+    try {
+        const response = await fetch(baseURL8081 + '/API/profiles/experts', {
+            headers: {
+                'Authorization': 'Bearer ' + accessToken,
+                'Content-Type': 'application/json'
+            },
+        });
+
+        if (response.ok) {
+            // process the response
+            const list = await response.json();
+            return list.map((c) => new Customer(c.email, c.name, c.surname, c.address, c.phonenumber));
         } else {
             // application error (404, 500, ...)
             console.log(response.statusText);
@@ -213,25 +213,25 @@ async function getProductById(productId) {
     }
 }
 
-async function getProfileByEmail(email) {
-    const response = await fetch('/API/profiles/' + email);
-    try {
-        if (response.ok) {
-            // process the response
-            const p = await response.json();
-            return new Customer(p.email, p.name, p.surname, p.address, p.phonenumber);
-        } else {
-            // application error (404, 500, ...)
-            console.log(response.statusText);
-            const error = await response.json();
-            throw new TypeError(error.detail);
-        }
-    } catch (ex) {
-        // network error
-        console.log(ex);
-        throw ex;
-    }
-}
+// async function getProfileByEmail(email) {
+//     const response = await fetch('/API/profiles/' + email);
+//     try {
+//         if (response.ok) {
+//             // process the response
+//             const p = await response.json();
+//             return new Customer(p.email, p.name, p.surname, p.address, p.phonenumber);
+//         } else {
+//             // application error (404, 500, ...)
+//             console.log(response.statusText);
+//             const error = await response.json();
+//             throw new TypeError(error.detail);
+//         }
+//     } catch (ex) {
+//         // network error
+//         console.log(ex);
+//         throw ex;
+//     }
+// }
 
 async function addCustomer(email, name, surname, address, phoneNumber) {
     try {
@@ -290,9 +290,8 @@ const API = {
     addProduct,
     getAllTickets,
     addTicket,
-    getAllStatusHistory,
+    getAllExperts,
     getProductById,
-    getProfileByEmail,
     addCustomer,
     updateCustomer,
     logIn,

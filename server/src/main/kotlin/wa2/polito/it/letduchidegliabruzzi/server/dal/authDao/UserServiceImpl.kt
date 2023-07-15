@@ -47,4 +47,9 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         TODO("Not yet implemented")
     }
 
+    override fun getAllExperts(): List<UserDTO?> {
+        val user = instance.search("expert").firstOrNull()
+        return listOf(user?.toDTO())
+    }
+
 }

@@ -16,17 +16,6 @@ function ShowTickets(props) {
     let ticket = props.tickets.filter(ticket => ticket.ticketID == id);
     ticket = ticket[0];
 
-    // useEffect(() => {
-    //     const getStatusHistory = async (accessToken, ticketID) => {
-    //         try {
-    //             const history = await API.getAllStatusHistory(accessToken, ticketID);
-    //             setStatusHistory(history);
-    //         } catch (error) {
-    //             console.log(error)
-    //         }
-    //     };
-    //     getStatusHistory(props.accessToken, ticket.ticketID);
-    // }, []);
 
     const formattedDate = new Date(ticket.createdAt).toLocaleDateString('it-IT', {
         year: 'numeric',
@@ -70,10 +59,10 @@ function ShowTickets(props) {
                         </Row>
                         <Row>
                             <Col>
-                                <strong>Customer Username:</strong> {ticket.customerUsername}
+                                <strong>Customer:</strong> {ticket.customerName + " " + ticket.customerSurname}
                             </Col>
                             <Col>
-                                <strong>Employee Username:</strong> {ticket.employeeUsername}
+                                <strong>Employee:</strong> {ticket.employeeName + " " + ticket.employeeSurname}
                             </Col>
                         </Row>
                     </Container>

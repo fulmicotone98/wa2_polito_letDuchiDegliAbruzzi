@@ -2,8 +2,6 @@ package wa2.polito.it.letduchidegliabruzzi.server.controller
 
 import io.micrometer.observation.annotation.Observed
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.Positive
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -36,52 +34,74 @@ class UserController(private val userService: UserServiceImpl, private val ticke
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
     @GetMapping("/API/profile/{username}/tickets")
-    fun getTicketsByEmail(@PathVariable("username") username: String): List<TicketBodyResponse>{
+    fun getTicketsByEmail(@PathVariable("username") username: String): List<TicketBodyResponse> {
         val c = userService.getUserByUsername(username)
-        if(c == null) {
+        if (c == null) {
             log.error("Get Tickets by Email error: Customer not found with Email: $username")
             throw CustomerNotFoundException("Customer not found with Email: $username")
         }
-        return ticketService.getTicketsByCustomer(username).map{ TicketBodyResponse(it.ticketID,it.description,it.status,it.priority,it.createdAt, it.product.ean, it.customer.username, it.employee?.username ) }
+        return ticketService.getTicketsByCustomer(username).map {
+            TicketBodyResponse(
+                it.ticketID,
+                it.description,
+                it.status,
+                it.priority,
+                it.createdAt,
+                it.product.ean,
+                it.customer.username,
+                it.employee?.username
+            )
+        }
     }
 
     @GetMapping("/API/profiles/{username}")
     fun getProfile(@PathVariable("username") username: String): CustomerResponseBody? {
         val c = userService.getUserByUsername(username)
-        if(c == null) {
+        if (c == null) {
             log.error("Get Tickets by Email error: Customer not found with Email: $username")
             throw CustomerNotFoundException("Customer not found with Email: $username")
         }
-        return CustomerResponseBody(c.email,c.name,c.surname,c.address, c.phonenumber)
+        return CustomerResponseBody(c.email, c.name, c.surname, c.address, c.phonenumber)
+    }
+
+    @GetMapping("/API/profiles/experts")
+    fun getAllExperts(): List<CustomerResponseBody>? {
+        val experts = userService.getAllExperts()
+        return experts.filterNotNull()
+            .map { c -> CustomerResponseBody(c.email, c.name, c.surname, c.address, c.phonenumber) }
     }
 
 
     @PutMapping("/API/profiles/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun updateProfile(@PathVariable("username") username: String, @Valid @RequestBody body: CustomerRequestBody, br: BindingResult): CustomerResponseBody? {
-        if(br.hasErrors()) {
+    fun updateProfile(
+        @PathVariable("username") username: String,
+        @Valid @RequestBody body: CustomerRequestBody,
+        br: BindingResult
+    ): CustomerResponseBody? {
+        if (br.hasErrors()) {
             log.error("Error updating a Profile: Body validation failed with errors ${br.allErrors}")
             throw ConstraintViolationException("Body validation failed")
         }
         val customerForUpdate: UserDTO? = userService.getUserByUsername(username)
-        if(customerForUpdate == null){
+        if (customerForUpdate == null) {
             log.error("Error updating customer: Customer not found with Email: $username")
             throw CustomerNotFoundException("Customer not found with Email: $username")
         }
-        val newUserDTO = UserDTO(body.username,body.email,body.name,body.surname,body.phonenumber,body.address)
+        val newUserDTO = UserDTO(body.username, body.email, body.name, body.surname, body.phonenumber, body.address)
 
         userService.updateUserByUsername(username, newUserDTO)
         log.info("Updated profile with email $username")
-        return CustomerResponseBody(body.email,body.name,body.surname,body.address,body.phonenumber)
+        return CustomerResponseBody(body.email, body.name, body.surname, body.address, body.phonenumber)
     }
 
     @GetMapping("/employees/{username}")
     fun getEmployee(@PathVariable("username") username: String): EmployeeBodyResponse? {
         val e = userService.getUserByUsername(username)
-        if(e==null){
+        if (e == null) {
             log.error("Employee not found with id $username")
             throw EmployeeNotFoundException("Employee not found")
         }
-        return EmployeeBodyResponse(e.username!!,e.email,e.name,"",e.surname)
+        return EmployeeBodyResponse(e.username!!, e.email, e.name, "", e.surname)
     }
 }

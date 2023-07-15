@@ -18,5 +18,5 @@ class Ticket(
     val customerUsername: String,
     val expertUsername: String?,
     @ManyToOne @JoinColumn(name = "ean") val product: Product,
-    @OneToOne @JoinColumn(name = "ticketID") val chat: Chat?
+    @OneToOne @JoinColumn(name = "chatID") val chat: Chat?
 )

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom"
+import { Row } from 'react-bootstrap'
 
 function LoginForm(props) {
     const [username, setUsername] = useState('');
@@ -29,16 +30,10 @@ function LoginForm(props) {
                     <Form.Label>Password</Form.Label>
                     <Form.Control type="password" placeholder="Enter password" value={password} onChange={ev => setPassword(ev.target.value)} required={true} />
                 </Form.Group>
+                <Button variant="primary" type="submit"> Login </Button>
+                <h6>Don't have an account?</h6>
+                <Button variant="secondary" onClick={() => handleNavigation('/registration')}> Signup </Button>
 
-                <div className="d-grid gap-2">
-                    <Button variant="primary" size="lg" type="submit"> Login </Button>
-                </div>
-                <div className="d-grid gap-2">
-                    <h4>Don't have an account?</h4>
-                </div>
-                <div className="d-grid gap-2">
-                    <Button variant="primary" size="lg" onClick={() => handleNavigation('/registration')}> Signup </Button>
-                </div>
             </Form>
         </>
     );

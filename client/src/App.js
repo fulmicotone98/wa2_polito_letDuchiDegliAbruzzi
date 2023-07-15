@@ -14,6 +14,7 @@ import Layout from "./components/Layout";
 import AddProducts from "./AddProducts";
 import AddTickets from "./AddTickets";
 import ShowTickets from "./ShowTickets";
+import RegistrationPage from "./RegistrationPage";
 
 function App() {
 
@@ -22,12 +23,30 @@ function App() {
     const [keycloakResponse, setKeycloakResponse] = useState('');
     const [message, setMessage] = useState('');
     const [tickets, setTickets] = useState([]);
+    const [signupError, setSignupError] = useState('')
     const handleLogin = async (credentials) => {
         try {
             const keycloakResp = await API.logIn(credentials);
             setAccessToken(keycloakResp.access_token)
             setLoggedIn(true);
             setKeycloakResponse(keycloakResp);
+        } catch (err) {
+            setMessage({msg: err, type: 'danger'});
+        }
+    };
+
+    const handleSignUp = async (user) => {
+        try {
+            const response = await API.signUp(user);
+            console.log(response);
+            if(response.status === 409 || response.status === 400 || response.status === 401){
+                setSignupError(response.detail)
+            }else{
+                setSignupError("")
+                const credentials = { username: response.username, password: response.password }
+                handleLogin(credentials)
+                setLoggedIn(true);
+            }
         } catch (err) {
             setMessage({msg: err, type: 'danger'});
         }
@@ -122,6 +141,12 @@ function App() {
                                 keycloakResponse={keycloakResponse}
                                 setKeycloakResponse={setKeycloakResponse}
                                 login={handleLogin} logOut={handleLogout}/>}/>
+                <Route path='/registration' element={loggedIn ? <Navigate replace to='/'/> :
+                    <RegistrationPage loggedIn={loggedIn} setLoggedIn={setLoggedIn}
+                                keycloakResponse={keycloakResponse}
+                                setKeycloakResponse={setKeycloakResponse}
+                                logOut={handleLogout} signUp={handleSignUp}
+                                signupError={signupError}/>}/>
                 <Route path='/' element={<Layout keycloakResponse={keycloakResponse} loggedIn={loggedIn} logOut={handleLogout}/>}>
                     <Route path="" element={loggedIn ? <UserDashboard accessToken={accessToken} tickets={tickets}/> : <Navigate replace to='/login'/>}/>
                     <Route path="/add-product" element={loggedIn ? <AddProducts accessToken={accessToken}/> : <Navigate replace to='/login'/>}/>

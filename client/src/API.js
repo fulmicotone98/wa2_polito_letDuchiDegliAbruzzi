@@ -36,6 +36,23 @@ async function logIn(credentials) {
     }
 }
 
+async function signUp(user) {
+    const response = await fetch(baseURL8081 + "/API/signup", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(user),
+    });
+    if (response.ok || response.status === 409 || response.status === 400 || response.status === 401) {
+        return await response.json();
+    }
+    else{
+        throw await response.text(); //return errDetails
+    }
+}
+
 // async function getAllProducts() {
 //     try {
 //         const response = await fetch(baseURL8081 + '/API/products/');
@@ -233,7 +250,7 @@ async function getProductById(productId) {
 //     }
 // }
 
-async function addCustomer(email, name, surname, address, phoneNumber) {
+/*async function addCustomer(email, name, surname, address, phoneNumber) {
     try {
         const customer = new Customer(email, name, surname, address, phoneNumber)
         const response = await fetch('/API/profiles',
@@ -257,7 +274,7 @@ async function addCustomer(email, name, surname, address, phoneNumber) {
         console.log(ex);
         throw ex;
     }
-}
+}*/
 
 async function updateCustomer(email, name, surname, address, phoneNumber) {
     try {
@@ -285,6 +302,7 @@ async function updateCustomer(email, name, surname, address, phoneNumber) {
     }
 }
 
+
 const API = {
     getAllProductsByUser,
     addProduct,
@@ -292,7 +310,8 @@ const API = {
     addTicket,
     getAllExperts,
     getProductById,
-    addCustomer,
+    //addCustomer,
+    signUp,
     updateCustomer,
     logIn,
     logOut

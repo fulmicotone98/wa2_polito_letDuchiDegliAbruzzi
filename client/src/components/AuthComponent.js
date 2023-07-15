@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
+import { useNavigate } from "react-router-dom"
 
 function LoginForm(props) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
+    const handleNavigation = (path) => {
+        navigate(path);
+    };
     const handleSubmit = (event) => {
         event.preventDefault();
         const credentials = { username, password };
@@ -26,7 +31,13 @@ function LoginForm(props) {
                 </Form.Group>
 
                 <div className="d-grid gap-2">
-                    <Button variant="primary" size="lg" type="submit"> Submit </Button>
+                    <Button variant="primary" size="lg" type="submit"> Login </Button>
+                </div>
+                <div className="d-grid gap-2">
+                    <h4>Don't have an account?</h4>
+                </div>
+                <div className="d-grid gap-2">
+                    <Button variant="primary" size="lg" onClick={() => handleNavigation('/registration')}> Signup </Button>
                 </div>
             </Form>
         </>

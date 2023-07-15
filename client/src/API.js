@@ -148,7 +148,7 @@ async function getAllExperts(accessToken) {
         if (response.ok) {
             // process the response
             const list = await response.json();
-            return list.map((c) => new Customer(c.email, c.name, c.surname, c.address, c.phonenumber));
+            return list.map((c) => new Customer(c.email, c.username, c.name, c.surname, c.address, c.phonenumber));
         } else {
             // application error (404, 500, ...)
             console.log(response.statusText);
@@ -183,6 +183,36 @@ async function addTicket(accessToken, ean, description) {
             // application error (404, 500, ...)
             console.log(response.statusText);
             const error = newTicket;
+            throw new TypeError(error.detail);
+        }
+    } catch (ex) {
+        // network error
+        console.log(ex);
+        throw ex;
+    }
+}
+
+async function assignTicket(accessToken, ticketId, expertUsername, priority) {
+    try {
+        const request = {employeeUsername: expertUsername, priority: priority}
+        console.log(request)
+
+        const response = await fetch(baseURL8081 + '/API/ticket/' + ticketId + '/assign',
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(request),
+            });
+        let newRequest = await response.json();
+        if (response.ok) {
+            return newRequest;
+        } else {
+            // application error (404, 500, ...)
+            console.log(response.statusText);
+            const error = newRequest;
             throw new TypeError(error.detail);
         }
     } catch (ex) {
@@ -291,6 +321,7 @@ const API = {
     getAllTickets,
     addTicket,
     getAllExperts,
+    assignTicket,
     getProductById,
     addCustomer,
     updateCustomer,

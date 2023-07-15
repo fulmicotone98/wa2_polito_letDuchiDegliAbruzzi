@@ -61,14 +61,14 @@ class UserController(private val userService: UserServiceImpl, private val ticke
             log.error("Get Tickets by Email error: Customer not found with Email: $username")
             throw CustomerNotFoundException("Customer not found with Email: $username")
         }
-        return CustomerResponseBody(c.email, c.name, c.surname, c.address, c.phonenumber)
+        return CustomerResponseBody(c.email, c.username, c.name, c.surname, c.address, c.phonenumber)
     }
 
     @GetMapping("/API/profiles/experts")
     fun getAllExperts(): List<CustomerResponseBody>? {
         val experts = userService.getAllExperts()
         return experts.filterNotNull()
-            .map { c -> CustomerResponseBody(c.email, c.name, c.surname, c.address, c.phonenumber) }
+            .map { c -> CustomerResponseBody(c.email, c.username, c.name, c.surname, c.address, c.phonenumber) }
     }
 
 
@@ -92,7 +92,7 @@ class UserController(private val userService: UserServiceImpl, private val ticke
 
         userService.updateUserByUsername(username, newUserDTO)
         log.info("Updated profile with email $username")
-        return CustomerResponseBody(body.email, body.name, body.surname, body.address, body.phonenumber)
+        return CustomerResponseBody(body.email, body.username, body.name, body.surname, body.address, body.phonenumber)
     }
 
     @GetMapping("/employees/{username}")

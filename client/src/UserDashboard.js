@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 
 function UserDashboard(props) {
     let tickets = props.tickets;
-    let role = "customer"
+    let role = "manager"
     return (
         <>
             {
@@ -91,7 +91,7 @@ function CustomerDashboard(props) {
 function ManagerDashboard(props){
 
     let tickets = props.tickets.filter(ticket => ticket.status == "OPEN");
-    let inProgressTickets = props.tickets.filter(ticket => ticket.status == "PROGRESS");
+    let inProgressTickets = props.tickets.filter(ticket => ticket.status == "IN PROGRESS");
 
     return (
         <>

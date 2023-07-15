@@ -65,6 +65,15 @@ function ShowTickets(props) {
                                 <strong>Employee:</strong> {ticket.employeeName + " " + ticket.employeeSurname}
                             </Col>
                         </Row>
+                        <Row>
+                            <Col>
+                                <Button variant="primary" onClick={() => {
+                                    handleNavigation('/assign-ticket/' + ticket.ticketID)
+                                }}>
+                                    Assign Ticket
+                                </Button>
+                            </Col>
+                        </Row>
                     </Container>
                 </Card.Body>
             </Card>

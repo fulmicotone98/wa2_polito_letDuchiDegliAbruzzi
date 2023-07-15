@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull
 
 data class CustomerResponseBody(
     @field:NotNull @field:NotBlank @field:Email val email: String?,
+    @field:NotNull @field:NotBlank val username: String,
     @field:NotNull @field:NotBlank val name: String?,
     @field:NotNull @field:NotBlank val surname: String?,
     @field:NotNull @field:NotBlank val address: String?,

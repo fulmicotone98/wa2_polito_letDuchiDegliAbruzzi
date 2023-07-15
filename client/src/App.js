@@ -14,6 +14,7 @@ import Layout from "./components/Layout";
 import AddProducts from "./AddProducts";
 import AddTickets from "./AddTickets";
 import ShowTickets from "./ShowTickets";
+import AssignTickets from "./AssignTickets";
 
 function App() {
 
@@ -127,6 +128,7 @@ function App() {
                     <Route path="/add-product" element={loggedIn ? <AddProducts accessToken={accessToken}/> : <Navigate replace to='/login'/>}/>
                     <Route path="/add-ticket/:ean" element={loggedIn ? <AddTickets accessToken={accessToken} tickets={tickets} setTickets={setTickets}/> : <Navigate replace to='/login'/>}/>
                     <Route path="/show-ticket/:id" element={loggedIn ? <ShowTickets accessToken={accessToken} tickets={tickets}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/assign-ticket/:id" element={loggedIn ? <AssignTickets accessToken={accessToken} tickets={tickets} setTickets={setTickets}/> : <Navigate replace to='/login'/>}/>
                 </Route>
             </Routes>
         </Router>

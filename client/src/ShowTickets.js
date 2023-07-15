@@ -16,14 +16,15 @@ function ShowTickets(props) {
     let ticket = props.tickets.filter(ticket => ticket.ticketID == id);
     ticket = ticket[0];
 
+    console.log(ticket)
+
 
     const formattedDate = new Date(ticket.createdAt).toLocaleDateString('it-IT', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
     });
 
 
@@ -66,13 +67,35 @@ function ShowTickets(props) {
                             </Col>
                         </Row>
                         <Row>
-                            <Col>
-                                <Button variant="primary" onClick={() => {
-                                    handleNavigation('/assign-ticket/' + ticket.ticketID)
-                                }}>
-                                    Assign Ticket
-                                </Button>
-                            </Col>
+                            {ticket.priority == null && props.role === "manager" && (
+                                <Col>
+                                    <Button variant="primary" onClick={() => {
+                                        handleNavigation('/assign-ticket/' + ticket.ticketID)
+                                    }}>
+                                        Assign Ticket
+                                    </Button>
+                                </Col>
+                            )}
+
+                            {ticket.priority != null && props.role === "customer" && ticket.chatID == null && (
+                                <Col>
+                                    <Button variant="success" onClick={() => {
+                                        handleNavigation('/start-chat/' + ticket.ticketID)
+                                    }}>
+                                        Start a chat
+                                    </Button>
+                                </Col>
+                            )}
+
+                            {ticket.priority != null && ticket.chatID != null && (
+                                <Col>
+                                    <Button variant="success" onClick={() => {
+                                        handleNavigation('/show-chat/' + ticket.chatID)
+                                    }}>
+                                        Show chat
+                                    </Button>
+                                </Col>
+                            )}
                         </Row>
                     </Container>
                 </Card.Body>
@@ -91,12 +114,11 @@ function ShowTickets(props) {
                             <tbody>
                             {ticket.statusHistory.map((item) => {
                                 const formattedDate = new Date(item.createdAt).toLocaleDateString('it-IT', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: 'numeric',
-                                    minute: 'numeric',
-                                    hour12: false
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
                                 });
                                 return (
                                     <tr key={item.statusID}>

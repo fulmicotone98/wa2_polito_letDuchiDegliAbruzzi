@@ -15,6 +15,8 @@ import AddProducts from "./AddProducts";
 import AddTickets from "./AddTickets";
 import ShowTickets from "./ShowTickets";
 import AssignTickets from "./AssignTickets";
+import StartChat from "./StartChat";
+import ShowChat from "./ShowChat";
 
 function App() {
 
@@ -23,12 +25,16 @@ function App() {
     const [keycloakResponse, setKeycloakResponse] = useState('');
     const [message, setMessage] = useState('');
     const [tickets, setTickets] = useState([]);
+    const [username, setUsername] = useState('');
+    const [role, setRole] = useState('');
     const handleLogin = async (credentials) => {
         try {
             const keycloakResp = await API.logIn(credentials);
             setAccessToken(keycloakResp.access_token)
             setLoggedIn(true);
             setKeycloakResponse(keycloakResp);
+            setUsername(credentials.username);
+            setRole("customer")
         } catch (err) {
             setMessage({msg: err, type: 'danger'});
         }
@@ -124,11 +130,13 @@ function App() {
                                 setKeycloakResponse={setKeycloakResponse}
                                 login={handleLogin} logOut={handleLogout}/>}/>
                 <Route path='/' element={<Layout keycloakResponse={keycloakResponse} loggedIn={loggedIn} logOut={handleLogout}/>}>
-                    <Route path="" element={loggedIn ? <UserDashboard accessToken={accessToken} tickets={tickets}/> : <Navigate replace to='/login'/>}/>
-                    <Route path="/add-product" element={loggedIn ? <AddProducts accessToken={accessToken}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="" element={loggedIn ? <UserDashboard accessToken={accessToken} tickets={tickets} username={username} role={role}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/add-product" element={loggedIn ? <AddProducts accessToken={accessToken} role={role}/> : <Navigate replace to='/login'/>}/>
                     <Route path="/add-ticket/:ean" element={loggedIn ? <AddTickets accessToken={accessToken} tickets={tickets} setTickets={setTickets}/> : <Navigate replace to='/login'/>}/>
-                    <Route path="/show-ticket/:id" element={loggedIn ? <ShowTickets accessToken={accessToken} tickets={tickets}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/show-ticket/:id" element={loggedIn ? <ShowTickets accessToken={accessToken} tickets={tickets} role={role}/> : <Navigate replace to='/login'/>}/>
                     <Route path="/assign-ticket/:id" element={loggedIn ? <AssignTickets accessToken={accessToken} tickets={tickets} setTickets={setTickets}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/start-chat/:id" element={loggedIn ? <StartChat accessToken={accessToken} tickets={tickets} setTickets={setTickets} /> : <Navigate replace to='/login'/>}/>
+                    <Route path="/show-chat/:id" element={loggedIn ? <ShowChat accessToken={accessToken} /> : <Navigate replace to='/login'/>}/>
                 </Route>
             </Routes>
         </Router>

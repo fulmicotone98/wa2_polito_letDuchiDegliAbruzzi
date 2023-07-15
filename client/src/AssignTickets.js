@@ -38,7 +38,6 @@ function AssignTickets(props) {
         getAllExperts(props.accessToken);
     }, []);
 
-    console.log(experts)
 
 
     return (

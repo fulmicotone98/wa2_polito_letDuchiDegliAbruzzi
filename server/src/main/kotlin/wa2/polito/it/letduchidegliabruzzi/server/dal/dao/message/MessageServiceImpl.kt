@@ -8,20 +8,25 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatRepository
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.toChat
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketDTO
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toDTO
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toTicket
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+
 @Service
 class MessageServiceImpl(
     private val messageRepository: MessageRepository,
-    private val chatService: ChatService
+    private val chatService: ChatService,
+    private val ticketService: TicketService
 ) : MessageService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     override fun addMessage(chatID: Int, senderUsername: String, text: String): Message {
         val chat = chatService.getChatInfo(chatID)
         val timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).toString()
-        val newMessage = MessageDTO(null, chat!!.toChat(), senderUsername, text, timestamp, listOf())
+        val newMessage = MessageDTO(null, chat!!, senderUsername, text, timestamp, listOf())
         return messageRepository.save(newMessage.toMessage())
+
     }
 
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)

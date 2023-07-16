@@ -8,4 +8,6 @@ interface UserService {
     fun updateUserByUsername(username: String, user: UserDTO)
 
     fun getUserInfo(): UserDTO
+
+    fun getAllExperts(): List<UserDTO?>
 }

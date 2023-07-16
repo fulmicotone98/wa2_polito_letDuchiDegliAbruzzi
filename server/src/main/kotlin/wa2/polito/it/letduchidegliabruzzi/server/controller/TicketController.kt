@@ -16,10 +16,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.toProduct
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.status_history.StatusHistoryService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.status_history.toStatusHistory
-import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.Ticket
-import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
-import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toDTO
-import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.toTicket
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.*
 import java.security.Principal
 
 @Validated
@@ -36,24 +33,18 @@ class TicketController(
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
     @GetMapping("/API/ticket/{id}")
-    fun getTicket(@PathVariable id: Int): TicketBodyResponse? {
+    fun getTicket(@PathVariable id: Int): TicketDTO? {
         val ticket = ticketService.getTicket(id)
         if(ticket == null){
             log.error("Error getting ticket: Ticket not found with Id $id")
             throw TicketNotFoundException("Ticket not found with Id: $id")
         }
-        return TicketBodyResponse(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customer.username, ticket.employee?.username)
+        return ticket
     }
 
-    @GetMapping("/API/ticket/{id}/history")
-    fun getHistory(@PathVariable id: Int): List<StatusHistoryBodyResponse> {
-        val ticketDTO = ticketService.getTicket(id)
-        if(ticketDTO == null) {
-            log.error("Error getting ticket history: Ticket not found with Id $id")
-            throw TicketNotFoundException("Ticket not found with Id: $id")
-        }
-        return statusHistoryService.findByTicket(ticketDTO.toTicket())
-            .map { StatusHistoryBodyResponse(it.statusID, it.ticket.ticketID, it.createdAt, it.status) }
+    @GetMapping("/API/ticket")
+    fun getTickets(): List<TicketDTO>? {
+        return ticketService.getTickets()
     }
 
     @PostMapping("/API/ticket")
@@ -114,6 +105,8 @@ class TicketController(
             throw TicketNotFoundException("Ticket not found")
         }
 
+        val ticketHistory = statusHistoryService.findByTicket(ticket.toTicket())
+
         val newTicketDTO = Ticket(
             ticket.ticketID,
             ticket.description,
@@ -123,9 +116,8 @@ class TicketController(
             ticket.customer.username,
             employee.username,
             ticket.product.toProduct(),
-            ticket.statusHistory.map { it.toStatusHistory() },
             null
-        ).toDTO(ticket.customer, employee)
+        ).toDTO(ticket.customer, employee,ticketHistory,null)
         log.info("Ticket with id ${ticket.ticketID} correctly assigned to ${employee.username}")
         return TicketIDBodyResponse(ticketService.editTicket(newTicketDTO).ticketID)
     }
@@ -141,6 +133,7 @@ class TicketController(
             log.error("Error editing the ticket status: Ticket not found with id $id")
             throw TicketNotFoundException("Ticket not found")
         }
+        val ticketHistory = statusHistoryService.findByTicket(ticket.toTicket())
         val newTicketDTO = Ticket(
             ticket.ticketID,
             ticket.description,
@@ -150,9 +143,8 @@ class TicketController(
             ticket.customer.username,
             ticket.employee?.username,
             ticket.product.toProduct(),
-            ticket.statusHistory.map { it.toStatusHistory() },
             null
-        ).toDTO(ticket.customer, ticket.employee)
+        ).toDTO(ticket.customer, ticket.employee,ticketHistory,ticket.chat)
         log.info("Ticket $id status correctly edited to from ${ticket.status} to ${body.status}")
         return ticketService.editTicket(newTicketDTO).toTicket().ticketID
     }

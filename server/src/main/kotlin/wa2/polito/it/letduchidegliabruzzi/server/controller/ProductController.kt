@@ -34,6 +34,12 @@ class ProductController(private val productService: ProductService, private val 
         return p.map { ProductResponseBody(it.ean,it.name,it.brand,it.customer.username) }
     }
 
+    @GetMapping("/API/products/user")
+    fun getAllByUser(principal: Principal): List<ProductResponseBody>{
+        val p = productService.getAllByUser(principal.name)
+        return p.map { ProductResponseBody(it.ean,it.name,it.brand,it.customer.username) }
+    }
+
     @GetMapping("/API/products/{ean}")
     fun getProduct(@PathVariable @NotBlank @Pattern(regexp = "^[A-Za-z0-9]+\$", message = "The Ean should be alphanumeric") ean: String): ProductResponseBody {
         val p = productService.getProduct(ean)

@@ -4,15 +4,15 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.Ticket
 
 class StatusHistoryDTO(
     val statusID: Int?,
-    val ticket: Ticket,
+    val ticketID: Int,
     val createdAt: String,
     val status: String
 )
 
-fun StatusHistory.toDTO(): StatusHistoryDTO {
-    return StatusHistoryDTO(statusID, ticket, createdAt,status)
+fun StatusHistory.toDTO(ticketID: Int): StatusHistoryDTO {
+    return StatusHistoryDTO(statusID, ticketID, createdAt, status)
 }
 
-fun StatusHistoryDTO.toStatusHistory(): StatusHistory {
-    return StatusHistory(statusID,ticket,createdAt,status)
+fun StatusHistoryDTO.toStatusHistory(ticket: Ticket): StatusHistory {
+    return StatusHistory(statusID, ticket, createdAt, status)
 }

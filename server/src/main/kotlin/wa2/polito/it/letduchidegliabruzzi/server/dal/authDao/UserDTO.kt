@@ -8,10 +8,15 @@ data class UserDTO(
     val name: String,
     val surname: String,
     val phonenumber: String?,
-    val address: String?
+    val address: String?,
+    val roles: List<String>?
 )
 
-fun UserRepresentation.toDTO(): UserDTO{
+fun UserRepresentation.toDTO(roles: List<String>?): UserDTO{
     return UserDTO(username,email,firstName,lastName, attributes["phonenumber"]?.firstOrNull(),
-        attributes["address"]?.firstOrNull())
+        attributes["address"]?.firstOrNull(), roles)
+}
+
+fun UserDTO.addRoles(roles: List<String>): UserDTO{
+    return UserDTO(username,email,name,surname,phonenumber, address, roles)
 }

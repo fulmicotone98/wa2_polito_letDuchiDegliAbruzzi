@@ -15,8 +15,8 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
     val instance: UsersResource = KeycloakConfig(keycloakProperties).getInstance().realm("spring_boot_webapp2_realm").users()
 
     override fun getUserByUsername(username: String): UserDTO? {
-        val user = instance.search(username).firstOrNull()
-        return user?.toDTO()
+        val user = instance.search(username, true).firstOrNull()
+        return user?.toDTO(null)
 
     }
 
@@ -49,7 +49,7 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
 
     override fun getAllExperts(): List<UserDTO?> {
         val user = instance.search("expert").firstOrNull()
-        return listOf(user?.toDTO())
+        return listOf(user?.toDTO(null))
     }
 
 }

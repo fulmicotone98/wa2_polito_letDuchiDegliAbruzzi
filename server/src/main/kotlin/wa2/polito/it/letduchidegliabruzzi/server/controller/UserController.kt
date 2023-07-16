@@ -6,14 +6,10 @@ import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.CustomerRequestBody
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.CustomerResponseBody
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.EmployeeBodyResponse
@@ -23,17 +19,19 @@ import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.Custom
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.EmployeeNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserServiceImpl
+import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.addRoles
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
 
 @Validated
 @RestController
 @Observed
 @Slf4j
+@RequestMapping("/API")
 class UserController(private val userService: UserServiceImpl, private val ticketService: TicketService) {
 
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
-    @GetMapping("/API/profile/{username}/tickets")
+    @GetMapping("/profile/{username}/tickets")
     fun getTicketsByEmail(@PathVariable("username") username: String): List<TicketBodyResponse> {
         val c = userService.getUserByUsername(username)
         if (c == null) {
@@ -54,7 +52,7 @@ class UserController(private val userService: UserServiceImpl, private val ticke
         }
     }
 
-    @GetMapping("/API/profiles/{username}")
+    @GetMapping("/profiles/{username}")
     fun getProfile(@PathVariable("username") username: String): CustomerResponseBody? {
         val c = userService.getUserByUsername(username)
         if (c == null) {
@@ -64,7 +62,7 @@ class UserController(private val userService: UserServiceImpl, private val ticke
         return CustomerResponseBody(c.email, c.username, c.name, c.surname, c.address, c.phonenumber)
     }
 
-    @GetMapping("/API/profiles/experts")
+    @GetMapping("/profiles/experts")
     fun getAllExperts(): List<CustomerResponseBody>? {
         val experts = userService.getAllExperts()
         return experts.filterNotNull()
@@ -72,13 +70,9 @@ class UserController(private val userService: UserServiceImpl, private val ticke
     }
 
 
-    @PutMapping("/API/profiles/{username}")
+    @PutMapping("/profiles/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun updateProfile(
-        @PathVariable("username") username: String,
-        @Valid @RequestBody body: CustomerRequestBody,
-        br: BindingResult
-    ): CustomerResponseBody? {
+    fun updateProfile(@PathVariable("username") username: String, @Valid @RequestBody body: CustomerRequestBody, br: BindingResult): CustomerResponseBody? {
         if (br.hasErrors()) {
             log.error("Error updating a Profile: Body validation failed with errors ${br.allErrors}")
             throw ConstraintViolationException("Body validation failed")
@@ -88,7 +82,7 @@ class UserController(private val userService: UserServiceImpl, private val ticke
             log.error("Error updating customer: Customer not found with Email: $username")
             throw CustomerNotFoundException("Customer not found with Email: $username")
         }
-        val newUserDTO = UserDTO(body.username, body.email, body.name, body.surname, body.phonenumber, body.address)
+        val newUserDTO = UserDTO(body.username, body.email, body.name, body.surname, body.phonenumber, body.address, null)
 
         userService.updateUserByUsername(username, newUserDTO)
         log.info("Updated profile with email $username")
@@ -103,5 +97,10 @@ class UserController(private val userService: UserServiceImpl, private val ticke
             throw EmployeeNotFoundException("Employee not found")
         }
         return EmployeeBodyResponse(e.username!!, e.email, e.name, "", e.surname)
+    }
+
+    @GetMapping("/userinfo")
+    fun getUserInfo(auth: Authentication): UserDTO? {
+        return userService.getUserByUsername(auth.name)?.addRoles(auth.authorities.map { it.authority.toString() })
     }
 }

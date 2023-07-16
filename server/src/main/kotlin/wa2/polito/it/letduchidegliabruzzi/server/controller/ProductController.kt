@@ -7,7 +7,10 @@ import jakarta.validation.constraints.Pattern
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -19,6 +22,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.Duplic
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ProductNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserServiceImpl
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductService
+import wa2.polito.it.letduchidegliabruzzi.server.security.AuthenticationService
 import java.security.Principal
 
 @Validated
@@ -26,7 +30,6 @@ import java.security.Principal
 @Observed
 @Slf4j
 class ProductController(private val productService: ProductService, private val userService: UserServiceImpl,) {
-
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
     @GetMapping("/API/products")
     fun getAll(): List<ProductResponseBody>{
@@ -52,7 +55,7 @@ class ProductController(private val productService: ProductService, private val 
 
     @PostMapping("/API/products")
     @ResponseStatus(HttpStatus.CREATED)
-    fun addProduct(@Valid @RequestBody body: ProductRequestBody, br: BindingResult, principal: Principal): ProductBodyID{
+    fun addProduct(@Valid @RequestBody body: ProductRequestBody, br: BindingResult, auth: Authentication): ProductBodyID{
         // Check if the body is valid
         if(br.hasErrors()) {
             log.error("Add product error: Body validation failed with error ${br.allErrors}")
@@ -64,7 +67,7 @@ class ProductController(private val productService: ProductService, private val 
             throw DuplicateProductException("Product already exists with ean: ${body.ean}")
         }
 
-        val username = principal.name
+        val username = auth.name
         val product = productService.addProduct(body.ean, body.brand,body.name,username)
         log.info("New product with ean ${body.ean} added correctly")
         return ProductBodyID(product.ean)

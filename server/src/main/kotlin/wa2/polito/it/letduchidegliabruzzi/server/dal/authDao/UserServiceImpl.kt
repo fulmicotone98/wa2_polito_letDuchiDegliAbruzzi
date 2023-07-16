@@ -22,8 +22,8 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
     }
     
     override fun getUserByEmail(email: String): UserDTO? {
-        val user = instance.search(null,null, null, email, null, null).firstOrNull()
-        return user?.toDTO()
+        val user = userResource.search(null,null, null, email, null, null).firstOrNull()
+        return user?.toDTO(null)
     }
     
     override fun addUser(userBody: UserBody, groups: List<String>): Int {

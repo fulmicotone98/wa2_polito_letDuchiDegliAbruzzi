@@ -34,7 +34,7 @@ function App() {
             setLoggedIn(true);
             setKeycloakResponse(keycloakResp);
             setUsername(credentials.username);
-            setRole("customer")
+            setRole("expert")
         } catch (err) {
             setMessage({msg: err, type: 'danger'});
         }
@@ -50,7 +50,6 @@ function App() {
         const getAllTickets = async (accessToken) => {
             try {
                 const allTickets = await API.getAllTickets(accessToken);
-                console.log(allTickets);
                 setTickets(allTickets);
             } catch (error) {
                 console.log(error)
@@ -137,7 +136,7 @@ function App() {
                     <Route path="/show-ticket/:id" element={loggedIn ? <ShowTickets accessToken={accessToken} tickets={tickets} role={role}/> : <Navigate replace to='/login'/>}/>
                     <Route path="/assign-ticket/:id" element={loggedIn ? <AssignTickets accessToken={accessToken} tickets={tickets} setTickets={setTickets}/> : <Navigate replace to='/login'/>}/>
                     <Route path="/start-chat/:id" element={loggedIn ? <StartChat accessToken={accessToken} tickets={tickets} setTickets={setTickets} /> : <Navigate replace to='/login'/>}/>
-                    <Route path="/show-chat/:id" element={loggedIn ? <ShowChat accessToken={accessToken} /> : <Navigate replace to='/login'/>}/>
+                    <Route path="/show-chat/:id" element={loggedIn ? <ShowChat accessToken={accessToken} username={username} role={role} tickets={tickets} setTickets={setTickets}/> : <Navigate replace to='/login'/>}/>
                 </Route>
             </Routes>
         </Router>

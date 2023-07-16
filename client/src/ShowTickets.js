@@ -16,7 +16,6 @@ function ShowTickets(props) {
     let ticket = props.tickets.filter(ticket => ticket.ticketID == id);
     ticket = ticket[0];
 
-    console.log(ticket)
 
 
     const formattedDate = new Date(ticket.createdAt).toLocaleDateString('it-IT', {

@@ -39,7 +39,6 @@ function AssignTickets(props) {
     }, []);
 
 
-
     return (
         <>
             <Col></Col>
@@ -62,8 +61,21 @@ function AssignTickets(props) {
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Priority</Form.Label>
-                        <Form.Control placeholder="Enter Priority" value={priority}
-                                      onChange={ev => setPriority(ev.target.value)} required={true}/>
+                        <Form.Select
+                            value={priority}
+                            onChange={(e) => setPriority(e.target.value)}
+                            required>
+                            <option value="">Select a Priority</option>
+                            <option value="Low">
+                                Low
+                            </option>
+                            <option value="Medium">
+                                Medium
+                            </option>
+                            <option value="High">
+                                High
+                            </option>
+                        </Form.Select>
                     </Form.Group>
 
                     <div className="d-grid gap-2">

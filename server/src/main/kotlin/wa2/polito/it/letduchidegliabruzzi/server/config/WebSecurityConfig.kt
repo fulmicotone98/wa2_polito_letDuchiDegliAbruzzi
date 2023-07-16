@@ -45,6 +45,7 @@ class WebSecurityConfig {
 
             .requestMatchers(HttpMethod.POST, "/API/chat").hasAnyRole(customer)
 
+            .requestMatchers(HttpMethod.POST, "/API/message").hasAnyRole(expert, customer)
             .requestMatchers(HttpMethod.POST, "/API/message/chat/*").hasAnyRole(manager, expert, customer)
 
             .requestMatchers(HttpMethod.POST, "/API/login").permitAll()

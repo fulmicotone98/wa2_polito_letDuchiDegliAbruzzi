@@ -65,9 +65,11 @@ class TicketServiceImpl(
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    override fun editTicket(newTicketDTO: TicketDTO): TicketDTO {
+    override fun editTicket(newTicketDTO: TicketDTO, isStatsUpdateNeeded :Boolean ): TicketDTO {
         val timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).toString()
-        statusHistoryService.addStatus(newTicketDTO.toTicket(), timestamp, newTicketDTO.status)
+        if(isStatsUpdateNeeded) {
+            statusHistoryService.addStatus(newTicketDTO.toTicket(), timestamp, newTicketDTO.status)
+        }
         val modified = ticketRepository.save(newTicketDTO.toTicket())
         val customer = userService.getUserByUsername(modified.customerUsername)
         val expert = userService.getUserByUsername(modified.expertUsername?:"")

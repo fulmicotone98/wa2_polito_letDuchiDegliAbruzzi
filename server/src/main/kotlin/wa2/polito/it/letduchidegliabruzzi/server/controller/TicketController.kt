@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.*
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.*
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserServiceImpl
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.toChat
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.toProduct
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.status_history.StatusHistoryService
@@ -143,7 +144,7 @@ class TicketController(
             ticket.customer.username,
             ticket.employee?.username,
             ticket.product.toProduct(),
-            null
+            ticket.chat?.toChat()
         ).toDTO(ticket.customer, ticket.employee,ticketHistory,ticket.chat)
         log.info("Ticket $id status correctly edited to from ${ticket.status} to ${body.status}")
         return ticketService.editTicket(newTicketDTO).toTicket().ticketID

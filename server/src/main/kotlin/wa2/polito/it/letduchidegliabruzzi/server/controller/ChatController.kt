@@ -101,10 +101,9 @@ class ChatController(
 
         val chat = chatService.addChat(body.ticketID)
         ticket.chat = chat.toDTO()
-        tickerService.editTicket(ticket);
+        tickerService.editTicket(ticket,false);
         val message = messageService.addMessage(chat.chatID!!, customerUsername, body.message)
         body.files?.forEach {
-            log.info(it)
             attachmentService.addAttachment(message.messageID!!, it)
         }
         log.info("Correctly added a new chat with id ${chat.chatID}")

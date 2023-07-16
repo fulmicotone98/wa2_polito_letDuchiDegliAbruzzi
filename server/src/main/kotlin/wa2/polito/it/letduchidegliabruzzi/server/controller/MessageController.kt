@@ -65,7 +65,7 @@ class MessageController(
     }
 
     @GetMapping("/API/message/chat/{id}")
-    fun getChatByTicketID(@PathVariable id: Int): List<MessageBodyResponse> {
+    fun getChatByChatID(@PathVariable id: Int): List<MessageBodyResponse> {
         val chat = chatService.getChatInfo(id)
         if (chat == null) {
             log.error("Error getting a chat: Chat not found with Id $id")
@@ -136,14 +136,11 @@ class MessageController(
         }
 
         val message = messageService.addMessage(body.chatID, username, body.text)
-        val messageAttachments :MutableList<AttachmentDTO> = mutableListOf()
-        if(body.attachments != null){
-            body.attachments.forEach{
-                val fileBase64 = Base64.getEncoder().encodeToString(it.bytes)
-                val newAttachment = message.messageID?.let { it1 -> attachmentService.addAttachment(it1,fileBase64) }
-                if(newAttachment != null){
-                    messageAttachments.add(newAttachment.toDTO())
-                }
+        val listOfAttachments: MutableList<AttachmentDTO> = mutableListOf()
+        if (body.attachments != null) {
+            body.attachments.forEach {
+                val attachment: Attachment = attachmentService.addAttachment(message.messageID!!, it)
+                listOfAttachments.add(attachment.toDTO())
             }
         }
         log.info("Correctly added a new message with id ${message.messageID}")
@@ -155,7 +152,7 @@ class MessageController(
             message.senderUsername,
             user.name,
             user.surname,
-            messageAttachments
+            listOfAttachments
         )
     }
 }

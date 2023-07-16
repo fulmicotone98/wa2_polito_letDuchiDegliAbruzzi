@@ -7,6 +7,6 @@ interface TicketService {
     fun getTickets(): List<TicketDTO>
     fun getHistory(ticket: Ticket): List<StatusHistoryDTO>
     fun addTicket(description: String, productEan: String, customerUsername: String): Ticket
-    fun editTicket(newTicketDTO: TicketDTO): TicketDTO
+    fun editTicket(newTicketDTO: TicketDTO, isStatsUpdateNeeded :Boolean = true): TicketDTO
     fun getTicketsByCustomer(customerEmail: String): List<TicketDTO>
 }

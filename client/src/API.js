@@ -186,7 +186,7 @@ async function getAllMessages(accessToken, chatID) {
             // process the response
             const list = await response.json();
             console.log(list)
-            return list.map((m) => new Message(m.messageID, m.chatID, m.text, m.createdAt, m.senderUsername, m.senderName, m.senderSurname, m.attachments));
+            return list.map((m) => new Message(m.messageID, m.chatID, m.text, m.createdAt, m.senderUsername, m.senderFirstname, m.senderSurname, m.attachments));
         } else {
             // application error (404, 500, ...)
             console.log(response.statusText);
@@ -208,6 +208,35 @@ async function addTicket(accessToken, ean, description) {
         const response = await fetch(baseURL8081 + '/API/ticket',
             {
                 method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ticket),
+            });
+        let newTicket = await response.json();
+        if (response.ok) {
+            return newTicket;
+        } else {
+            // application error (404, 500, ...)
+            console.log(response.statusText);
+            const error = newTicket;
+            throw new TypeError(error.detail);
+        }
+    } catch (ex) {
+        // network error
+        console.log(ex);
+        throw ex;
+    }
+}
+
+async function closeTicket(accessToken, ticketID) {
+    try {
+        const ticket = {status: "CLOSED"}
+
+        const response = await fetch(baseURL8081 + '/API/ticket/' + ticketID + '/status',
+            {
+                method: 'PUT',
                 headers: {
                     'Authorization': 'Bearer ' + accessToken,
                     'Content-Type': 'application/json'
@@ -265,6 +294,41 @@ async function addChat(accessToken, ticketID, message, files) {
         throw ex;
     }
 }
+
+async function addMessage(accessToken, chatID, message, files) {
+    try {
+        const base64Files = await encodeFilesToBase64(files); // Encode files to base64
+        const request = {
+            chatID: chatID,
+            text: message,
+            attachments: base64Files, // Include base64 files in the request
+        };
+
+
+        const response = await fetch(baseURL8081 + "/API/message", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: "Bearer " + accessToken,
+            },
+            body: JSON.stringify(request),
+        });
+
+        const newMessage = await response.json();
+        if (response.ok) {
+            return newMessage;
+        } else {
+            // Application error (404, 500, ...)
+            const error = newMessage;
+            throw new TypeError(error.detail);
+        }
+    } catch (ex) {
+        // Network error
+        console.log(ex);
+        throw ex;
+    }
+}
+
 
 function encodeFilesToBase64(files) {
     return new Promise((resolve, reject) => {
@@ -425,6 +489,8 @@ const API = {
     assignTicket,
     addChat,
     getAllMessages,
+    addMessage,
+    closeTicket,
     getProductById,
     addCustomer,
     updateCustomer,

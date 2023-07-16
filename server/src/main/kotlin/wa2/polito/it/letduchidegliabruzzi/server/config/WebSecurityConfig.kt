@@ -43,6 +43,10 @@ class WebSecurityConfig {
             .requestMatchers(HttpMethod.GET, "/API/profiles/**").hasAnyRole(manager, expert, customer)
             .requestMatchers(HttpMethod.PUT, "/API/profiles/**").hasAnyRole(manager, customer)
 
+            .requestMatchers(HttpMethod.POST, "/API/chat").hasAnyRole(customer)
+
+            .requestMatchers(HttpMethod.POST, "/API/message/chat/*").hasAnyRole(manager, expert, customer)
+
             .requestMatchers(HttpMethod.POST, "/API/login").permitAll()
             .requestMatchers(HttpMethod.POST, "/API/signup").permitAll()
             .anyRequest().authenticated()

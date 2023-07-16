@@ -23,6 +23,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.attachment.AttachmentSe
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.attachment.toDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.message.MessageService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
 import java.security.Principal
 import java.util.Base64
 
@@ -34,7 +35,8 @@ class MessageController(
     private val messageService: MessageService,
     private val chatService: ChatService,
     private val userService: UserService,
-    private val attachmentService: AttachmentService
+    private val attachmentService: AttachmentService,
+    private val ticketService: TicketService
 ) {
     private val log: Logger = LoggerFactory.getLogger(MessageController::class.java)
 
@@ -58,7 +60,7 @@ class MessageController(
             message.senderUsername,
             userInfo.name,
             userInfo.surname,
-            message.attachments.map { attachment ->  attachment.toDTO() }
+            message.attachments
         )
     }
 
@@ -88,7 +90,7 @@ class MessageController(
                 it.senderUsername,
                 users[it.senderUsername]!!.name,
                 users[it.senderUsername]!!.surname,
-                it.attachments.map { attachment ->  attachment.toDTO() }
+                it.attachments
             )
         }
         return listMessages
@@ -115,8 +117,14 @@ class MessageController(
             throw ChatNotFoundException("Chat not found with Id ${body.chatID}")
         }
 
+        val ticket = ticketService.getTicket(chat.ticketID!!)
+        if (ticket == null) {
+            log.error("Error adding a Message: Ticket not found with Id ${chat.ticketID}")
+            throw TicketNotFoundException("Chat not found with Id ${chat.ticketID}")
+        }
+
         // Check if the user is authorized to send message
-        if (chat.ticket.customerUsername != username && chat.ticket.expertUsername != username) {
+        if (ticket.customer.username != username && ticket.employee?.username != username) {
             log.error("Error adding a Message: User is not authorized with username $username")
             throw MessageUserNotAuthorizedException("User is not authorized")
         }

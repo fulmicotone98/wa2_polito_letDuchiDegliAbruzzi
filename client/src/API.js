@@ -1,6 +1,8 @@
 import Product from "./models/Product";
 import Customer from "./models/Customer"
 import Ticket from "./models/Ticket";
+import StatusHistory from "./models/StatusHistory";
+import Message from "./models/Message";
 
 const baseURL8081 = 'http://localhost:8081';
 
@@ -128,7 +130,7 @@ async function getAllTickets(accessToken) {
         if (response.ok) {
             // process the response
             const list = await response.json();
-            return list.map((t) => new Ticket(t.ticketID, t.description, t.status, t.priority, t.createdAt, t.product.ean, t.product.brand, t.product.name, t.customer.username, t.customer.name, t.customer.surname, t.employee.username, t.employee.name, t.employee.surname, t.statusHistory));
+            return list.map((t) => new Ticket(t.ticketID, t.description, t.status, t.priority, t.createdAt, t.product.ean, t.product.brand, t.product.name, t.customer.username, t.customer.name, t.customer.surname, t.employee.username, t.employee.name, t.employee.surname, t.statusHistory, t.chat != null ? t.chat.chatID : null));
         } else {
             // application error (404, 500, ...)
             console.log(response.statusText);
@@ -155,6 +157,36 @@ async function getAllExperts(accessToken) {
             // process the response
             const list = await response.json();
             return list.map((c) => new Customer(c.email, c.username, c.name, c.surname, c.address, c.phonenumber));
+        } else {
+            // application error (404, 500, ...)
+            console.log(response.statusText);
+            const error = await response.json();
+            throw new TypeError(error.detail);
+        }
+    } catch (ex) {
+        // network error
+        console.log(ex);
+        throw ex;
+    }
+}
+
+async function getAllMessages(accessToken, chatID) {
+    try {
+        console.log(chatID)
+        const response = await fetch(baseURL8081 + '/API/message/chat/' + chatID, {
+            headers: {
+                'Authorization': 'Bearer ' + accessToken,
+                'Content-Type': 'application/json'
+            },
+        });
+
+        console.log(response.ok)
+        if (response.ok) {
+            console.log("i am in")
+            // process the response
+            const list = await response.json();
+            console.log(list)
+            return list.map((m) => new Message(m.messageID, m.chatID, m.createdAt, m.senderUsername, m.senderName, m.senderSurname, m.attachments));
         } else {
             // application error (404, 500, ...)
             console.log(response.statusText);
@@ -197,6 +229,69 @@ async function addTicket(accessToken, ean, description) {
         throw ex;
     }
 }
+
+
+async function addChat(accessToken, ticketID, message, files) {
+    try {
+        const base64Files = await encodeFilesToBase64(files); // Encode files to base64
+        const request = {
+            ticketID: ticketID,
+            message: message,
+            files: base64Files, // Include base64 files in the request
+        };
+
+        console.log(request)
+
+        const response = await fetch(baseURL8081 + "/API/chat", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: "Bearer " + accessToken,
+            },
+            body: JSON.stringify(request),
+        });
+
+        const newChat = await response.json();
+        if (response.ok) {
+            return newChat;
+        } else {
+            // Application error (404, 500, ...)
+            const error = newChat;
+            throw new TypeError(error.detail);
+        }
+    } catch (ex) {
+        // Network error
+        console.log(ex);
+        throw ex;
+    }
+}
+
+function encodeFilesToBase64(files) {
+    return new Promise((resolve, reject) => {
+        const filePromises = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileReader = new FileReader();
+
+            filePromises.push(
+                new Promise((resolveFile) => {
+                    fileReader.onload = (event) => {
+                        const base64String = event.target.result;
+                        resolveFile(base64String);
+                    };
+                })
+            );
+
+            fileReader.readAsDataURL(file);
+        }
+
+        Promise.all(filePromises)
+            .then((base64Strings) => resolve(base64Strings))
+            .catch((error) => reject(error));
+    });
+}
+
 
 async function assignTicket(accessToken, ticketId, expertUsername, priority) {
     try {
@@ -328,6 +423,8 @@ const API = {
     addTicket,
     getAllExperts,
     assignTicket,
+    addChat,
+    getAllMessages,
     getProductById,
     addCustomer,
     updateCustomer,

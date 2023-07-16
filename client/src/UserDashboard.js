@@ -1,21 +1,19 @@
-import {Button, Col, Row} from "react-bootstrap";
+import {Button, Card, Col, Row} from "react-bootstrap";
 import API from './API';
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 
 function UserDashboard(props) {
     let tickets = props.tickets;
-    let role = "manager"
-    return (
-        <>
-            {
-                role == "manager" ?
-                    <ManagerDashboard accessToken={props.accessToken} tickets={tickets}/>
-                    :
-                    <CustomerDashboard accessToken={props.accessToken} tickets={tickets}/>
-            }
-
-        </>)
+    let role = props.role;
+    console.log(role);
+    if (role === "manager") {
+        return <ManagerDashboard accessToken={props.accessToken} tickets={tickets} role={role}/>;
+    } else if (role === "expert") {
+        return <ExpertDashboard accessToken={props.accessToken} tickets={tickets} username={props.username} role={role}/>;
+    } else {
+        return <CustomerDashboard accessToken={props.accessToken} tickets={tickets} role={role}/>;
+    }
 }
 
 function CustomerDashboard(props) {
@@ -88,7 +86,7 @@ function CustomerDashboard(props) {
 
 }
 
-function ManagerDashboard(props){
+function ManagerDashboard(props) {
 
     let tickets = props.tickets.filter(ticket => ticket.status == "OPEN");
     let inProgressTickets = props.tickets.filter(ticket => ticket.status == "IN PROGRESS");
@@ -97,10 +95,26 @@ function ManagerDashboard(props){
         <>
             <Row>
                 <Col>
-                    <TableDiv tickets={tickets} title={"Tickets to be assigned"}/>
+                    <Card>
+                        <Card.Body>
+                            <Card.Title>Tickets to be assigned</Card.Title>
+                            <TableDiv
+                                tickets={tickets}
+                                inProgress={false}
+                            />
+                        </Card.Body>
+                    </Card>
                 </Col>
                 <Col>
-                    <TableDiv tickets={inProgressTickets} title={"Tickets in progress"}/>
+                    <Card>
+                        <Card.Body>
+                            <Card.Title>Tickets in progress</Card.Title>
+                            <TableDiv
+                                tickets={inProgressTickets}
+                                inProgress={true}
+                            />
+                        </Card.Body>
+                    </Card>
                 </Col>
             </Row>
 
@@ -108,7 +122,32 @@ function ManagerDashboard(props){
 
 }
 
-function TableDiv(props){
+
+function ExpertDashboard(props) {
+
+    let inProgressTickets = props.tickets.filter(ticket => ticket.status == "IN PROGRESS" && ticket.employeeUsername == props.username);
+
+    return (
+        <>
+            <Row>
+                <Col>
+                    <Card>
+                        <Card.Body>
+                            <Card.Title>Tickets Assigned to you</Card.Title>
+                            <TableDiv
+                                tickets={inProgressTickets}
+                                inProgress={true}
+                            />
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
+
+        </>)
+
+}
+
+function TableDiv(props) {
     const navigate = useNavigate();
 
     const handleNavigation = (path) => {
@@ -126,6 +165,12 @@ function TableDiv(props){
                         <th>Product Brand</th>
                         <th>Product Name</th>
                         <th>Customer</th>
+                        {props.inProgress && (
+                            <>
+                                <th>Expert</th>
+                                <th>Priority</th>
+                            </>
+                        )}
                         <th>Description</th>
                         <th>Created At</th>
                         <th>Ticket</th>
@@ -134,12 +179,11 @@ function TableDiv(props){
                     <tbody>
                     {props.tickets.map((item) => {
                         const formattedDate = new Date(item.createdAt).toLocaleDateString('it-IT', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            hour12: false
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
                         });
 
                         return (
@@ -148,6 +192,12 @@ function TableDiv(props){
                                 <td>{item.productBrand}</td>
                                 <td>{item.productName}</td>
                                 <td>{item.customerName + " " + item.customerSurname}</td>
+                                {props.inProgress && (
+                                    <>
+                                        <td>{item.employeeName + " " + item.employeeSurname}</td>
+                                        <td>{item.priority}</td>
+                                    </>
+                                )}
                                 <td>{item.description}</td>
                                 <td>{formattedDate}</td>
                                 <td><Button variant="success" size="sm" onClick={() => {

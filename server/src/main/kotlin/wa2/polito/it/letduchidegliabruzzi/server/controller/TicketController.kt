@@ -117,7 +117,7 @@ class TicketController(
             employee.username,
             ticket.product.toProduct(),
             null
-        ).toDTO(ticket.customer, employee,ticketHistory)
+        ).toDTO(ticket.customer, employee,ticketHistory,null)
         log.info("Ticket with id ${ticket.ticketID} correctly assigned to ${employee.username}")
         return TicketIDBodyResponse(ticketService.editTicket(newTicketDTO).ticketID)
     }
@@ -144,7 +144,7 @@ class TicketController(
             ticket.employee?.username,
             ticket.product.toProduct(),
             null
-        ).toDTO(ticket.customer, ticket.employee,ticketHistory)
+        ).toDTO(ticket.customer, ticket.employee,ticketHistory,ticket.chat)
         log.info("Ticket $id status correctly edited to from ${ticket.status} to ${body.status}")
         return ticketService.editTicket(newTicketDTO).toTicket().ticketID
     }

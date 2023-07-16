@@ -103,4 +103,8 @@ class UserController(private val userService: UserServiceImpl, private val ticke
     fun getUserInfo(auth: Authentication): UserDTO? {
         return userService.getUserByUsername(auth.name)?.addRoles(auth.authorities.map { it.authority.toString() })
     }
+    @GetMapping("/users/experts")
+    fun getExperts():List<UserDTO>{
+        return userService.getAllExperts()
+    }
 }

@@ -9,5 +9,5 @@ interface UserService {
 
     fun getUserInfo(): UserDTO
 
-    fun getAllExperts(): List<UserDTO?>
+    fun getAllExperts(): List<UserDTO>
 }

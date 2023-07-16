@@ -72,10 +72,13 @@ class KeycloakController(
             throw ConstraintViolationException("Body validation failed")
         }
         if (userService.getUserByUsername(userBody.username) != null) {
+            log.error("Error Adding a Profile: Customer already exists with Username: ${userBody.username}")
+            throw DuplicateCustomerException("Customer already exists with Username: ${userBody.username}")
+        }
+        if (userService.getUserByEmail(userBody.emailID) != null) {
             log.error("Error Adding a Profile: Customer already exists with Email: ${userBody.emailID}")
             throw DuplicateCustomerException("Customer already exists with Email: ${userBody.emailID}")
         }
-
         userService.addUser(userBody, listOf("Customers_group"))
         log.info("Correctly added a new Profile with the email ${userBody.emailID}")
         return userBody

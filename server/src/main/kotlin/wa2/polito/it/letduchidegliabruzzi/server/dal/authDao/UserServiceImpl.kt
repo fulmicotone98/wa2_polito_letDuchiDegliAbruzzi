@@ -15,11 +15,14 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
     val instance: UsersResource = KeycloakConfig(keycloakProperties).getInstance().realm("spring_boot_webapp2_realm").users()
 
     override fun getUserByUsername(username: String): UserDTO? {
-        val user = instance.search(username).firstOrNull()
+        val user = instance.search(username, true).firstOrNull()
         return user?.toDTO()
 
     }
-
+    override fun getUserByEmail(email: String): UserDTO? {
+        val user = instance.search(null,null, null, email, null, null).firstOrNull()
+        return user?.toDTO()
+    }
     override fun addUser(userBody: UserBody, groups: List<String>): Int {
         val credentials: CredentialRepresentation = Credentials().createPasswordCredentials(userBody.password)
 

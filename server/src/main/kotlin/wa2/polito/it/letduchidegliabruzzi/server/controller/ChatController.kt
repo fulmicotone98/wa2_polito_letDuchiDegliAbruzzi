@@ -6,25 +6,37 @@ import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.ChatBodyRequest
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.ChatBodyResponse
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.TicketBodyRequest
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.*
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ChatNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ProductNotFoundException
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.attachment.AttachmentService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.toDTO
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.message.MessageService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
 import java.security.Principal
+import java.util.*
+import javax.ws.rs.Consumes
 
 @Validated
 @RestController
 @Observed
 @Slf4j
-class ChatController(private val chatService: ChatService, private val tickerService: TicketService) {
+class ChatController(
+    private val chatService: ChatService,
+    private val tickerService: TicketService,
+    private val messageService: MessageService,
+    private val attachmentService: AttachmentService
+) {
 
     private val log: Logger = LoggerFactory.getLogger(ChatController::class.java)
 
@@ -35,7 +47,7 @@ class ChatController(private val chatService: ChatService, private val tickerSer
             log.error("Error getting a chat: Chat not found with Id $id")
             throw ChatNotFoundException("Chat not found with Id: $id")
         }
-        return ChatBodyResponse(chat.chatID, chat.ticket.ticketID)
+        return ChatBodyResponse(chat.chatID)
     }
 
     @GetMapping("/API/chat/ticket/{id}")
@@ -50,12 +62,16 @@ class ChatController(private val chatService: ChatService, private val tickerSer
             log.error("Error getting a chat: Chat not found with Id $id")
             throw ChatNotFoundException("Chat not found with Id: $id")
         }
-        return ChatBodyResponse(chat.chatID, chat.ticket.ticketID)
+        return ChatBodyResponse(chat.chatID)
     }
 
     @PostMapping("/API/chat")
     @ResponseStatus(HttpStatus.CREATED)
-    fun addChat(@Valid @RequestBody body: ChatBodyRequest, br: BindingResult, principal: Principal): ChatBodyResponse? {
+    fun addChat(
+        @RequestBody body: ChatBodyRequest,
+        br: BindingResult,
+        principal: Principal
+    ): ChatBodyResponse? {
         // Check if the body is valid
         if (br.hasErrors()) {
             log.error("Error adding a Chat: Body validation failed with errors ${br.allErrors}")
@@ -84,8 +100,14 @@ class ChatController(private val chatService: ChatService, private val tickerSer
         }
 
         val chat = chatService.addChat(body.ticketID)
+        ticket.chat = chat.toDTO()
+        tickerService.editTicket(ticket,false);
+        val message = messageService.addMessage(chat.chatID!!, customerUsername, body.message)
+        body.files?.forEach {
+            attachmentService.addAttachment(message.messageID!!, it)
+        }
         log.info("Correctly added a new chat with id ${chat.chatID}")
-        return ChatBodyResponse(chat.chatID, chat.ticket.ticketID)
+        return ChatBodyResponse(chat.chatID)
     }
 
 }

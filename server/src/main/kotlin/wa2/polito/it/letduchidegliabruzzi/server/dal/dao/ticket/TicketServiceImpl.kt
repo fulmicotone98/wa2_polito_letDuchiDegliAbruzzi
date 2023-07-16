@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserServiceImpl
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.toDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductRepository
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.toDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.status_history.StatusHistoryDTO
@@ -27,7 +28,7 @@ class TicketServiceImpl(
         val customer = userService.getUserByUsername(ticket.customerUsername) ?: return null
         val expert = userService.getUserByUsername(ticket.expertUsername?:"")
         val ticketHistory = statusHistoryService.findByTicket(ticket)
-        return ticket.toDTO(customer,expert,ticketHistory)
+        return ticket.toDTO(customer,expert,ticketHistory,ticket.chat?.toDTO())
     }
 
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
@@ -38,7 +39,7 @@ class TicketServiceImpl(
                 val customer = userService.getUserByUsername(it.customerUsername)
                 val expert = userService.getUserByUsername(it.expertUsername?:"")
                 val ticketHistory = statusHistoryService.findByTicket(it)
-                it.toDTO(customer!!, expert,ticketHistory)
+                it.toDTO(customer!!, expert,ticketHistory,it.chat?.toDTO())
             }
         return tickets
     }
@@ -64,14 +65,16 @@ class TicketServiceImpl(
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    override fun editTicket(newTicketDTO: TicketDTO): TicketDTO {
+    override fun editTicket(newTicketDTO: TicketDTO, isStatsUpdateNeeded :Boolean ): TicketDTO {
         val timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).toString()
-        statusHistoryService.addStatus(newTicketDTO.toTicket(), timestamp, newTicketDTO.status)
+        if(isStatsUpdateNeeded) {
+            statusHistoryService.addStatus(newTicketDTO.toTicket(), timestamp, newTicketDTO.status)
+        }
         val modified = ticketRepository.save(newTicketDTO.toTicket())
         val customer = userService.getUserByUsername(modified.customerUsername)
         val expert = userService.getUserByUsername(modified.expertUsername?:"")
         val ticketHistory = statusHistoryService.findByTicket(newTicketDTO.toTicket())
-        return modified.toDTO(customer!!,expert,ticketHistory)
+        return modified.toDTO(customer!!,expert,ticketHistory,modified.chat?.toDTO())
     }
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     override fun getTicketsByCustomer(customerUsername: String): List<TicketDTO> {
@@ -79,7 +82,7 @@ class TicketServiceImpl(
             val customer = userService.getUserByUsername(it.customerUsername)
             val expert = userService.getUserByUsername(it.expertUsername?:"")
             val ticketHistory = statusHistoryService.findByTicket(it)
-            it.toDTO(customer!!, expert,ticketHistory)
+            it.toDTO(customer!!, expert,ticketHistory,it.chat?.toDTO())
         }
     }
 }

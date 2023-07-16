@@ -12,16 +12,14 @@ function LoginRoute(props) {
                                 setKeycloakResponse={props.setKeycloakResponse}/>
                 </Col>
             </Row>
-            <Container>
-                <Row>
-                    <Col></Col>
-                    <Col>
-                        <h2 style={{marginTop:'10px'}}>Login</h2>
-                        <LoginForm login={props.login} keycloackResponse={props.keycloakResponse}/>
-                    </Col>
-                    <Col></Col>
-                </Row>
-            </Container>
+            <Row>
+                <Col></Col>
+                <Col>
+                    <LoginForm login={props.login} keycloackResponse={props.keycloakResponse}
+                                message={props.message} setMessage={props.setMessage}/>
+                </Col>
+                <Col></Col>
+            </Row>
         </>)
 }
 

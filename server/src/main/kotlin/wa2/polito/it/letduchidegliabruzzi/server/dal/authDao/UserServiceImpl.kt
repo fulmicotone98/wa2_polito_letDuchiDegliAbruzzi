@@ -1,5 +1,7 @@
 package wa2.polito.it.letduchidegliabruzzi.server.dal.authDao
 
+import org.keycloak.admin.client.resource.GroupResource
+import org.keycloak.admin.client.resource.GroupsResource
 import org.keycloak.admin.client.resource.UsersResource
 import org.keycloak.representations.idm.CredentialRepresentation
 import org.keycloak.representations.idm.UserRepresentation
@@ -12,17 +14,18 @@ import java.util.*
 
 @Service
 class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserService {
-    val instance: UsersResource = KeycloakConfig(keycloakProperties).getInstance().realm("spring_boot_webapp2_realm").users()
-
+    val userResource: UsersResource = KeycloakConfig(keycloakProperties).getInstance().realm("spring_boot_webapp2_realm").users()
+    val groupResource:GroupsResource = KeycloakConfig(keycloakProperties).getInstance().realm("spring_boot_webapp2_realm").groups()
     override fun getUserByUsername(username: String): UserDTO? {
-        val user = instance.search(username, true).firstOrNull()
-        return user?.toDTO()
-
+        val user = userResource.search(username, true).firstOrNull()
+        return user?.toDTO(null)
     }
+    
     override fun getUserByEmail(email: String): UserDTO? {
         val user = instance.search(null,null, null, email, null, null).firstOrNull()
         return user?.toDTO()
     }
+    
     override fun addUser(userBody: UserBody, groups: List<String>): Int {
         val credentials: CredentialRepresentation = Credentials().createPasswordCredentials(userBody.password)
 
@@ -37,9 +40,9 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         user.groups = groups
         user.attributes = mapOf("address" to listOf(userBody.address) , "phonenumber" to listOf(userBody.phoneNumber))
 
-        instance.create(user)
-        println(instance.create(user).status)
-        return instance.create(user).status
+        userResource.create(user)
+        println(userResource.create(user).status)
+        return userResource.create(user).status
     }
 
     override fun updateUserByUsername(username: String, user: UserDTO) {
@@ -50,9 +53,10 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         TODO("Not yet implemented")
     }
 
-    override fun getAllExperts(): List<UserDTO?> {
-        val user = instance.search("expert").firstOrNull()
-        return listOf(user?.toDTO())
+    override fun getAllExperts(): List<UserDTO> {
+        //Hard-written group ID for "Experts_group"
+        val experts = groupResource.group("cdf426a0-a6b6-48c3-a45a-3760436843c6").members()
+        return experts.map{ it.toDTO(null) }
     }
 
 }

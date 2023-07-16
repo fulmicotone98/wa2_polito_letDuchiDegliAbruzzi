@@ -21,14 +21,14 @@ class AttachmentServiceImpl(
     @Transactional(isolation = Isolation.SERIALIZABLE)
     override fun addAttachment(messageID: Int, fileBase64: String): Attachment {
         val message = messageService.getMessage(messageID)
-        val newAttachment = AttachmentDTO(null, fileBase64, message!!.toMessage())
+        val newAttachment = AttachmentDTO(null, fileBase64, message!!.messageID)
         return attachmentRepository.save(newAttachment.toAttachment())
     }
 
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     override fun getAttachmentsByMessageID(messageID: Int): List<AttachmentDTO> {
         val attachments = attachmentRepository.findAll()
-            .filter { it.message.messageID == messageID }
+            .filter { it.messageID == messageID }
             .map {
                 it.toDTO()
             }

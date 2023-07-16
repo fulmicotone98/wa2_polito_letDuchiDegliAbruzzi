@@ -15,7 +15,7 @@ class ChatServiceImpl(
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     override fun getChatInfo(chatID: Int): ChatDTO? {
         val chat = chatRepository.findByIdOrNull(chatID)
-        return chat?.toDTO(chat.ticket)
+        return chat?.toDTO()
     }
 
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
@@ -27,7 +27,7 @@ class ChatServiceImpl(
     @Transactional(isolation = Isolation.SERIALIZABLE)
     override fun addChat(ticketID: Int): Chat {
         val ticket = ticketService.getTicket(ticketID)
-        val newChat = ChatDTO(null, ticket!!.toTicket())
+        val newChat = ChatDTO(null, ticket?.ticketID!!)
         return chatRepository.save(newChat.toChat())
     }
 }

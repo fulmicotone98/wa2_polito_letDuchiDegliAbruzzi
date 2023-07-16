@@ -14,8 +14,9 @@ class Ticket {
     employeeName
     employeeSurname
     statusHistory
+    chatID
 
-    constructor(ticketID, description, status, priority, createdAt, productEan, productBrand, productName, customerUsername, customerName, customerSurname, employeeUsername, employeeName, employeeSurname, statusHistory) {
+    constructor(ticketID, description, status, priority, createdAt, productEan, productBrand, productName, customerUsername, customerName, customerSurname, employeeUsername, employeeName, employeeSurname, statusHistory, chatID) {
         this.ticketID = ticketID;
         this.description = description;
         this.status = status;
@@ -31,6 +32,7 @@ class Ticket {
         this.customerName = customerName;
         this.customerSurname = customerSurname;
         this.statusHistory = statusHistory;
+        this.chatID = chatID;
     }
 }
 

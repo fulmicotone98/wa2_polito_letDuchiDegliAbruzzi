@@ -16,5 +16,5 @@ class Message (
     val senderUsername: String,
     val createdAt: String,
     @ManyToOne @JoinColumn(name = "chatID") val chat : Chat,
-    @OneToMany(mappedBy = "message") val attachments: List<Attachment>
+    @OneToMany(mappedBy = "messageID") val attachments: List<Attachment>?
 )

@@ -1,10 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"
+import { Row } from 'react-bootstrap'
 import {Alert, Button, Form} from "react-bootstrap";
 
 function LoginForm(props) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
+    const handleNavigation = (path) => {
+        navigate(path);
+    };
     const handleSubmit = (event) => {
         event.preventDefault();
         const credentials = { username, password };
@@ -23,10 +29,10 @@ function LoginForm(props) {
                     <Form.Label>Password</Form.Label>
                     <Form.Control type="password" placeholder="Enter password" value={password} onChange={ev => setPassword(ev.target.value)} required={true} />
                 </Form.Group>
+                <Button variant="primary" type="submit"> Login </Button>
+                <h6>Don't have an account?</h6>
+                <Button variant="secondary" onClick={() => handleNavigation('/registration')}> Signup </Button>
 
-                <div className="d-grid gap-2">
-                    <Button variant="primary" size="lg" type="submit"> Submit </Button>
-                </div>
             </Form>
 
             {props.message.type === "danger" ?

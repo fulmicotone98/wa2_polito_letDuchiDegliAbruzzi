@@ -14,6 +14,7 @@ import Layout from "./components/Layout";
 import AddProducts from "./AddProducts";
 import AddTickets from "./AddTickets";
 import ShowTickets from "./ShowTickets";
+import RegistrationPage from "./RegistrationPage";
 import AssignTickets from "./AssignTickets";
 import StartChat from "./StartChat";
 import ShowChat from "./ShowChat";
@@ -25,6 +26,7 @@ function App() {
     const [keycloakResponse, setKeycloakResponse] = useState('');
     const [message, setMessage] = useState('');
     const [tickets, setTickets] = useState([]);
+    const [signupError, setSignupError] = useState('')
     const [username, setUsername] = useState('');
     const [role, setRole] = useState('');
     const handleLogin = async (credentials) => {
@@ -37,6 +39,23 @@ function App() {
             getUserInfo(keycloakResp.access_token);
         } catch (err) {
             setLoggedIn(false);
+            setMessage({msg: err, type: 'danger'});
+        }
+    };
+
+    const handleSignUp = async (user) => {
+        try {
+            const response = await API.signUp(user);
+            console.log(response);
+            if(response.status === 409 || response.status === 400 || response.status === 401){
+                setSignupError(response.detail)
+            }else{
+                setSignupError("")
+                const credentials = { username: response.username, password: response.password }
+                handleLogin(credentials)
+                setLoggedIn(true);
+            }
+        } catch (err) {
             setMessage({msg: err, type: 'danger'});
         }
     };
@@ -59,7 +78,6 @@ function App() {
             console.log(error)
         }
     };
-
 
     const handleLogout = async (keycloakResponse) => {
         setLoggedIn(false);
@@ -153,8 +171,13 @@ function App() {
                                 setKeycloakResponse={setKeycloakResponse}
                                 login={handleLogin} logOut={handleLogout}
                                 message={message} setMessage={setMessage}/>}/>
-                <Route path='/' element={<Layout keycloakResponse={keycloakResponse} loggedIn={loggedIn}
-                                                 logOut={handleLogout}/>}>
+                <Route path='/registration' element={loggedIn ? <Navigate replace to='/'/> :
+                    <RegistrationPage loggedIn={loggedIn} setLoggedIn={setLoggedIn}
+                                keycloakResponse={keycloakResponse}
+                                setKeycloakResponse={setKeycloakResponse}
+                                logOut={handleLogout} signUp={handleSignUp}
+                                signupError={signupError}/>}/>
+                <Route path='/' element={<Layout keycloakResponse={keycloakResponse} loggedIn={loggedIn} logOut={handleLogout}/>}>
                     <Route path="" element={loggedIn ?
                         <UserDashboard accessToken={accessToken} tickets={tickets} username={username} role={role}/> :
                         <Navigate replace to='/login'/>}/>

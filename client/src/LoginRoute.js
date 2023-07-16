@@ -1,4 +1,4 @@
-import { Col, Row } from "react-bootstrap";
+import { Col, Row,Container } from "react-bootstrap";
 import LoginForm from "./components/AuthComponent";
 import MainNavbar from "./MainNavbar";
 

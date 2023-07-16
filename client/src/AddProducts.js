@@ -1,6 +1,6 @@
-import {Button, Col, Form, Row} from "react-bootstrap";
+import {Alert, Button, Col, Form} from "react-bootstrap";
 import API from './API';
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 
 function AddProducts(props) {
@@ -14,26 +14,40 @@ function AddProducts(props) {
     const [ean, setEan] = useState('');
     const [name, setName] = useState('');
     const [brand, setBrand] = useState('');
+    const [dupEanOrEmptyFields, setDupEanOrEmptyFields] = useState(false);
     const handleSubmit = async () => {
         try {
+            setDupEanOrEmptyFields(false);
             await API.addProduct(props.accessToken, ean, name, brand);
             handleNavigation("/")
         } catch (err) {
-            console.log(err)
+            setDupEanOrEmptyFields(true);
+            console.log(err);
         }
     };
-
 
     return (
         <>
             <Col></Col>
             <Col>
+
+                {dupEanOrEmptyFields === true ?
+                    <>
+                        {['warning'].map((variant) => (
+                            <Alert key={variant} variant={variant} style={{marginTop:"20px", background:"yellow"}}>
+                                Warning! Ean already exists or blank fields in the form.
+                            </Alert>
+                        ))}
+                    </> : <></>
+                }
+
                 <Form style={{marginTop: "40px"}}>
                     <Form.Group className="mb-3">
                         <Form.Label>EAN</Form.Label>
                         <Form.Control placeholder="Enter EAN" value={ean} onChange={ev => setEan(ev.target.value)}
                                       required={true}/>
                     </Form.Group>
+
                     <Form.Group className="mb-3">
                         <Form.Label>Name</Form.Label>
                         <Form.Control placeholder="Enter Name" value={name} onChange={ev => setName(ev.target.value)}

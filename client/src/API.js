@@ -9,7 +9,7 @@ const baseURL8081 = 'http://localhost:8081';
 async function logOut(keycloakResponse) {
     const jsonStr = JSON.stringify(keycloakResponse);
     const obj = JSON.parse(jsonStr);
-    
+
     const response = await fetch(baseURL8081 + "/API/logout", {
         method: 'POST',
         headers: {
@@ -186,7 +186,7 @@ async function getAllMessages(accessToken, chatID) {
             // process the response
             const list = await response.json();
             console.log(list)
-            return list.map((m) => new Message(m.messageID, m.chatID, m.createdAt, m.senderUsername, m.senderName, m.senderSurname, m.attachments));
+            return list.map((m) => new Message(m.messageID, m.chatID, m.text, m.createdAt, m.senderUsername, m.senderName, m.senderSurname, m.attachments));
         } else {
             // application error (404, 500, ...)
             console.log(response.statusText);

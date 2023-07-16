@@ -37,7 +37,7 @@ function StartChat(props) {
         <>
             <Col></Col>
             <Col>
-                <Form style={{marginTop: "40px"}} enctype="multipart/form-data">
+                <Form style={{marginTop: "40px"}}>
                     <Form.Group className="mb-3">
                         <Form.Label>Message</Form.Label>
                         <Form.Control as="textarea" rows={3} placeholder="Enter a Message" value={message}

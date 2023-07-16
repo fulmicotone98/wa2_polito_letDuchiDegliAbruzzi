@@ -17,13 +17,13 @@ data class MessageDTO(
     val senderUsername: String,
     val text: String,
     val createdAt: String,
-    var attachments: List<AttachmentDTO>
+    var attachments: List<AttachmentDTO>?
 )
 
 fun Message.toDTO(): MessageDTO {
-    return MessageDTO(messageID, chat.toDTO(), senderUsername, text, createdAt, attachments.map { it.toDTO() })
+    return MessageDTO(messageID, chat.toDTO(), senderUsername, text, createdAt, attachments?.map { it.toDTO() })
 }
 
 fun MessageDTO.toMessage() :Message{
-    return Message(messageID,text,senderUsername,createdAt,chat.toChat(),attachments.map { it.toAttachment() })
+    return Message(messageID,text,senderUsername,createdAt,chat.toChat(),attachments?.map { it.toAttachment() })
 }

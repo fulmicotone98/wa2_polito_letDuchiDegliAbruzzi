@@ -29,13 +29,14 @@ function ChatPage(props) {
                     hour: "2-digit",
                     minute: "2-digit",
                 });
+                console.log(message)
 
                 return (
                     <div
                         key={message.messageID}
-                        className={`message ${message.sender === "Sender 1" ? "sender" : "receiver"}`}
+                        className={`message ${message.senderUsername === props.username ? "sender" : "receiver"}`}
                     >
-                        <div className="message-sender">{message.sender}</div>
+                        <div className="message-sender">{message.senderName}  {message.senderSurname}</div>
                         <div className="message-content">{message.message}</div>
                         <div className="message-timestamp">
                             {formattedDate}

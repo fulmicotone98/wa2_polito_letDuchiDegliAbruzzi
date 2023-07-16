@@ -12,5 +12,5 @@ class Attachment (
     val attachmentID :Int?,
     @Lob
     val fileBase64 :String?,
-    @ManyToOne @JoinColumn(name = "messageID") val message : Message
+    val messageID : Int?
 )

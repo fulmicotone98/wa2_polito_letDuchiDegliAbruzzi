@@ -3,6 +3,7 @@ import Customer from "./models/Customer"
 import Ticket from "./models/Ticket";
 import StatusHistory from "./models/StatusHistory";
 import Message from "./models/Message";
+import UserInfo from "./models/UserInfo";
 
 const baseURL8081 = 'http://localhost:8081';
 
@@ -130,7 +131,8 @@ async function getAllTickets(accessToken) {
         if (response.ok) {
             // process the response
             const list = await response.json();
-            return list.map((t) => new Ticket(t.ticketID, t.description, t.status, t.priority, t.createdAt, t.product.ean, t.product.brand, t.product.name, t.customer.username, t.customer.name, t.customer.surname, t.employee.username, t.employee.name, t.employee.surname, t.statusHistory, t.chat != null ? t.chat.chatID : null));
+            console.log(list)
+            return list.map((t) => new Ticket(t.ticketID, t.description, t.status, t.priority, t.createdAt, t.product.ean, t.product.brand, t.product.name, t.customer.username, t.customer.name, t.customer.surname, t.employee?.username, t.employee?.name, t.employee?.surname, t.statusHistory, t.chat != null ? t.chat.chatID : null));
         } else {
             // application error (404, 500, ...)
             console.log(response.statusText);
@@ -146,7 +148,7 @@ async function getAllTickets(accessToken) {
 
 async function getAllExperts(accessToken) {
     try {
-        const response = await fetch(baseURL8081 + '/API/profiles/experts', {
+        const response = await fetch(baseURL8081 + '/API/users/experts', {
             headers: {
                 'Authorization': 'Bearer ' + accessToken,
                 'Content-Type': 'application/json'
@@ -408,6 +410,31 @@ async function getProductById(productId) {
     }
 }
 
+
+async function getUserInfo(accessToken) {
+    const response = await fetch(baseURL8081 +'/API/userinfo', {
+        headers: {
+            'Authorization': 'Bearer ' + accessToken,
+            'Content-Type': 'application/json'
+        },
+    });
+    try {
+        if (response.ok) {
+            const user = await response.json();
+            return new UserInfo(user.username, user.email, user.name, user.surname, user.phonenumber, user.address, user.roles);
+        } else {
+            // application error (404, 500, ...)
+            console.log(response.statusText);
+            const error = await response.json();
+            throw new TypeError(error.detail);
+        }
+    } catch (ex) {
+        // network error
+        console.log(ex);
+        throw ex;
+    }
+}
+
 // async function getProfileByEmail(email) {
 //     const response = await fetch('/API/profiles/' + email);
 //     try {
@@ -491,6 +518,7 @@ const API = {
     getAllMessages,
     addMessage,
     closeTicket,
+    getUserInfo,
     getProductById,
     addCustomer,
     updateCustomer,

@@ -62,7 +62,7 @@ function ShowTickets(props) {
                                 <strong>Customer:</strong> {ticket.customerName + " " + ticket.customerSurname}
                             </Col>
                             <Col>
-                                <strong>Employee:</strong> {ticket.employeeName + " " + ticket.employeeSurname}
+                                <strong>Employee:</strong> {ticket.employeeName ? ticket.employeeName + " " + ticket.employeeSurname : ""}
                             </Col>
                         </Row>
                         <Row>

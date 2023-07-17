@@ -2,6 +2,9 @@ package wa2.polito.it.letduchidegliabruzzi.server.controller
 
 import io.micrometer.observation.annotation.Observed
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,11 +35,11 @@ class UserController(private val userService: UserServiceImpl, private val ticke
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
     @GetMapping("/profile/{username}/tickets")
-    fun getTicketsByEmail(@PathVariable("username") username: String): List<TicketBodyResponse> {
+    fun getTicketsByEmail(@PathVariable("username") @NotBlank(message="Username shouldn't be blank") username: String): List<TicketBodyResponse> {
         val c = userService.getUserByUsername(username)
         if (c == null) {
-            log.error("Get Tickets by Email error: Customer not found with Email: $username")
-            throw CustomerNotFoundException("Customer not found with Email: $username")
+            log.error("Get Tickets by username error: Customer not found with username: $username")
+            throw CustomerNotFoundException("Customer not found with username: $username")
         }
         return ticketService.getTicketsByCustomer(username).map {
             TicketBodyResponse(
@@ -53,11 +56,12 @@ class UserController(private val userService: UserServiceImpl, private val ticke
     }
 
     @GetMapping("/profiles/{username}")
-    fun getProfile(@PathVariable("username") username: String): CustomerResponseBody? {
+    fun getProfile(@PathVariable("username") @NotBlank(message="Username shouldn't be blank") username: String): CustomerResponseBody? {
+        println("here username $username")
         val c = userService.getUserByUsername(username)
         if (c == null) {
-            log.error("Get Tickets by Email error: Customer not found with Email: $username")
-            throw CustomerNotFoundException("Customer not found with Email: $username")
+            log.error("Get Tickets by username error: Customer not found with username: $username")
+            throw CustomerNotFoundException("Customer not found with username: $username")
         }
         return CustomerResponseBody(c.email, c.username, c.name, c.surname, c.address, c.phonenumber)
     }
@@ -79,8 +83,8 @@ class UserController(private val userService: UserServiceImpl, private val ticke
         }
         val customerForUpdate: UserDTO? = userService.getUserByUsername(username)
         if (customerForUpdate == null) {
-            log.error("Error updating customer: Customer not found with Email: $username")
-            throw CustomerNotFoundException("Customer not found with Email: $username")
+            log.error("Error updating customer: Customer not found with username: $username")
+            throw CustomerNotFoundException("Customer not found with username: $username")
         }
         val newUserDTO = UserDTO(body.username, body.email, body.name, body.surname, body.phonenumber, body.address, null)
 

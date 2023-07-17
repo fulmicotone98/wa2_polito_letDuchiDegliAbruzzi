@@ -1,6 +1,6 @@
-import {Alert, Button, Col, Form} from "react-bootstrap";
+import {Alert, Button, Col, Form, Row} from "react-bootstrap";
 import API from './API';
-import {useState} from "react";
+import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 
 function AddProducts(props) {
@@ -28,6 +28,12 @@ function AddProducts(props) {
 
     return (
         <>
+            <div className="d-grid gap-2">
+                <Button variant="secondary" onClick={()=>{handleNavigation('/')}}>
+                    Back to your products
+                </Button>
+            </div>
+
             <Col></Col>
             <Col>
 
@@ -41,7 +47,11 @@ function AddProducts(props) {
                     </> : <></>
                 }
 
-                <Form style={{marginTop: "40px"}}>
+                <Row style={{marginTop:'15px'}}>
+                    <h2>Add your product</h2>
+                </Row>
+
+                <Form style={{marginTop: "20px"}}>
                     <Form.Group className="mb-3">
                         <Form.Label>EAN</Form.Label>
                         <Form.Control placeholder="Enter EAN" value={ean} onChange={ev => setEan(ev.target.value)}
@@ -60,7 +70,7 @@ function AddProducts(props) {
                     </Form.Group>
 
                     <div className="d-grid gap-2">
-                        <Button variant="primary" size="lg" onClick={handleSubmit}> Submit </Button>
+                        <Button variant="primary" onClick={handleSubmit}> Submit </Button>
                     </div>
                 </Form>
             </Col>

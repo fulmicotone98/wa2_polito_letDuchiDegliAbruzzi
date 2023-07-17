@@ -44,9 +44,14 @@ function CustomerDashboard(props) {
             <Row>
                 <Col>
                     <div>
-                        <h3>Your Products</h3> <Button variant="primary" size="sm" onClick={() => {
-                        handleNavigation('/add-product')
-                    }}> Add Product </Button>
+                        <h3>Your Products</h3>
+
+                            <div className="d-grid gap-2">
+                                <Button variant="primary" size="sm" onClick={() => {
+                                    handleNavigation('/add-product')
+                                }}> Add Product </Button>
+                            </div>
+
                         <div className="table-responsive">
                             <table className="table table-striped">
                                 <thead>
@@ -88,30 +93,43 @@ function CustomerDashboard(props) {
 
 function ManagerDashboard(props) {
 
+    const navigate = useNavigate();
+
+    const handleNavigation = (path) => {
+        navigate(path);
+    };
+
     let tickets = props.tickets.filter(ticket => ticket.status == "OPEN");
     let inProgressTickets = props.tickets.filter(ticket => ticket.status == "IN PROGRESS");
 
     return (
         <>
-            <Row>
+            <Row style={{marginBottom : "10px"}}>
                 <Col>
+                    <Button variant="primary" size="sm" onClick={() => handleNavigation('/show-experts')}> List of experts </Button>
+                </Col>
+            </Row>
+            <Row>
+                <Col style={{ maxWidth: "45%"}}>
                     <Card>
                         <Card.Body>
                             <Card.Title>Tickets to be assigned</Card.Title>
                             <TableDiv
                                 tickets={tickets}
                                 inProgress={false}
+                                role={props.role}
                             />
                         </Card.Body>
                     </Card>
                 </Col>
-                <Col>
+                <Col style={{ maxWidth: "55%"}}>
                     <Card>
                         <Card.Body>
                             <Card.Title>Tickets in progress</Card.Title>
                             <TableDiv
                                 tickets={inProgressTickets}
                                 inProgress={true}
+                                role={props.role}
                             />
                         </Card.Body>
                     </Card>
@@ -137,6 +155,7 @@ function ExpertDashboard(props) {
                             <TableDiv
                                 tickets={inProgressTickets}
                                 inProgress={true}
+                                role={props.role}
                             />
                         </Card.Body>
                     </Card>

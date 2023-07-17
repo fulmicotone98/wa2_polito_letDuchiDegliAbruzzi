@@ -84,4 +84,9 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         return customers.map{ it.toDTO(null) }
     }
 
+    override fun checkSessionByUsername(username: String): Boolean {
+        val id = getUserByUsername(username)?.id?: return false
+        return userResource.get(id).userSessions.isNotEmpty()
+    }
+
 }

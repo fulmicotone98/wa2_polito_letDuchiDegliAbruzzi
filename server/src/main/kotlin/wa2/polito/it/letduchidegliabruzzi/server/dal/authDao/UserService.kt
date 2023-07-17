@@ -11,4 +11,5 @@ interface UserService {
     fun getAllExperts(): List<UserDTO>
     fun deleteUserByUsername(username: String): String?
     fun getAllCustomers(): List<UserDTO>
+    fun checkSessionByUsername(username: String): Boolean
 }

@@ -18,6 +18,8 @@ import RegistrationPage from "./RegistrationPage";
 import AssignTickets from "./AssignTickets";
 import StartChat from "./StartChat";
 import ShowChat from "./ShowChat";
+import ShowExperts from "./ShowExperts";
+import AddExpert from "./AddExpert";
 
 function App() {
 
@@ -100,67 +102,6 @@ function App() {
         getAllTickets(accessToken);
     }, [accessToken]);
 
-    /*    const [products, setProducts] = useState([])
-        const [product, setProduct] = useState({})
-        const [profile, setProfile] = useState({})
-        const [apiName, setApiName] = useState('')
-        const [view, setView] = useState('')
-        const [error, setError] = useState('')
-        const getProducts = async () =>{
-            try {
-                const list = await getAllProducts()
-                setProducts(list)
-                setView('products')
-            }catch (ex){
-                setError(ex.message)
-                setView('error')
-            }
-            setApiName('GET /API/products/')
-        }
-        const getProduct = async (productId) =>{
-            try {
-                const product = await getProductById(productId)
-                setProduct(product)
-                setView('product')
-            }catch(ex){
-                setError(ex.message)
-                setView('error')
-            }
-            setApiName('GET /API/products/'+productId)
-        }
-        const getProfile = async (email) =>{
-            try {
-                const profile = await getProfileByEmail(email)
-                setProfile(profile)
-                setView('profile')
-            }catch (ex){
-                setError(ex.message)
-                setView('error')
-            }
-            setApiName('GET /API/profiles/' + email)
-        }
-        const addProfile = async (email, name, surname, address, phoneNumber) => {
-            try{
-                const profile = await addCustomer(email,name,surname,address,phoneNumber)
-                setProfile(profile)
-                setView('profile')
-            }catch (ex){
-                setError(ex.message)
-                setView('error')
-            }
-            setApiName('POST /API/profiles/')
-        }
-        const editProfile = async (email, name, surname, address, phoneNumber) => {
-            try{
-                const profile = await updateCustomer(email,name,surname,address,phoneNumber)
-                setProfile(profile)
-                setView('profile')
-            }catch (ex){
-                setError(ex.message)
-                setView('error')
-            }
-            setApiName('PUT /API/profiles/'+email)
-        }*/
 
     return (
         <Router>
@@ -199,6 +140,10 @@ function App() {
                     <Route path="/show-chat/:id" element={loggedIn ?
                         <ShowChat accessToken={accessToken} username={username} role={role} tickets={tickets}
                                   setTickets={setTickets}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/show-experts" element={loggedIn ?
+                        <ShowExperts accessToken={accessToken} setLoggedIn={setLoggedIn}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/add-expert" element={loggedIn ?
+                        <AddExpert accessToken={accessToken} /> : <Navigate replace to='/login'/>}/>
                 </Route>
             </Routes>
         </Router>

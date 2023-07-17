@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert, Container, Row, Col } from 'react-bootstrap';
 import User from './models/User'
-import MainNavbar from "./MainNavbar";
+import API from "./API";
 import {useNavigate} from "react-router-dom";
-function RegistrationPage(props) {
+function AddExpert(props) {
     const [username, setUsername] = useState('');
+    const [expertError, setExpertError] = useState('')
     const [emailID, setEmailID] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -13,9 +14,12 @@ function RegistrationPage(props) {
     const [lastName, setLastName] = useState('');
     const [address, setAddress] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    //const [error, setError] = useState(null);
 
     const navigate = useNavigate();
+
+    const handleNavigation = (path) => {
+        navigate(path);
+    };
 
     const handleRegistration = async (e) => {
         e.preventDefault();
@@ -24,33 +28,33 @@ function RegistrationPage(props) {
             return;
         }
         const user = new User(username, emailID, password, firstName, lastName, phoneNumber, address)
-        props.signUp(user);
-    };
-
-    const handleNavigation = async  (path) => {
-        navigate(path);
+        try {
+            const response = await API.createExpert(props.accessToken,user);
+            console.log(response);
+            if(response.status === 409 || response.status === 400 || response.status === 401){
+                setExpertError(response.detail)
+            }else{
+                handleNavigation('/show-experts')
+            }
+        } catch (err) {
+            console.log({msg: err, type: 'danger'});
+        }
     };
 
     return (
         <>
-            <Row>
-                <Col>
-                    <MainNavbar loggedIn={props.loggedIn} setLoggedIn={props.setLoggedIn} logOut={props.logOut}
-                                keycloackResponse={props.keycloakResponse}
-                                setKeycloakResponse={props.setKeycloakResponse}/>
-                </Col>
-            </Row>
+            <Button variant="secondary" onClick={() => handleNavigation('/show-experts')}> Back to List of Experts </Button>
+
             <Row>
                 <Col></Col>
                 <Col>
 
                     <Container>
                         <Row style={{marginTop: '10px'}}>
-                            <h2>Sign Up</h2>
-                            {props.signupError !== "" && <Alert variant="danger">{props.signupError}</Alert>}
+                            <h2>Add Expert</h2>
+                            {expertError !== "" && <Alert variant="danger">{expertError}</Alert>}
                         </Row>
-
-                        <Form onSubmit={handleRegistration} style={{marginTop: '15px'}}>
+                        <Form onSubmit={handleRegistration}>
                             <Row>
                                 <Col>
                                     <Form.Group controlId="formEmailID">
@@ -127,19 +131,9 @@ function RegistrationPage(props) {
                                 </Col>
                             </Row>
 
-
-
-                            <div className="d-grid">
-                                <Button style={{marginTop: '10px'}} variant="primary" type="submit" size="sm">
-                                    Register
-                                </Button>
-                                <Button style={{marginTop: '10px'}} variant="secondary" size="sm"
-                                        onClick={() => handleNavigation('/login')}>
-                                    Back to Login
-                                </Button>
-                            </div>
-
-
+                            <Button style={{marginTop: '10px'}} variant="primary" type="submit">
+                                Submit
+                            </Button>
                         </Form>
                     </Container>
                 </Col>
@@ -149,4 +143,4 @@ function RegistrationPage(props) {
     );
 }
 
-export default RegistrationPage;
+export default AddExpert;

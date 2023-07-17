@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"
-import { Row } from 'react-bootstrap'
 import {Alert, Button, Form} from "react-bootstrap";
 
 function LoginForm(props) {
@@ -19,7 +18,8 @@ function LoginForm(props) {
 
     return (
         <>
-            <Form style={{marginTop:"40px"}} onSubmit={handleSubmit}>
+            <Form style={{marginTop:"15px"}} onSubmit={handleSubmit}>
+
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label >Username</Form.Label>
                     <Form.Control type="username" placeholder="Enter username" value={username} onChange={ev => setUsername(ev.target.value)} required={true} />
@@ -29,9 +29,16 @@ function LoginForm(props) {
                     <Form.Label>Password</Form.Label>
                     <Form.Control type="password" placeholder="Enter password" value={password} onChange={ev => setPassword(ev.target.value)} required={true} />
                 </Form.Group>
-                <Button variant="primary" type="submit"> Login </Button>
-                <h6>Don't have an account?</h6>
-                <Button variant="secondary" onClick={() => handleNavigation('/registration')}> Signup </Button>
+
+                <div className="d-grid gap-2">
+                    <Button variant="primary" type="submit"> Login </Button>
+                </div>
+
+                <h6 style={{marginTop:"20px"}}>Don't have an account?</h6>
+
+                <div className="d-grid gap-2">
+                    <Button variant="secondary" onClick={() => handleNavigation('/registration')}> Signup </Button>
+                </div>
 
             </Form>
 

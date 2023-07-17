@@ -1,6 +1,7 @@
-import { Col, Row,Container } from "react-bootstrap";
+import {Col, Row} from "react-bootstrap";
 import LoginForm from "./components/AuthComponent";
 import MainNavbar from "./MainNavbar";
+import React from "react";
 
 function LoginRoute(props) {
     return (
@@ -15,6 +16,10 @@ function LoginRoute(props) {
             <Row>
                 <Col></Col>
                 <Col>
+                    <Row style={{marginTop: '10px'}}>
+                        <h2>Login</h2>
+                    </Row>
+
                     <LoginForm login={props.login} keycloackResponse={props.keycloakResponse}
                                 message={props.message} setMessage={props.setMessage}/>
                 </Col>

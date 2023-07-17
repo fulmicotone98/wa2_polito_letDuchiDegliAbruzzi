@@ -1,6 +1,4 @@
-import {Button, Card, Col, Container, Form, Row} from "react-bootstrap";
-import API from './API';
-import {useEffect, useState} from "react";
+import {Button, Card, Col, Container, Row} from "react-bootstrap";
 import {useNavigate, useParams} from "react-router-dom";
 
 function ShowTickets(props) {
@@ -29,7 +27,14 @@ function ShowTickets(props) {
 
     return (
         <Container>
-            <Card>
+
+            <div className="d-grid gap-2">
+                <Button variant="secondary" onClick={() => handleNavigation('/')}>
+                    Back to your products
+                </Button>
+            </div>
+
+            <Card style={{marginTop:'10px'}}>
                 <Card.Body>
                     <Card.Title>Ticket Details</Card.Title>
                     <Container>
@@ -99,7 +104,8 @@ function ShowTickets(props) {
                     </Container>
                 </Card.Body>
             </Card>
-            <Card>
+
+            <Card style={{marginTop:'10px'}}>
                 <Card.Body>
                     <Card.Title>Status History</Card.Title>
                     <Container>

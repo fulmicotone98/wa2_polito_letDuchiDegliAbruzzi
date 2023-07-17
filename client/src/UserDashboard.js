@@ -44,9 +44,14 @@ function CustomerDashboard(props) {
             <Row>
                 <Col>
                     <div>
-                        <h3>Your Products</h3> <Button variant="primary" size="sm" onClick={() => {
-                        handleNavigation('/add-product')
-                    }}> Add Product </Button>
+                        <h3>Your Products</h3>
+
+                            <div className="d-grid gap-2">
+                                <Button variant="primary" size="sm" onClick={() => {
+                                    handleNavigation('/add-product')
+                                }}> Add Product </Button>
+                            </div>
+
                         <div className="table-responsive">
                             <table className="table table-striped">
                                 <thead>

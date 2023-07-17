@@ -140,7 +140,13 @@ function ShowChat(props) {
 
     return (
         <>
-            <Card>
+            <Button variant="secondary" onClick={() => {
+                handleNavigation('/show-ticket/' + lastTicket.ticketID)
+            }}>
+                Back to ticket details
+            </Button>
+
+            <Card style={{marginTop:'10px'}}>
                 <Card.Body>
                     <h2>Ticket #{lastTicket.ticketID}</h2>
                     <h5>Description : {lastTicket.description}</h5>
@@ -193,7 +199,7 @@ function ShowChat(props) {
             </Card>
 
             {(props.role === "customer" || props.role === "expert") &&
-                <Card>
+                <Card style={{marginTop:'10px'}}>
                     <Card.Body>
                         <Row>
                             <Col></Col>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Alert, Container, Row, Col } from 'react-bootstrap';
 import User from './models/User'
 import MainNavbar from "./MainNavbar";
+import {useNavigate} from "react-router-dom";
 function RegistrationPage(props) {
     const [username, setUsername] = useState('');
     const [emailID, setEmailID] = useState('');
@@ -12,7 +13,9 @@ function RegistrationPage(props) {
     const [lastName, setLastName] = useState('');
     const [address, setAddress] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [error, setError] = useState(null);
+    //const [error, setError] = useState(null);
+
+    const navigate = useNavigate();
 
     const handleRegistration = async (e) => {
         e.preventDefault();
@@ -22,6 +25,10 @@ function RegistrationPage(props) {
         }
         const user = new User(username, emailID, password, firstName, lastName, phoneNumber, address)
         props.signUp(user);
+    };
+
+    const handleNavigation = async  (path) => {
+        navigate(path);
     };
 
     return (
@@ -42,7 +49,8 @@ function RegistrationPage(props) {
                             <h2>Sign Up</h2>
                             {props.signupError !== "" && <Alert variant="danger">{props.signupError}</Alert>}
                         </Row>
-                        <Form onSubmit={handleRegistration}>
+
+                        <Form onSubmit={handleRegistration} style={{marginTop: '15px'}}>
                             <Row>
                                 <Col>
                                     <Form.Group controlId="formEmailID">
@@ -118,9 +126,20 @@ function RegistrationPage(props) {
                                     </Form.Group>
                                 </Col>
                             </Row>
-                            <Button style={{marginTop: '10px'}}variant="primary" type="submit">
-                                Register
-                            </Button>
+
+
+
+                            <div className="d-grid">
+                                <Button style={{marginTop: '10px'}} variant="primary" type="submit" size="sm">
+                                    Register
+                                </Button>
+                                <Button style={{marginTop: '10px'}} variant="secondary" size="sm"
+                                        onClick={() => handleNavigation('/login')}>
+                                    Back to Login
+                                </Button>
+                            </div>
+
+
                         </Form>
                     </Container>
                 </Col>

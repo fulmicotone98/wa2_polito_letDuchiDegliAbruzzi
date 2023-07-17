@@ -10,4 +10,5 @@ interface UserService {
     fun getUserInfo(): UserDTO
     fun getAllExperts(): List<UserDTO>
     fun deleteUserByUsername(username: String): String?
+    fun getAllCustomers(): List<UserDTO>
 }

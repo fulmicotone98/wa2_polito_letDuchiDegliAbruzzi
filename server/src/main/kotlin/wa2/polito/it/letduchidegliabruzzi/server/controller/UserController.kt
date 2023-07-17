@@ -29,9 +29,6 @@ import java.security.Principal
 class UserController(private val userService: UserServiceImpl) {
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
-//    TODO(GET customers)
-//    TODO(Create Expert)
-
     @GetMapping("/user/{username}")
     fun getProfile(@PathVariable("username") username: String): UserDTO? {
         val user = userService.getUserByUsername(username)
@@ -70,6 +67,11 @@ class UserController(private val userService: UserServiceImpl) {
     @GetMapping("/users/experts")
     fun getExperts():List<UserDTO>{
         return userService.getAllExperts()
+    }
+
+    @GetMapping("/users/customers")
+    fun getCustomers():List<UserDTO>{
+        return userService.getAllCustomers()
     }
 
     @PostMapping("/user/createExpert")

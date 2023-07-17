@@ -78,4 +78,10 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         return id
     }
 
+    override fun getAllCustomers(): List<UserDTO> {
+        //Hard-written group ID for "Experts_group"
+        val customers = groupResource.group("69735675-55e4-4847-9f45-22826fd56033").members()
+        return customers.map{ it.toDTO(null) }
+    }
+
 }

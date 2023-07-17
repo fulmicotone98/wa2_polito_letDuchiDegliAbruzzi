@@ -10,17 +10,16 @@ import org.springframework.security.core.Authentication
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import wa2.polito.it.letduchidegliabruzzi.server.controller.body.CustomerRequestBody
-import wa2.polito.it.letduchidegliabruzzi.server.controller.body.CustomerResponseBody
-import wa2.polito.it.letduchidegliabruzzi.server.controller.body.EmployeeBodyResponse
-import wa2.polito.it.letduchidegliabruzzi.server.controller.body.TicketBodyResponse
+import wa2.polito.it.letduchidegliabruzzi.server.controller.body.*
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ConstraintViolationException
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.CustomerNotFoundException
+import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.DuplicateEmployeeException
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.EmployeeNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserServiceImpl
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.addRoles
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
+import java.security.Principal
 
 @Validated
 @RestController
@@ -28,55 +27,31 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
 @Slf4j
 @RequestMapping("/API")
 class UserController(private val userService: UserServiceImpl, private val ticketService: TicketService) {
-
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
-    @GetMapping("/profile/{username}/tickets")
-    fun getTicketsByEmail(@PathVariable("username") username: String): List<TicketBodyResponse> {
-        val c = userService.getUserByUsername(username)
-        if (c == null) {
+//    TODO(Edit profile)
+//    TODO(GET customers)
+//    TODO(Create Expert)
+
+    @GetMapping("/user/{username}")
+    fun getProfile(@PathVariable("username") username: String): UserDTO? {
+        val user = userService.getUserByUsername(username)
+        if (user == null) {
             log.error("Get Tickets by Email error: Customer not found with Email: $username")
             throw CustomerNotFoundException("Customer not found with Email: $username")
         }
-        return ticketService.getTicketsByCustomer(username).map {
-            TicketBodyResponse(
-                it.ticketID,
-                it.description,
-                it.status,
-                it.priority,
-                it.createdAt,
-                it.product.ean,
-                it.customer.username,
-                it.employee?.username
-            )
-        }
+        return user
     }
 
-    @GetMapping("/profiles/{username}")
-    fun getProfile(@PathVariable("username") username: String): CustomerResponseBody? {
-        val c = userService.getUserByUsername(username)
-        if (c == null) {
-            log.error("Get Tickets by Email error: Customer not found with Email: $username")
-            throw CustomerNotFoundException("Customer not found with Email: $username")
-        }
-        return CustomerResponseBody(c.email, c.username, c.name, c.surname, c.address, c.phonenumber)
-    }
-
-    @GetMapping("/profiles/experts")
-    fun getAllExperts(): List<CustomerResponseBody>? {
-        val experts = userService.getAllExperts()
-        return experts.filterNotNull()
-            .map { c -> CustomerResponseBody(c.email, c.username, c.name, c.surname, c.address, c.phonenumber) }
-    }
-
-
-    @PutMapping("/profiles/{username}")
+    @PutMapping("/user")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun updateProfile(@PathVariable("username") username: String, @Valid @RequestBody body: CustomerRequestBody, br: BindingResult): CustomerResponseBody? {
+    fun updateUser(principal: Principal, @Valid @RequestBody body: CustomerRequestBody, br: BindingResult): CustomerResponseBody? {
         if (br.hasErrors()) {
             log.error("Error updating a Profile: Body validation failed with errors ${br.allErrors}")
             throw ConstraintViolationException("Body validation failed")
         }
+
+        val username = principal.name
         val customerForUpdate: UserDTO? = userService.getUserByUsername(username)
         if (customerForUpdate == null) {
             log.error("Error updating customer: Customer not found with Email: $username")
@@ -89,22 +64,31 @@ class UserController(private val userService: UserServiceImpl, private val ticke
         return CustomerResponseBody(body.email, body.username, body.name, body.surname, body.address, body.phonenumber)
     }
 
-    @GetMapping("/employees/{username}")
-    fun getEmployee(@PathVariable("username") username: String): EmployeeBodyResponse? {
-        val e = userService.getUserByUsername(username)
-        if (e == null) {
-            log.error("Employee not found with id $username")
-            throw EmployeeNotFoundException("Employee not found")
-        }
-        return EmployeeBodyResponse(e.username!!, e.email, e.name, "", e.surname)
-    }
-
     @GetMapping("/userinfo")
     fun getUserInfo(auth: Authentication): UserDTO? {
         return userService.getUserByUsername(auth.name)?.addRoles(auth.authorities.map { it.authority.toString() })
     }
+
     @GetMapping("/users/experts")
     fun getExperts():List<UserDTO>{
         return userService.getAllExperts()
+    }
+
+    @PostMapping("/user/createExpert")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun createExpert(@Valid @RequestBody userBody: UserBody, br: BindingResult): UserBody {
+        if(br.hasErrors()) {
+            log.error("Error adding a new Employee: Body validation failed with error ${br.allErrors}")
+            throw ConstraintViolationException("Body validation failed")
+        }
+
+        if(userService.getUserByUsername(userBody.username)!=null) {
+            log.error("Error adding a new Employee: Employee already exists with Email ${userBody.emailID}")
+            throw DuplicateEmployeeException("Employee already exists with Email: ${userBody.emailID}")
+        }
+
+        userService.addUser(userBody, listOf("Experts_group"))
+        log.info("Correctly added a new employee with email ${userBody.emailID}")
+        return userBody
     }
 }

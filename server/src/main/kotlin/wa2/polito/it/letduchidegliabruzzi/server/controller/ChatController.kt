@@ -31,6 +31,7 @@ import javax.ws.rs.Consumes
 @RestController
 @Observed
 @Slf4j
+@RequestMapping("/API")
 class ChatController(
     private val chatService: ChatService,
     private val tickerService: TicketService,
@@ -40,18 +41,18 @@ class ChatController(
 
     private val log: Logger = LoggerFactory.getLogger(ChatController::class.java)
 
-    @GetMapping("/API/chat/{id}")
-    fun getChatInfo(@PathVariable id: Int): ChatBodyResponse? {
+    @GetMapping("/chat/{id}")
+    fun getChatInfo(@PathVariable id: Int): ChatDTO? {
         val chat = chatService.getChatInfo(id)
         if (chat == null) {
             log.error("Error getting a chat: Chat not found with Id $id")
             throw ChatNotFoundException("Chat not found with Id: $id")
         }
-        return ChatBodyResponse(chat.chatID)
+        return chat
     }
 
-    @GetMapping("/API/chat/ticket/{id}")
-    fun getChatByTicketID(@PathVariable id: Int): ChatBodyResponse? {
+    @GetMapping("/chat/ticket/{id}")
+    fun getChatByTicketID(@PathVariable id: Int): ChatDTO? {
         val ticket = tickerService.getTicket(id)
         if (ticket == null) {
             log.error("Error getting a Chat: Ticket not found with Id $id")
@@ -62,10 +63,10 @@ class ChatController(
             log.error("Error getting a chat: Chat not found with Id $id")
             throw ChatNotFoundException("Chat not found with Id: $id")
         }
-        return ChatBodyResponse(chat.chatID)
+        return chat
     }
 
-    @PostMapping("/API/chat")
+    @PostMapping("/chat")
     @ResponseStatus(HttpStatus.CREATED)
     fun addChat(
         @RequestBody body: ChatBodyRequest,

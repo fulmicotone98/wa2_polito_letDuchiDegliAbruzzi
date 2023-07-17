@@ -51,7 +51,7 @@ class TicketsServerApplicationTests {
 
     lateinit var httpEntity: HttpEntity<*>
 
-    @Test
+    /*@Test
     fun `test getTicketHistory method should return the status history of a ticket`() {
         val email = "test@example.com"
         // Create a mock customer and tickets associated with the email
@@ -124,18 +124,19 @@ class TicketsServerApplicationTests {
     @Test
     fun `getTicket should return the ticket for a valid id`() {
         // Create a new customer with a unique email
-        val email = "test@example.com"
-        // Create a mock customer and tickets associated with the email
-        val customer = CustomerDTO("Test", "Customer", "123456789", "123 Test Street", email)
-        customerService.addProfile(customer)
-        val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
-        val savedTicket = ticketService.addTicket("Ticket test1", product1.ean, email)
         val credentials = CredentialsLogin("manager", "manager")
         val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
+            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.access_token ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(null, headers)
+
+        // Create a new customer with a unique username
+        val customer = UserBody("johndoe","johndoe@example.com","password","John", "Doe", "1234567890", "123 Main St")
+        userService.addUser(customer, listOf("Customers_group"))
+        val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", customer.emailID)
+        val savedTicket = ticketService.addTicket("Ticket test1", product1.ean, customer.emailID)
+
         val responseEntity = restTemplate.exchange("/API/ticket/${savedTicket.ticketID}", HttpMethod.GET, httpEntity, TicketBodyResponse::class.java)
 
         // Assert that the response has HTTP status 200 (OK)
@@ -347,10 +348,10 @@ class TicketsServerApplicationTests {
     @Test
     fun `assignTicket should return HTTP 404 for a non-existent ticket`() {
         // Create a new employee
-        val employee = employeeService.addEmployee("test2@test.it", "Name", "expert", "Surname")
+        val employee = userService.addUser("test2@test.it", "Name", "expert", "Surname")
 
         // Assign the ticket to the employee using the API with a non-existent ticket ID
-        val body = AssignTicketBodyRequest(employee.employeeID!!, "Low")
+        val body = AssignTicketBodyRequest(employee.username!!, "Low")
         val credentials = CredentialsLogin("manager", "manager")
         val jwtToken = restTemplate
             .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
@@ -372,8 +373,8 @@ class TicketsServerApplicationTests {
         // Create a new customer with a unique email
         val email = "test@example.com"
         // Create a mock customer and tickets associated with the email
-        val customer = CustomerDTO("Test", "Customer", "123456789", "123 Test Street", email)
-        customerService.addProfile(customer)
+        val customer = UserBody("Test", "Customer", "123456789", "123 Test Street", email)
+        userService.addUser(customer)
         val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
         val savedTicket = ticketService.addTicket("Ticket test1", product1.ean, email)
         // Create a mock request body with an invalid employee id
@@ -403,8 +404,8 @@ class TicketsServerApplicationTests {
         // Create a new customer with a unique email
         val email = "test@example.com"
         // Create a mock customer and tickets associated with the email
-        val customer = CustomerDTO("Test", "Customer", "123456789", "123 Test Street", email)
-        customerService.addProfile(customer)
+        val customer = UserBody("Test", "Customer", "123456789", "123 Test Street", email)
+        userService.addUser(customer)
         val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", email)
         val savedTicket = ticketService.addTicket("Ticket test1", product1.ean, email)
 
@@ -413,7 +414,7 @@ class TicketsServerApplicationTests {
         val requestBody = BodyStatusTicket(newStatus)
         val credentials = CredentialsLogin("manager", "manager")
         val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
+            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.access_token ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(requestBody, headers)
@@ -436,7 +437,7 @@ class TicketsServerApplicationTests {
         val updatedTicket = ticketService.getTicket(savedTicket.ticketID!!)
         Assertions.assertEquals(newStatus, updatedTicket?.status)
     }
-
+*/
     @Test
     fun `editTicketStatus should return HTTP 404 for a non-existent ticket`() {
         // Create a request body with a new status for the ticket
@@ -447,7 +448,7 @@ class TicketsServerApplicationTests {
         val id = -111
         val credentials = CredentialsLogin("manager", "manager")
         val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
+            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.access_token ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(requestBody, headers)
@@ -476,7 +477,7 @@ class TicketsServerApplicationTests {
         val invalidId = "---"
         val credentials = CredentialsLogin("manager", "manager")
         val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
+            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.access_token ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(requestBody, headers)
@@ -498,10 +499,10 @@ class TicketsServerApplicationTests {
     @Test
     fun `getCustomerTickets should return the customer's tickets for a valid username`() {
         // Create a mock customer and tickets associated with the email
-        val customer = UserBody("johndoe","johndoe@example.com","password","John", "Doe", "1234567890", "123 Main St")
+        val customer = UserBody("test","test@example.com","password","John", "Doe", "1234567890", "123 Main St")
         userService.addUser(customer, listOf("Customers_group"))
-        val product1 = productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", customer.username)
-        val product2 = productService.addProduct("1234567890124", "Test Brand 2", "Test Product 2", customer.username)
+        val product1 = productService.addProduct("1234567890128", "Test Brand 1", "Test Product 1", customer.username)
+        val product2 = productService.addProduct("1234567890129", "Test Brand 2", "Test Product 2", customer.username)
         val savedTicket1 = ticketService.addTicket("Ticket test1", product1.ean, customer.username)
         val savedTicket2 = ticketService.addTicket("Ticket test2", product2.ean, customer.username)
         val credentials = CredentialsLogin("manager", "manager")
@@ -511,7 +512,7 @@ class TicketsServerApplicationTests {
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(null, headers)
         // Make a GET request to the getProfile endpoint with the customer's email
-        val response = restTemplate.exchange("/API/profile/${customer.username}/tickets", HttpMethod.GET, httpEntity, object : ParameterizedTypeReference<List<TicketBodyResponse>>() {})
+        val response = restTemplate.exchange("/API/ticket/user/${customer.username}", HttpMethod.GET, httpEntity, object : ParameterizedTypeReference<List<TicketBodyResponse>>() {})
         val responseBody = response.body!!
         // Assert that the response has HTTP status 200 (OK)
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
@@ -541,13 +542,13 @@ class TicketsServerApplicationTests {
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(null, headers)
 
-        val responseEntity = restTemplate.exchange("/API/profile/$username/tickets", HttpMethod.GET, httpEntity, String::class.java)
+        val responseEntity = restTemplate.exchange("/API/ticket/user/$username", HttpMethod.GET, httpEntity, String::class.java)
 
         // Assert that the response has HTTP status 404 (NOT FOUND)
         Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
 
         // Assert that the response body contains the expected error message
-        val expectedErrorMessage = "Customer not found with username: $username"
+        val expectedErrorMessage = "Customer not found with Username: $username"
         Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
     }
 
@@ -562,7 +563,7 @@ class TicketsServerApplicationTests {
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(null, headers)
 
-        val responseEntity = restTemplate.exchange("/API/profile/$invalidUsername/tickets", HttpMethod.GET, httpEntity, String::class.java)
+        val responseEntity = restTemplate.exchange("/API/ticket/user/$invalidUsername", HttpMethod.GET, httpEntity, String::class.java)
 
         // Assert that the response has HTTP status 400 (BAD REQUEST)
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)

@@ -2,6 +2,7 @@ package wa2.polito.it.letduchidegliabruzzi.server.controller
 
 import io.micrometer.observation.annotation.Observed
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -152,7 +153,7 @@ class TicketController(
     }
 
     @GetMapping("/ticket/user/{username}")
-    fun getTicketsByUsername(@PathVariable("username") username: String): List<TicketDTO> {
+    fun getTicketsByUsername(@PathVariable("username") @NotBlank(message="Username shouldn't be blank") username: String): List<TicketDTO> {
         val c = userService.getUserByUsername(username)
         if (c == null) {
             log.error("Get Tickets by username error: Customer not found with Username: $username")

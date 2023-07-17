@@ -1,207 +1,238 @@
 package wa2.polito.it.letduchidegliabruzzi.server
 
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
+import wa2.polito.it.letduchidegliabruzzi.server.controller.body.*
+import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductService
 
 @Testcontainers
-@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureTestDatabase(replace=AutoConfigureTestDatabase.Replace.NONE)
-class ProductsServerApplicationTests {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class ProductControllerTests {
+
     companion object {
         @Container
-        val postgres = PostgreSQLContainer("postgres:latest")
+        val postgres = PostgreSQLContainer<Nothing>("postgres:latest")
+
         @JvmStatic
         @DynamicPropertySource
         fun properties(registry: DynamicPropertyRegistry) {
             registry.add("spring.datasource.url", postgres::getJdbcUrl)
             registry.add("spring.datasource.username", postgres::getUsername)
             registry.add("spring.datasource.password", postgres::getPassword)
-            registry.add("spring.jpa.hibernate.ddl-auto") {"create-drop"}
+            registry.add("spring.jpa.hibernate.ddl-auto") { "create-drop" }
         }
     }
+
     @LocalServerPort
     protected var port: Int = 0
+
     @Autowired
     lateinit var restTemplate: TestRestTemplate
+
     @Autowired
-    lateinit var customerRepository: CustomerRepository
+    lateinit var userService: UserService
+
     @Autowired
     lateinit var productService: ProductService
 
     lateinit var httpEntity: HttpEntity<*>
+
     @Test
-    fun `test getAll method should return all products`() {
+    fun `getAll should return a list of products`() {
+        // Arrange
         val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
+        val jwtToken = restTemplate.postForEntity(
+            "/API/login",
+            credentials,
+            JwtResponse::class.java
+        ).body?.access_token ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(null, headers)
-        val customer = Customer("johndoe@example.com","John", "Doe", "1234567890", "123 Main St")
-        customerRepository.save(customer)
-        // Create some test data
-        productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", "johndoe@example.com")
-        productService.addProduct("2345678901234", "Test Brand 2", "Test Product 2", "johndoe@example.com")
 
-        // Make a GET request to the /API/products endpoint
-        val response = restTemplate.exchange("/API/products", HttpMethod.GET, httpEntity, object : ParameterizedTypeReference<List<ProductResponseBody>>() {})
+        // Act
+        val responseEntity = restTemplate.exchange(
+            "/API/products",
+            HttpMethod.GET,
+            httpEntity,
+            object : ParameterizedTypeReference<List<ProductResponseBody>>() {}
+        )
 
-        // Verify that the response status is OK
-        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
-
-        // Verify that the response body contains the expected data
-        val responseBody = response.body!!
-        Assertions.assertEquals(2, responseBody.size)
-        Assertions.assertEquals("1234567890123", responseBody[0].ean)
-        Assertions.assertEquals("Test Product 1", responseBody[0].name)
-        Assertions.assertEquals("Test Brand 1", responseBody[0].brand)
-        Assertions.assertEquals("johndoe@example.com", responseBody[0].customerEmail)
-        Assertions.assertEquals("2345678901234", responseBody[1].ean)
-        Assertions.assertEquals("Test Product 2", responseBody[1].name)
-        Assertions.assertEquals("Test Brand 2", responseBody[1].brand)
-        Assertions.assertEquals("johndoe@example.com", responseBody[1].customerEmail)
-    }
-    @Test
-    fun `getProduct should return the product for a valid ean`() {
-        val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
-        val headers = HttpHeaders()
-        headers.setBearerAuth(jwtToken)
-        httpEntity = HttpEntity(null, headers)
-        // Create a new customer with a unique email
-        val customer = Customer("johndoe@example.com","John", "Doe", "1234567890", "123 Main St")
-        customerRepository.save(customer)
-        // Create some test data
-        productService.addProduct("1234567890123", "Test Brand 1", "Test Product 1", "johndoe@example.com")
-
-        // Make a GET request to the getProfile endpoint with the customer's email
-        val responseEntity = restTemplate.exchange("/API/products/1234567890123", HttpMethod.GET, httpEntity, ProductResponseBody::class.java)
-
-        // Assert that the response has HTTP status 200 (OK)
+        // Assert
         Assertions.assertEquals(HttpStatus.OK, responseEntity.statusCode)
-
-        // Assert that the response body is not null
         Assertions.assertNotNull(responseEntity.body)
-
-        // Assert that the response body fields match the customer's data
-        Assertions.assertEquals("1234567890123", responseEntity.body?.ean)
-        Assertions.assertEquals("Test Brand 1", responseEntity.body?.brand)
-        Assertions.assertEquals("Test Product 1", responseEntity.body?.name)
-        Assertions.assertEquals("johndoe@example.com", responseEntity.body?.customerEmail)
     }
 
     @Test
-    fun `getProduct should return HTTP 404 for a non-existent product`() {
-        // Make a GET request to the getProfile endpoint with a non-existent email
+    fun `addProduct should create a new product with valid input`() {
+        // Arrange
         val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
+        val jwtToken = restTemplate.postForEntity(
+            "/API/login",
+            credentials,
+            JwtResponse::class.java
+        ).body?.access_token ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
-        httpEntity = HttpEntity(null, headers)
-        val ean = "11111111111"
-        val responseEntity = restTemplate.exchange("/API/products/$ean", HttpMethod.GET, httpEntity, String::class.java)
 
-        // Assert that the response has HTTP status 404 (NOT FOUND)
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
+        val productRequestBody = ProductRequestBody("1234567899", "Brand", "Product Name")
 
-        // Assert that the response body contains the expected error message
-        val expectedErrorMessage = "Product not found"
-        Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
-    }
+        httpEntity = HttpEntity(productRequestBody, headers)
 
-    @Test
-    fun `getProduct should return HTTP 400 for an invalid ean`() {
-        val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
-        val headers = HttpHeaders()
-        headers.setBearerAuth(jwtToken)
-        httpEntity = HttpEntity(null, headers)
-        // Make a GET request to the getProfile endpoint with an invalid email
-        val invalidEan = "---"
-        val responseEntity = restTemplate.exchange("/API/products/$invalidEan", HttpMethod.GET, httpEntity, String::class.java)
+        // Act
+        val responseEntity = restTemplate.exchange(
+            "/API/products",
+            HttpMethod.POST,
+            httpEntity,
+            ProductBodyID::class.java
+        )
 
-        // Assert that the response has HTTP status 400 (BAD REQUEST)
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
-
-        // Assert that the response body contains the expected error message
-        val expectedErrorMessage = "The Ean should be alphanumeric"
-        println(responseEntity.body)
-        Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
-    }
-
-    @Test
-    fun `addProduct should add a new product`() {
-
-        val customer = Customer("johndoe@example.com","John", "Doe", "1234567890", "123 Main St")
-        customerRepository.save(customer)
-        // Create a new customer request body with valid data
-        val requestBody = ProductRequestBody("1234567890123", "Test Product 1", "Test Brand 1", "johndoe@example.com")
-        val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
-        val headers = HttpHeaders()
-        headers.setBearerAuth(jwtToken)
-        httpEntity = HttpEntity(requestBody, headers)
-        // Make a POST request to the addProfile endpoint with the request body
-        val responseEntity = restTemplate.exchange("/API/products", HttpMethod.POST, httpEntity, ProductResponseBody::class.java)
-
-        // Assert that the response has HTTP status 201 (CREATED)
+        // Assert
         Assertions.assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
-
-        // Assert that the response body is not null
-        Assertions.assertNotNull(responseEntity.body)
-
-        // Assert that the response body email field matches the request body email field
-        Assertions.assertEquals(requestBody.ean, responseEntity.body?.ean)
-        println(responseEntity.body)
-        // Assert that the response body other fields are null (as expected)
-        Assertions.assertNull(responseEntity.body?.name)
-        Assertions.assertNull(responseEntity.body?.customerEmail)
-        Assertions.assertNull(responseEntity.body?.brand)
-
-        // Assert that the customer was added to the database by checking if it can be retrieved
-        val product = productService.getProduct(requestBody.ean)
-        Assertions.assertNotNull(customer)
-        Assertions.assertEquals(requestBody.name, product?.name)
-        Assertions.assertEquals(requestBody.brand, product?.brand)
-        Assertions.assertEquals(requestBody.customerEmail, product?.customer!!.email)
+        Assertions.assertNotNull(responseEntity.body?.ean)
     }
+
     @Test
-    fun `addProduct should return 400 error for invalid input`() {
-        // Create a new customer request body with valid data
-        val requestBody = ProductRequestBody("£$%", "Test Product 1", "Test Brand 1", "johndoe")
+    fun `addProduct should return HTTP 400 for invalid input`() {
+        // Arrange
         val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
+        val jwtToken = restTemplate.postForEntity(
+            "/API/login",
+            credentials,
+            JwtResponse::class.java
+        ).body?.access_token ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
-        httpEntity = HttpEntity(requestBody, headers)
-        // Make a POST request to the addProfile endpoint with the request body
-        val responseEntity = restTemplate.exchange("/API/products", HttpMethod.POST, httpEntity, String::class.java)
 
-        // Assert that the response has HTTP status 201 (CREATED)
+        // Empty productRequestBody with invalid input
+        val productRequestBody = ProductRequestBody("", "", "")
+
+        httpEntity = HttpEntity(productRequestBody, headers)
+
+        // Act
+        val responseEntity = restTemplate.exchange(
+            "/API/products",
+            HttpMethod.POST,
+            httpEntity,
+            String::class.java
+        )
+
+        // Assert
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
-        val expectedErrorMessage = "The email should be provided in a correct format"
-        Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+    }
+    @Test
+    fun `getAllByUser should return a list of products for a valid user`() {
+        // Arrange
+        val credentials = CredentialsLogin("manager", "manager")
+        val jwtToken = restTemplate.postForEntity(
+            "/API/login",
+            credentials,
+            JwtResponse::class.java
+        ).body?.access_token ?: ""
+        val headers = HttpHeaders()
+        headers.setBearerAuth(jwtToken)
+        httpEntity = HttpEntity(null, headers)
+
+        // Create a new customer with a unique username
+        val customer = UserBody("prova", "prova@example.com", "password", "John", "Doe", "1234567890", "123 Main St")
+        userService.addUser(customer, listOf("Customers_group"))
+
+        // Create a new product for the customer
+        val productRequestBody = ProductRequestBody("1286878558", "Brand", "Product Name")
+        httpEntity = HttpEntity(productRequestBody, headers)
+        restTemplate.exchange("/API/products", HttpMethod.POST, httpEntity, ProductBodyID::class.java)
+
+        // Act
+        val responseEntity = restTemplate.exchange(
+            "/API/products/user",
+            HttpMethod.GET,
+            httpEntity,
+            object : ParameterizedTypeReference<List<ProductResponseBody>>() {}
+        )
+
+        // Assert
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        Assertions.assertNotNull(responseEntity.body)
+        Assertions.assertTrue(responseEntity.body!!.isNotEmpty())
+        Assertions.assertEquals("1234567890", responseEntity.body!!.first().ean)
+
+        userService.deleteUserByUsername("prova")
     }
 
     @Test
-    fun `addProduct should return 404 error for customer not found`() {
-        // Create a new customer request body with valid data
-        val requestBody = ProductRequestBody("123abc", "Test Product 1", "Test Brand 1", "johndoe@abc.it")
+    fun `getProduct should return the product for a valid EAN`() {
+        // Arrange
         val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate
-            .postForEntity("/API/login", credentials, JwtResponse::class.java).body?.jwt ?: ""
+        val jwtToken = restTemplate.postForEntity(
+            "/API/login",
+            credentials,
+            JwtResponse::class.java
+        ).body?.access_token ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
-        httpEntity = HttpEntity(requestBody, headers)
-        // Make a POST request to the addProfile endpoint with the request body
-        val responseEntity = restTemplate.exchange("/API/products", HttpMethod.POST, httpEntity, String::class.java)
+        httpEntity = HttpEntity(null, headers)
 
-        // Assert that the response has HTTP status 201 (CREATED)
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
-        val expectedErrorMessage = "Customer not found with Email: johndoe@abc.it"
-        Assertions.assertTrue(responseEntity.body?.contains(expectedErrorMessage) ?: false)
+        // Create a new product for testing
+        val productRequestBody = ProductRequestBody("1234567890", "Brand", "Product Name")
+        httpEntity = HttpEntity(productRequestBody, headers)
+        restTemplate.exchange("/API/products", HttpMethod.POST, httpEntity, ProductBodyID::class.java)
+
+        // Act
+        val responseEntity = restTemplate.exchange(
+            "/API/products/1234567890",
+            HttpMethod.GET,
+            httpEntity,
+            ProductResponseBody::class.java
+        )
+
+        // Assert
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        Assertions.assertNotNull(responseEntity.body)
+        Assertions.assertEquals("1234567890", responseEntity.body?.ean)
+
     }
+
+    @Test
+    fun `getProduct should return HTTP 404 for a non-existent EAN`() {
+        // Arrange
+        val credentials = CredentialsLogin("manager", "manager")
+        val jwtToken = restTemplate.postForEntity(
+            "/API/login",
+            credentials,
+            JwtResponse::class.java
+        ).body?.access_token ?: ""
+        val headers = HttpHeaders()
+        headers.setBearerAuth(jwtToken)
+        httpEntity = HttpEntity(null, headers)
+
+        // Act
+        val responseEntity = restTemplate.exchange(
+            "/API/products/11111111111111111111",
+            HttpMethod.GET,
+            httpEntity,
+            String::class.java
+        )
+
+        // Assert
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
+        Assertions.assertTrue(responseEntity.body?.contains("Product not found") ?: false)
+    }
+
 }

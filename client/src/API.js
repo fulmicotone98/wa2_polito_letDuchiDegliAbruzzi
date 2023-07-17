@@ -62,6 +62,24 @@ async function signUp(user) {
     }
 }
 
+async function createExpert(accessToken, user) {
+    const response = await fetch(baseURL8081 + "/API/employee/createExpert", {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + accessToken,
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(user),
+    });
+    if (response.ok || response.status === 409 || response.status === 400 || response.status === 401) {
+        return await response.json();
+    }
+    else{
+        throw await response.text(); //return errDetails
+    }
+}
+
 // async function getAllProducts() {
 //     try {
 //         const response = await fetch(baseURL8081 + '/API/products/');
@@ -537,6 +555,7 @@ const API = {
     addMessage,
     closeTicket,
     getUserInfo,
+    createExpert,
     getProductById,
     //addCustomer,
     signUp,

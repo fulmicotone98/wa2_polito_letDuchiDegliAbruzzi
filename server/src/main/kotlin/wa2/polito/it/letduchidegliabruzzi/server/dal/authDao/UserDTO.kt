@@ -3,6 +3,7 @@ package wa2.polito.it.letduchidegliabruzzi.server.dal.authDao
 import org.keycloak.representations.idm.UserRepresentation
 
 data class UserDTO(
+    val id: String?,
     val username: String,
     val email: String,
     val name: String,
@@ -13,10 +14,10 @@ data class UserDTO(
 )
 
 fun UserRepresentation.toDTO(roles: List<String>?): UserDTO{
-    return UserDTO(username,email,firstName,lastName, attributes["phonenumber"]?.firstOrNull(),
+    return UserDTO(id,username,email,firstName,lastName, attributes["phonenumber"]?.firstOrNull(),
         attributes["address"]?.firstOrNull(), roles)
 }
 
 fun UserDTO.addRoles(roles: List<String>): UserDTO{
-    return UserDTO(username,email,name,surname,phonenumber, address, roles)
+    return UserDTO(id,username,email,name,surname,phonenumber, address, roles)
 }

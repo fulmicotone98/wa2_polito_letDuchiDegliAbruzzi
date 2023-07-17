@@ -31,6 +31,7 @@ import java.util.Base64
 @RestController
 @Observed
 @Slf4j
+@RequestMapping("/API")
 class MessageController(
     private val messageService: MessageService,
     private val chatService: ChatService,
@@ -40,7 +41,7 @@ class MessageController(
 ) {
     private val log: Logger = LoggerFactory.getLogger(MessageController::class.java)
 
-    @GetMapping("/API/message/{id}")
+    @GetMapping("/message/{id}")
     fun getMessage(@PathVariable id: Int): MessageBodyResponse? {
         val message = messageService.getMessage(id)
         if (message == null) {
@@ -64,7 +65,7 @@ class MessageController(
         )
     }
 
-    @GetMapping("/API/message/chat/{id}")
+    @GetMapping("/message/chat/{id}")
     fun getChatByChatID(@PathVariable id: Int): List<MessageBodyResponse> {
         val chat = chatService.getChatInfo(id)
         if (chat == null) {
@@ -96,7 +97,7 @@ class MessageController(
         return listMessages
     }
 
-    @PostMapping("/API/message")
+    @PostMapping("/message")
     @ResponseStatus(HttpStatus.CREATED)
     fun addMessage(
         @Valid @RequestBody body: MessageBodyRequest,

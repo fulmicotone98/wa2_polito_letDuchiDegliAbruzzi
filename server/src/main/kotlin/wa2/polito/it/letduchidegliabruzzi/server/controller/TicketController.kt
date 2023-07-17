@@ -34,9 +34,6 @@ class TicketController(
 
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
-//    TODO(GET user tickets)
-//    TODO(GET expert tickets)
-
     @GetMapping("/ticket/{id}")
     fun getTicket(@PathVariable id: Int): TicketDTO? {
         val ticket = ticketService.getTicket(id)
@@ -47,7 +44,7 @@ class TicketController(
         return ticket
     }
 
-    @GetMapping("/API/ticket")
+    @GetMapping("/ticket")
     fun getTickets(): List<TicketDTO>? {
         return ticketService.getTickets()
     }
@@ -155,12 +152,34 @@ class TicketController(
     }
 
     @GetMapping("/ticket/user/{username}")
-    fun getTicketsByEmail(@PathVariable("username") username: String): List<TicketDTO> {
+    fun getTicketsByUsername(@PathVariable("username") username: String): List<TicketDTO> {
         val c = userService.getUserByUsername(username)
         if (c == null) {
-            log.error("Get Tickets by Email error: Customer not found with Email: $username")
-            throw CustomerNotFoundException("Customer not found with Email: $username")
+            log.error("Get Tickets by username error: Customer not found with Username: $username")
+            throw CustomerNotFoundException("Customer not found with Username: $username")
         }
         return ticketService.getTicketsByCustomer(username)
+    }
+
+    @GetMapping("/ticket/user")
+    fun getTicketsByUsername(principal:Principal): List<TicketDTO> {
+        val username = principal.name
+        val c = userService.getUserByUsername(username)
+        if (c == null) {
+            log.error("Get Tickets by username error: Customer not found with Username: $username")
+            throw CustomerNotFoundException("Customer not found with Username: $username")
+        }
+        return ticketService.getTicketsByCustomer(username)
+    }
+
+    @GetMapping("/ticket/expert")
+    fun getTicketsAssigned(principal:Principal): List<TicketDTO> {
+        val username = principal.name
+        val c = userService.getUserByUsername(username)
+        if (c == null) {
+            log.error("Get Tickets by username error: Customer not found with Username: $username")
+            throw CustomerNotFoundException("Customer not found with Username: $username")
+        }
+        return ticketService.getExpertTickets(username)
     }
 }

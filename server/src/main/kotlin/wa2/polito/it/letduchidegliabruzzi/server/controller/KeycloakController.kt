@@ -34,6 +34,7 @@ class KeycloakController(
     private val userService: UserServiceImpl,) {
 
     private val log: Logger = LoggerFactory.getLogger(KeycloakController::class.java)
+
     @PostMapping("/login")
     fun login(@RequestBody credentials: CredentialsLogin): ResponseEntity<Any>{
         val keycloakResponse = authenticationService.authenticate(credentials)
@@ -44,24 +45,6 @@ class KeycloakController(
             log.error("Login error: UNAUTHORIZED")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
-    }
-
-    @PostMapping("/employee/createExpert")
-    @ResponseStatus(HttpStatus.CREATED)
-    fun createExpert(@Valid @RequestBody userBody: UserBody, br: BindingResult): UserBody {
-        if(br.hasErrors()) {
-            log.error("Error adding a new Employee: Body validation failed with error ${br.allErrors}")
-            throw ConstraintViolationException("Body validation failed")
-        }
-
-        if(userService.getUserByUsername(userBody.username)!=null) {
-            log.error("Error adding a new Employee: Employee already exists with Email ${userBody.emailID}")
-            throw DuplicateEmployeeException("Employee already exists with Email: ${userBody.emailID}")
-        }
-
-        userService.addUser(userBody, listOf("Experts_group"))
-        log.info("Correctly added a new employee with email ${userBody.emailID}")
-        return userBody
     }
 
     @PostMapping("/signup")

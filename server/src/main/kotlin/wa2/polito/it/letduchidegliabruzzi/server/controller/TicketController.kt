@@ -24,6 +24,7 @@ import java.security.Principal
 @RestController
 @Observed
 @Slf4j
+@RequestMapping("/API")
 class TicketController(
     private val ticketService: TicketService,
     private val statusHistoryService: StatusHistoryService,
@@ -33,7 +34,10 @@ class TicketController(
 
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
-    @GetMapping("/API/ticket/{id}")
+//    TODO(GET user tickets)
+//    TODO(GET expert tickets)
+
+    @GetMapping("/ticket/{id}")
     fun getTicket(@PathVariable id: Int): TicketDTO? {
         val ticket = ticketService.getTicket(id)
         if(ticket == null){
@@ -48,7 +52,7 @@ class TicketController(
         return ticketService.getTickets()
     }
 
-    @PostMapping("/API/ticket")
+    @PostMapping("/ticket")
     @ResponseStatus(HttpStatus.CREATED)
     fun addTicket(@Valid @RequestBody body: TicketBodyRequest, br: BindingResult, principal: Principal): TicketBodyResponse? {
         // Check if the body is valid
@@ -84,7 +88,7 @@ class TicketController(
         return TicketBodyResponse(ticket.ticketID, ticket.description, ticket.status, ticket.priority, ticket.createdAt, ticket.product.ean, ticket.customerUsername, ticket.expertUsername)
     }
 
-    @PutMapping("API/ticket/{id}/assign")
+    @PutMapping("/ticket/{id}/assign")
     fun assignTicket(@PathVariable id: Int, @Valid @RequestBody body: AssignTicketBodyRequest, br: BindingResult): TicketIDBodyResponse? {
         // Check if the body is valid
         if (br.hasErrors()) {
@@ -123,7 +127,7 @@ class TicketController(
         return TicketIDBodyResponse(ticketService.editTicket(newTicketDTO).ticketID)
     }
 
-    @PutMapping("API/ticket/{id}/status")
+    @PutMapping("/ticket/{id}/status")
     fun editTicketStatus(@PathVariable id: Int, @Valid @RequestBody body: BodyStatusTicket, br: BindingResult): Int? {
         if (br.hasErrors()) {
             log.error("Error editing the ticket status: Body validation failed with error ${br.allErrors}")
@@ -148,5 +152,15 @@ class TicketController(
         ).toDTO(ticket.customer, ticket.employee,ticketHistory,ticket.chat)
         log.info("Ticket $id status correctly edited to from ${ticket.status} to ${body.status}")
         return ticketService.editTicket(newTicketDTO).toTicket().ticketID
+    }
+
+    @GetMapping("/ticket/user/{username}")
+    fun getTicketsByEmail(@PathVariable("username") username: String): List<TicketDTO> {
+        val c = userService.getUserByUsername(username)
+        if (c == null) {
+            log.error("Get Tickets by Email error: Customer not found with Email: $username")
+            throw CustomerNotFoundException("Customer not found with Email: $username")
+        }
+        return ticketService.getTicketsByCustomer(username)
     }
 }

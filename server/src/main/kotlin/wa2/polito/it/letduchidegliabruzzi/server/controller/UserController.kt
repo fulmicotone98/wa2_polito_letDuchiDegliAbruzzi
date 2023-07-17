@@ -37,11 +37,11 @@ class UserController(private val userService: UserServiceImpl, private val ticke
 //    TODO(Create Expert)
 
     @GetMapping("/user/{username}")
-    fun getProfile(@PathVariable("username") username: String): UserDTO? {
+    fun getProfile(@PathVariable("username") @NotBlank(message="Username shouldn't be blank") username: String): UserDTO? {
         val user = userService.getUserByUsername(username)
         if (user == null) {
-            log.error("Get Tickets by Email error: Customer not found with Email: $username")
-            throw CustomerNotFoundException("Customer not found with Email: $username")
+            log.error("Customer not found with username: $username")
+            throw CustomerNotFoundException("Customer not found with username: $username")
         }
         return user
     }

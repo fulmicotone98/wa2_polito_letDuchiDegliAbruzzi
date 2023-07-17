@@ -59,7 +59,11 @@ class ProblemDetailsHandler : ResponseEntityExceptionHandler() {
         val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message!!)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail)
     }
-
+    @ExceptionHandler(wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ConstraintViolationException::class)
+    fun handleBodyValidation(e: wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ConstraintViolationException): ResponseEntity<ProblemDetail>{
+        val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message!!)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail)
+    }
     @ExceptionHandler(TicketNotFoundException::class)
     fun handleTicketNotFound(e: TicketNotFoundException): ResponseEntity<ProblemDetail> {
         val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.message!!)

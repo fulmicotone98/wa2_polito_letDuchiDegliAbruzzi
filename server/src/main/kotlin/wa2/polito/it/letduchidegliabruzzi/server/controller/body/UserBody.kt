@@ -39,5 +39,5 @@ data class CredentialsLogin (
 )
 
 data class JwtResponse(
-    val jwt: String
+    val access_token: String
 )

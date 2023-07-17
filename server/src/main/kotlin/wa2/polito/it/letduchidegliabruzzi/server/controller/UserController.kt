@@ -2,6 +2,9 @@ package wa2.polito.it.letduchidegliabruzzi.server.controller
 
 import io.micrometer.observation.annotation.Observed
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -54,8 +57,8 @@ class UserController(private val userService: UserServiceImpl, private val ticke
         val username = principal.name
         val customerForUpdate: UserDTO? = userService.getUserByUsername(username)
         if (customerForUpdate == null) {
-            log.error("Error updating customer: Customer not found with Email: $username")
-            throw CustomerNotFoundException("Customer not found with Email: $username")
+            log.error("Error updating customer: Customer not found with username: $username")
+            throw CustomerNotFoundException("Customer not found with username: $username")
         }
         val newUserDTO = UserDTO(null, body.username, body.email, body.name, body.surname, body.phonenumber, body.address, null)
 

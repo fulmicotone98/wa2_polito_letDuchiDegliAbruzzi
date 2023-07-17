@@ -47,7 +47,7 @@ class TicketController(
         return ticket
     }
 
-    @GetMapping("/API/ticket")
+    @GetMapping("/ticket")
     fun getTickets(): List<TicketDTO>? {
         return ticketService.getTickets()
     }

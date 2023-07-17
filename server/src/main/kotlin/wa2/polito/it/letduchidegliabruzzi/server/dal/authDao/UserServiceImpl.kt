@@ -45,8 +45,21 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         return userResource.create(user).status
     }
 
-    override fun updateUserByUsername(username: String, user: UserDTO) {
-        TODO("Not yet implemented")
+    override fun updateUserByUsername(username: String, u: UserDTO): String? {
+        val user = userResource.search(username, true).firstOrNull()?: return null
+
+        val new:UserRepresentation = UserRepresentation()
+        new.username = username
+        new.firstName = u.name
+        new.lastName = u.surname
+        new.email = u.email
+        new.credentials = user.credentials
+        new.isEnabled = true
+        new.isEmailVerified = true
+        new.groups = user.groups
+        new.attributes = mapOf("address" to listOf(u.address) , "phonenumber" to listOf(u.phonenumber))
+        userResource.get(user.id).update(new)
+        return user.id
     }
 
     override fun getUserInfo(): UserDTO {
@@ -63,6 +76,17 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         val id = getUserByUsername(username)?.id?: return null
         userResource.delete(id)
         return id
+    }
+
+    override fun getAllCustomers(): List<UserDTO> {
+        //Hard-written group ID for "Experts_group"
+        val customers = groupResource.group("69735675-55e4-4847-9f45-22826fd56033").members()
+        return customers.map{ it.toDTO(null) }
+    }
+
+    override fun checkSessionByUsername(username: String): Boolean {
+        val id = getUserByUsername(username)?.id?: return false
+        return userResource.get(id).userSessions.isNotEmpty()
     }
 
 }

@@ -57,7 +57,7 @@ class UserController(private val userService: UserServiceImpl, private val ticke
             log.error("Error updating customer: Customer not found with Email: $username")
             throw CustomerNotFoundException("Customer not found with Email: $username")
         }
-        val newUserDTO = UserDTO(body.username, body.email, body.name, body.surname, body.phonenumber, body.address, null)
+        val newUserDTO = UserDTO(null, body.username, body.email, body.name, body.surname, body.phonenumber, body.address, null)
 
         userService.updateUserByUsername(username, newUserDTO)
         log.info("Updated profile with email $username")

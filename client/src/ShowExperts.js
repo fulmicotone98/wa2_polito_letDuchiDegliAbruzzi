@@ -1,4 +1,4 @@
-import {Button, Card, Col, Row} from "react-bootstrap";
+import {Button, Col, Row} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 import API from "./API";
@@ -12,7 +12,6 @@ function ShowExperts(props) {
     };
 
     const [experts, setExperts] = useState([]);
-
 
     useEffect(() => {
         const getAllExperts = async (accessToken) => {
@@ -29,7 +28,9 @@ function ShowExperts(props) {
 
     return (
         <>
-            <h2 className="text-center">List of experts</h2>
+            <Button variant="secondary" onClick={() => handleNavigation('/')}>Back to tickets</Button>
+
+            <h2 className="text-center" style={{marginTop:"10px"}}>List of Experts</h2>
             <Row style={{marginBottom : "10px"}}>
                 <Col>
                     <Button variant="primary" size="sm" onClick={() => handleNavigation('/add-expert')}> Add expert </Button>

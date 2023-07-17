@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert, Container, Row, Col } from 'react-bootstrap';
 import User from './models/User'
-import MainNavbar from "./MainNavbar";
 import API from "./API";
 import {useNavigate} from "react-router-dom";
 function AddExpert(props) {
@@ -44,6 +43,8 @@ function AddExpert(props) {
 
     return (
         <>
+            <Button variant="secondary" onClick={() => handleNavigation('/show-experts')}> Back to List of Experts </Button>
+
             <Row>
                 <Col></Col>
                 <Col>
@@ -129,7 +130,8 @@ function AddExpert(props) {
                                     </Form.Group>
                                 </Col>
                             </Row>
-                            <Button style={{marginTop: '10px'}}variant="primary" type="submit">
+
+                            <Button style={{marginTop: '10px'}} variant="primary" type="submit">
                                 Submit
                             </Button>
                         </Form>

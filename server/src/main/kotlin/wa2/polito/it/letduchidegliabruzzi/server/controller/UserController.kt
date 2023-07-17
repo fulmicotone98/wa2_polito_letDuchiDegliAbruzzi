@@ -26,10 +26,9 @@ import java.security.Principal
 @Observed
 @Slf4j
 @RequestMapping("/API")
-class UserController(private val userService: UserServiceImpl, private val ticketService: TicketService) {
+class UserController(private val userService: UserServiceImpl) {
     private val log: Logger = LoggerFactory.getLogger(ProductController::class.java)
 
-//    TODO(Edit profile)
 //    TODO(GET customers)
 //    TODO(Create Expert)
 
@@ -45,7 +44,7 @@ class UserController(private val userService: UserServiceImpl, private val ticke
 
     @PutMapping("/user")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun updateUser(principal: Principal, @Valid @RequestBody body: CustomerRequestBody, br: BindingResult): CustomerResponseBody? {
+    fun updateUser(principal: Principal, @Valid @RequestBody body: UserBodyNoAuth, br: BindingResult) {
         if (br.hasErrors()) {
             log.error("Error updating a Profile: Body validation failed with errors ${br.allErrors}")
             throw ConstraintViolationException("Body validation failed")
@@ -57,11 +56,10 @@ class UserController(private val userService: UserServiceImpl, private val ticke
             log.error("Error updating customer: Customer not found with Email: $username")
             throw CustomerNotFoundException("Customer not found with Email: $username")
         }
-        val newUserDTO = UserDTO(null, body.username, body.email, body.name, body.surname, body.phonenumber, body.address, null)
+        val newUserDTO = UserDTO(null, username, body.emailID, body.firstName, body.lastName, body.phoneNumber, body.address, null)
 
         userService.updateUserByUsername(username, newUserDTO)
         log.info("Updated profile with email $username")
-        return CustomerResponseBody(body.email, body.username, body.name, body.surname, body.address, body.phonenumber)
     }
 
     @GetMapping("/userinfo")

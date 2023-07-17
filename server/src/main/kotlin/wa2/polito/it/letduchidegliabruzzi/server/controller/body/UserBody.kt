@@ -13,7 +13,13 @@ data class UserBody(
     @field:NotBlank val phoneNumber: String,
     @field:NotBlank val address: String
 )
-
+data class UserBodyNoAuth(
+    @field:NotBlank @field:Email val emailID: String,
+    @field:NotBlank val firstName: String,
+    @field:NotBlank val lastName: String,
+    @field:NotBlank val phoneNumber: String,
+    @field:NotBlank val address: String
+)
 data class KeycloakResponse(
     @JsonProperty("access_token")
     val accessToken: String?,

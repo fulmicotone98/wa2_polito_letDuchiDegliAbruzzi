@@ -161,7 +161,7 @@ class TicketController(
         return ticketService.getTicketsByCustomer(username)
     }
 
-    @GetMapping("/ticket/user}")
+    @GetMapping("/ticket/user")
     fun getTicketsByUsername(principal:Principal): List<TicketDTO> {
         val username = principal.name
         val c = userService.getUserByUsername(username)

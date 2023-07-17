@@ -85,4 +85,13 @@ class TicketServiceImpl(
             it.toDTO(customer!!, expert,ticketHistory,it.chat?.toDTO())
         }
     }
+
+    override fun getExpertTickets(username: String): List<TicketDTO> {
+        val expert = userService.getUserByUsername(username)
+        return ticketRepository.findAll().filter { it.expertUsername == username}.map{
+            val customer = userService.getUserByUsername(it.customerUsername)
+            val ticketHistory = statusHistoryService.findByTicket(it)
+            it.toDTO(customer!!, expert,ticketHistory,it.chat?.toDTO())
+        }
+    }
 }

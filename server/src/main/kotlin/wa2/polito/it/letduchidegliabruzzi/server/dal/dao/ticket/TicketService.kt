@@ -9,4 +9,5 @@ interface TicketService {
     fun addTicket(description: String, productEan: String, customerUsername: String): Ticket
     fun editTicket(newTicketDTO: TicketDTO, isStatsUpdateNeeded :Boolean = true): TicketDTO
     fun getTicketsByCustomer(customerEmail: String): List<TicketDTO>
+    fun getExpertTickets(username: String): List<TicketDTO>
 }

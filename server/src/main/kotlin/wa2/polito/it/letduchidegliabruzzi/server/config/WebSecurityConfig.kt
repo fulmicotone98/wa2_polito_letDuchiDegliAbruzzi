@@ -28,7 +28,8 @@ class WebSecurityConfig {
             .requestMatchers(HttpMethod.POST, "/API/ticket").hasRole(customer)
             .requestMatchers(HttpMethod.PUT, "/API/ticket/*/assign").hasRole(manager)
             .requestMatchers(HttpMethod.PUT, "/API/ticket/*/status").hasAnyRole(manager, expert)
-            .requestMatchers(HttpMethod.GET, "/API/ticket/user/*").hasAnyRole(manager, expert)
+            .requestMatchers(HttpMethod.GET, "/API/ticket/user").hasAnyRole(customer)
+            .requestMatchers(HttpMethod.GET, "/API/ticket/expert").hasAnyRole(manager, expert)
             .requestMatchers(HttpMethod.GET, "/API/ticket/*").hasAnyRole(manager, expert)
 
             .requestMatchers(HttpMethod.POST, "/API/products").hasRole(customer)

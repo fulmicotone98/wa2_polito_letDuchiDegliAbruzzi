@@ -59,4 +59,10 @@ class UserServiceImpl(private val keycloakProperties: KeycloakProperties):UserSe
         return experts.map{ it.toDTO(null) }
     }
 
+    override fun deleteUserByUsername(username: String): String? {
+        val id = getUserByUsername(username)?.id?: return null
+        userResource.delete(id)
+        return id
+    }
+
 }

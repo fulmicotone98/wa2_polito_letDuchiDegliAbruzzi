@@ -20,6 +20,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.*
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
 
 @Testcontainers
@@ -512,7 +513,7 @@ class TicketsServerApplicationTests {
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(null, headers)
         // Make a GET request to the getProfile endpoint with the customer's email
-        val response = restTemplate.exchange("/API/ticket/user/${customer.username}", HttpMethod.GET, httpEntity, object : ParameterizedTypeReference<List<TicketBodyResponse>>() {})
+        val response = restTemplate.exchange("/API/ticket/user/${customer.username}", HttpMethod.GET, httpEntity, object : ParameterizedTypeReference<List<TicketDTO>>() {})
         val responseBody = response.body!!
         // Assert that the response has HTTP status 200 (OK)
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)

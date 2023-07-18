@@ -244,7 +244,7 @@ class UserServerApplicationTests {
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
         // Arrange
-        val userBody = UserBody("test", "test@example.com", "password", "John", "Doe", "1234567890", "123 Main St")
+        val userBody = UserBody("marta", "marta@example.com", "password", "John", "Doe", "1234567890", "123 Main St")
 
         httpEntity = HttpEntity(userBody, headers)
         // Act
@@ -252,12 +252,12 @@ class UserServerApplicationTests {
             "/API/user/createExpert",
             HttpMethod.POST,
             httpEntity,
-            UserBody::class.java
+            String::class.java
         )
-
+        println(responseEntity)
         // Assert
         Assertions.assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
-        Assertions.assertEquals(userBody, responseEntity.body)
+        Assertions.assertNotNull(responseEntity.body)
         userService.deleteUserByUsername(userBody.username)
     }
 

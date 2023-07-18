@@ -51,7 +51,8 @@ class WebSecurityConfig {
 //
             .requestMatchers(HttpMethod.POST, "/API/login").permitAll()
             .requestMatchers(HttpMethod.POST, "/API/signup").permitAll()
-            .anyRequest().authenticated()
+            .requestMatchers(HttpMethod.GET, "/").permitAll()
+            .anyRequest().permitAll()
 
         http.oauth2ResourceServer()
             .jwt()

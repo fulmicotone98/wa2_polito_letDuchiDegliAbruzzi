@@ -62,7 +62,7 @@ async function signUp(user) {
 }
 
 async function createExpert(accessToken, user) {
-    const response = await fetch(baseURL8081 + "/API/employee/createExpert", {
+    const response = await fetch(baseURL8081 + "/API/user/createExpert", {
         method: 'POST',
         headers: {
             'Authorization': 'Bearer ' + accessToken,

@@ -6,17 +6,13 @@ import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.ChatBodyRequest
 import wa2.polito.it.letduchidegliabruzzi.server.controller.body.ChatBodyResponse
-import wa2.polito.it.letduchidegliabruzzi.server.controller.body.TicketBodyRequest
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.*
 import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ChatNotFoundException
-import wa2.polito.it.letduchidegliabruzzi.server.controller.httpexception.ProductNotFoundException
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.attachment.AttachmentService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatService
@@ -25,7 +21,6 @@ import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.message.MessageService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
 import java.security.Principal
 import java.util.*
-import javax.ws.rs.Consumes
 
 @Validated
 @RestController
@@ -69,7 +64,7 @@ class ChatController(
     @PostMapping("/chat")
     @ResponseStatus(HttpStatus.CREATED)
     fun addChat(
-        @RequestBody body: ChatBodyRequest,
+        @Valid @RequestBody body: ChatBodyRequest,
         br: BindingResult,
         principal: Principal
     ): ChatBodyResponse? {

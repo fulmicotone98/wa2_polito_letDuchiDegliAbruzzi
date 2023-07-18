@@ -1,6 +1,7 @@
 package wa2.polito.it.letduchidegliabruzzi.server.controller
 
 import io.micrometer.observation.annotation.Observed
+import jakarta.validation.Valid
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -63,7 +64,7 @@ class ChatController(
     @PostMapping("/chat")
     @ResponseStatus(HttpStatus.CREATED)
     fun addChat(
-        @RequestBody body: ChatBodyRequest,
+        @Valid @RequestBody body: ChatBodyRequest,
         br: BindingResult,
         principal: Principal
     ): ChatBodyResponse? {

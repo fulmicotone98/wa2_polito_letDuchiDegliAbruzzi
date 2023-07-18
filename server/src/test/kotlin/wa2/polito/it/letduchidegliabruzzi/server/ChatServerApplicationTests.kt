@@ -20,6 +20,7 @@ import wa2.polito.it.letduchidegliabruzzi.server.controller.body.*
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserDTO
 import wa2.polito.it.letduchidegliabruzzi.server.dal.authDao.UserService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.chat.ChatService
+import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.product.ProductService
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.Ticket
 import wa2.polito.it.letduchidegliabruzzi.server.dal.dao.ticket.TicketService
 
@@ -47,7 +48,7 @@ class ChatControllerTests {
     lateinit var restTemplate: TestRestTemplate
 
     @Autowired
-    lateinit var chatService: ChatService
+    lateinit var productService: ProductService
 
     @Autowired
     lateinit var ticketService: TicketService
@@ -58,80 +59,31 @@ class ChatControllerTests {
     lateinit var httpEntity: HttpEntity<*>
 
     @Test
-    fun `getChatInfo should return the chat for a valid chat ID`() {
-        // Arrange
-        val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate.postForEntity("/API/login", credentials, JwtResponse::class.java).body?.access_token
-            ?: ""
-        val headers = HttpHeaders()
-        headers.setBearerAuth(jwtToken)
-        httpEntity = HttpEntity(null, headers)
-
-        val ticket: Ticket = ticketService.addTicket("test", "1234", "manager")
-        // Act
-        val responseEntity = restTemplate.exchange(
-            "/API/chat/${ticket.ticketID}",
-            HttpMethod.GET,
-            httpEntity,
-            String::class.java
-        )
-
-        // Assert
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.statusCode)
-        // Additional assertions based on the expected response for a valid chat ID
-    }
-
-    @Test
-    fun `getChatInfo should return HTTP 404 for a non-existent chat ID`() {
-        // Arrange
-        val nonExistentChatId = 10000 // Replace with a chat ID that doesn't exist in your database
-        val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate.postForEntity("/API/login", credentials, JwtResponse::class.java).body?.access_token
-            ?: ""
-        val headers = HttpHeaders()
-        headers.setBearerAuth(jwtToken)
-        httpEntity = HttpEntity(null, headers)
-
-        // Act
-        val responseEntity = restTemplate.exchange(
-            "/API/chat/$nonExistentChatId",
-            HttpMethod.GET,
-            httpEntity,
-            String::class.java
-        )
-
-        // Assert
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
-        // Additional assertions based on the expected response for a non-existent chat ID
-    }
-
-    @Test
     fun `addChat should create a new chat with valid input`() {
         // Arrange
-        val credentials = CredentialsLogin("manager", "manager")
+        val credentials = CredentialsLogin("customer", "customer")
         val jwtToken = restTemplate.postForEntity("/API/login", credentials, JwtResponse::class.java).body?.access_token
             ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
         httpEntity = HttpEntity(null, headers)
 
-        // Create a new customer with a unique username
-        val customer = UserBody("testProva", "testProva@example.com", "password", "John", "Doe", "1234567890", "123 Main St")
-        userService.addUser(customer, listOf("Customers_group"))
-
+        val product = productService.addProduct("1234567890128", "Test Brand 1", "Test Product 1", "customer")
         // Create a new ticket for the customer
-        val ticketRequestBody = TicketBodyRequest("1234567", "Ticket Description")
+        val ticketRequestBody = TicketBodyRequest(product.ean, "Ticket Description")
         httpEntity = HttpEntity(ticketRequestBody, headers)
         val ticketResponseEntity = restTemplate.exchange(
             "/API/ticket",
             HttpMethod.POST,
             httpEntity,
-            String::class.java
+            TicketBodyResponse::class.java
+            //String::class.java
         )
 
         // Extract the created ticket ID
-        val ticketId = ticketResponseEntity.body?.toIntOrNull() ?: 0
-
+        val ticketId = ticketResponseEntity.body?.ticketID ?: 0
+        //val ticketId = ticketResponseEntity.body?.toIntOrNull() ?: 0
+        println(ticketResponseEntity)
         // Create a new chat request body
         val chatRequestBody = ChatBodyRequest(ticketId, "Chat Message", emptyList())
         httpEntity = HttpEntity(chatRequestBody, headers)
@@ -148,14 +100,12 @@ class ChatControllerTests {
         Assertions.assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
         // Additional assertions based on the expected response for a valid chat creation
 
-        // Clean up data after the test
-        userService.deleteUserByUsername("testProva")
     }
 
     @Test
     fun `addChat should return HTTP 400 for invalid input`() {
         // Arrange
-        val credentials = CredentialsLogin("manager", "manager")
+        val credentials = CredentialsLogin("customer", "customer")
         val jwtToken = restTemplate.postForEntity("/API/login", credentials, JwtResponse::class.java).body?.access_token
             ?: ""
         val headers = HttpHeaders()

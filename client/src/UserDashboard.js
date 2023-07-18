@@ -2,6 +2,7 @@ import {Button, Card, Col, Row} from "react-bootstrap";
 import API from './API';
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
+import TicketTableDiv from "./components/TicketTableDiv";
 
 function UserDashboard(props) {
     let tickets = props.tickets;
@@ -99,14 +100,20 @@ function ManagerDashboard(props) {
         navigate(path);
     };
 
-    let tickets = props.tickets.filter(ticket => ticket.status == "OPEN");
-    let inProgressTickets = props.tickets.filter(ticket => ticket.status == "IN PROGRESS");
+    let tickets = props.tickets.filter(ticket => ticket.status === "OPEN");
+    let inProgressTickets = props.tickets.filter(ticket => ticket.status === "IN PROGRESS");
+
+    const sortedTickets = inProgressTickets.sort((a, b) => {
+        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+    });
 
     return (
         <>
             <Row style={{marginBottom : "10px"}}>
                 <Col>
                     <Button variant="primary" size="sm" onClick={() => handleNavigation('/show-experts')}> List of experts </Button>
+                    <Button style={{marginLeft: "5px"}} variant="info" size="sm" onClick={() => handleNavigation('/closed-tickets')}> List of closed tickets </Button>
                 </Col>
             </Row>
             <Row>
@@ -114,9 +121,10 @@ function ManagerDashboard(props) {
                     <Card>
                         <Card.Body>
                             <Card.Title>Tickets to be assigned</Card.Title>
-                            <TableDiv
+                            <TicketTableDiv
                                 tickets={tickets}
                                 inProgress={false}
+                                closed={false}
                                 role={props.role}
                             />
                         </Card.Body>
@@ -126,9 +134,10 @@ function ManagerDashboard(props) {
                     <Card>
                         <Card.Body>
                             <Card.Title>Tickets in progress</Card.Title>
-                            <TableDiv
-                                tickets={inProgressTickets}
+                            <TicketTableDiv
+                                tickets={sortedTickets}
                                 inProgress={true}
+                                closed={false}
                                 role={props.role}
                             />
                         </Card.Body>
@@ -143,7 +152,12 @@ function ManagerDashboard(props) {
 
 function ExpertDashboard(props) {
 
-    let inProgressTickets = props.tickets.filter(ticket => ticket.status == "IN PROGRESS" && ticket.employeeUsername == props.username);
+    let inProgressTickets = props.tickets.filter(ticket => ticket.status === "IN PROGRESS");
+
+    const sortedTickets = inProgressTickets.sort((a, b) => {
+        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+    });
 
     return (
         <>
@@ -152,9 +166,10 @@ function ExpertDashboard(props) {
                     <Card>
                         <Card.Body>
                             <Card.Title>Tickets Assigned to you</Card.Title>
-                            <TableDiv
-                                tickets={inProgressTickets}
+                            <TicketTableDiv
+                                tickets={sortedTickets}
                                 inProgress={true}
+                                closed={false}
                                 role={props.role}
                             />
                         </Card.Body>
@@ -164,73 +179,6 @@ function ExpertDashboard(props) {
 
         </>)
 
-}
-
-function TableDiv(props) {
-    const navigate = useNavigate();
-
-    const handleNavigation = (path) => {
-        navigate(path);
-    };
-    return (
-        <div>
-            <h3>{props.title}</h3>
-            <p># of tickets = {props.tickets.length}</p>
-            <div className="table-responsive">
-                <table className="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>Product EAN</th>
-                        <th>Product Brand</th>
-                        <th>Product Name</th>
-                        <th>Customer</th>
-                        {props.inProgress && (
-                            <>
-                                <th>Expert</th>
-                                <th>Priority</th>
-                            </>
-                        )}
-                        <th>Description</th>
-                        <th>Created At</th>
-                        <th>Ticket</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {props.tickets.map((item) => {
-                        const formattedDate = new Date(item.createdAt).toLocaleDateString('it-IT', {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        });
-
-                        return (
-                            <tr key={item.ticketID}>
-                                <td>{item.productEan}</td>
-                                <td>{item.productBrand}</td>
-                                <td>{item.productName}</td>
-                                <td>{item.customerName + " " + item.customerSurname}</td>
-                                {props.inProgress && (
-                                    <>
-                                        <td>{item.employeeName + " " + item.employeeSurname}</td>
-                                        <td>{item.priority}</td>
-                                    </>
-                                )}
-                                <td>{item.description}</td>
-                                <td>{formattedDate}</td>
-                                <td><Button variant="success" size="sm" onClick={() => {
-                                    handleNavigation('/show-ticket/' + item.ticketID)
-                                }}> Show Ticket </Button>
-                                </td>
-                            </tr>
-                        );
-                    })}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    )
 }
 
 export default UserDashboard;

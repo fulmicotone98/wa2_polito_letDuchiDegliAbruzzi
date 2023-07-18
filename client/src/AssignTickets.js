@@ -1,6 +1,6 @@
 import {Button, Col, Form, Row} from "react-bootstrap";
 import API from './API';
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 
 function AssignTickets(props) {
@@ -18,8 +18,7 @@ function AssignTickets(props) {
     const handleSubmit = async () => {
         try {
             await API.assignTicket(props.accessToken, id, expert, priority);
-            const allTickets = await API.getAllTickets(props.accessToken);
-            props.setTickets(allTickets)
+            props.getAllTickets()
             handleNavigation("/")
         } catch (err) {
             console.log(err)
@@ -41,8 +40,16 @@ function AssignTickets(props) {
 
     return (
         <>
+            <div className="d-grid gap-2">
+                <Button variant="secondary" onClick={()=>{handleNavigation('/show-ticket/'+id)}}>
+                    Back to ticket #{id}
+                </Button>
+            </div>
             <Col></Col>
             <Col>
+                <Row style={{marginTop:'15px'}}>
+                    <h2>Assign ticket</h2>
+                </Row>
                 <Form style={{marginTop: "40px"}}>
                     <Form.Group className="mb-3">
                         <Form.Label>Expert</Form.Label>

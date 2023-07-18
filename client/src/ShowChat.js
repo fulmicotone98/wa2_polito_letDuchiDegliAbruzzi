@@ -62,8 +62,7 @@ function ShowChat(props) {
     const handleClosingTicket = async () => {
         try {
             await API.closeTicket(props.accessToken, lastTicket.ticketID);
-            const allTickets = await API.getAllTickets(props.accessToken);
-            props.setTickets(allTickets);
+            props.getAllTickets()
             handleNavigation("/")
         } catch (err) {
             console.log(err)
@@ -151,6 +150,7 @@ function ShowChat(props) {
                     <h2>Ticket #{lastTicket.ticketID}</h2>
                     <h5>Description : {lastTicket.description}</h5>
                     <p>Last Update : {lastUpdate}</p>
+                    <p>Ticket status : {lastTicket.status}</p>
                     {props.role !== "customer" && lastTicket.status !== "CLOSED" && <Button variant="danger" size="sm" onClick={handleClosingTicket} style={{marginBottom: "20px"}}> Close the ticket </Button>}
                     <h4 className="text-center pb-3 mb-3" style={{borderTop: '2px solid black'}}>Messages</h4>
                     <Row>

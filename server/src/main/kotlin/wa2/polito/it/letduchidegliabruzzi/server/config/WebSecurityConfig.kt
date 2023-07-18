@@ -18,7 +18,7 @@ class WebSecurityConfig {
     val expert: String = "Expert"
     val customer: String = "Client"
 
-    val jwtAuthConverter : JwtAuthConverter = JwtAuthConverter()
+    val jwtAuthConverter: JwtAuthConverter = JwtAuthConverter()
 
     @Bean
     @Throws(Exception::class)
@@ -37,9 +37,10 @@ class WebSecurityConfig {
             .requestMatchers(HttpMethod.GET, "/API/products/user").hasRole(customer)
             .requestMatchers(HttpMethod.GET, "/API/products/**").hasAnyRole(manager, expert)
 
+            .requestMatchers(HttpMethod.PUT, "/API/user").hasAnyRole(manager, customer, expert)
             .requestMatchers(HttpMethod.POST, "/API/user/createExpert").hasRole(manager)
             .requestMatchers(HttpMethod.GET, "/API/users/experts").hasRole(manager)
-            .requestMatchers(HttpMethod.GET, "/API/users/customers").hasAnyRole(manager,expert)
+            .requestMatchers(HttpMethod.GET, "/API/users/customers").hasAnyRole(manager, expert)
             .requestMatchers(HttpMethod.GET, "/API/user/*").hasAnyRole(manager, expert)
             .requestMatchers(HttpMethod.PUT, "/API/user/*").hasAnyRole(manager, customer)
 

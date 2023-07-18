@@ -1,4 +1,4 @@
-import {Button, Col, Form} from "react-bootstrap";
+import {Button, Col, Form, Row} from "react-bootstrap";
 import API from './API';
 import {useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
@@ -15,9 +15,8 @@ function AddTickets(props) {
     const [description, setDescription] = useState('');
     const handleSubmit = async () => {
         try {
-            let ticket = await API.addTicket(props.accessToken, ean, description);
-            const allTickets = await API.getAllTickets(props.accessToken);
-            props.setTickets(allTickets)
+            await API.addTicket(props.accessToken, ean, description);
+            props.getAllTickets()
             handleNavigation("/")
         } catch (err) {
             console.log(err)
@@ -27,8 +26,16 @@ function AddTickets(props) {
 
     return (
         <>
+            <div className="d-grid gap-2">
+                <Button variant="secondary" onClick={()=>{handleNavigation('/')}}>
+                    Back to dashboard
+                </Button>
+            </div>
             <Col></Col>
             <Col>
+                <Row style={{marginTop:'15px'}}>
+                    <h2>Add your ticket</h2>
+                </Row>
                 <Form style={{marginTop: "40px"}}>
                     <Form.Group className="mb-3">
                         <Form.Label>Product EAN</Form.Label>

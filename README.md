@@ -26,6 +26,6 @@ Run the tests using the gradle command
         password: expert
 
     - customer:
-        username: client
-        password: client
+        username: customer
+        password: customer
 

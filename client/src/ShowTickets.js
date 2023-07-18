@@ -1,11 +1,33 @@
 import {Button, Card, Col, Container, Row} from "react-bootstrap";
 import {useNavigate, useParams} from "react-router-dom";
+import {useState} from "react";
+import API from "./API";
 
 function ShowTickets(props) {
 
+    const [lastUpdate, setLastUpdate] = useState('');
+    const calculateLastUpdate = async (accessToken, chatID) => {
+        try {
+            let messagesList = await API.getAllMessages(accessToken, chatID);
+            if (messagesList.length > 0) {
+                const messagesArray = [...messagesList]; // Convert list to array
+                const lastMessage = messagesArray[messagesArray.length - 1];
+                const formattedDate = new Date(lastMessage.createdAt).toLocaleDateString('it-IT', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+                setLastUpdate(formattedDate);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     const {id} = useParams();
     const navigate = useNavigate();
-    // const [statusHistory, setStatusHistory] = useState([]);
 
     const handleNavigation = (path) => {
         navigate(path);
@@ -13,7 +35,9 @@ function ShowTickets(props) {
 
     let ticket = props.tickets.filter(ticket => ticket.ticketID == id);
     ticket = ticket[0];
-
+    if (ticket.chatID != null) {
+        calculateLastUpdate(props.accessToken, id);
+    }
 
 
     const formattedDate = new Date(ticket.createdAt).toLocaleDateString('it-IT', {
@@ -30,17 +54,17 @@ function ShowTickets(props) {
 
             <div className="d-grid gap-2">
                 <Button variant="secondary" onClick={() => handleNavigation('/')}>
-                    Back to your products
+                    Back to dashboard
                 </Button>
             </div>
 
-            <Card style={{marginTop:'10px'}}>
+            <Card style={{marginTop: '10px'}}>
                 <Card.Body>
                     <Card.Title>Ticket Details</Card.Title>
                     <Container>
                         <Row>
                             <Col>
-                                <strong>Ticket ID:</strong> {ticket.ticketID}
+                                <strong>Ticket #{ticket.ticketID}</strong>
                             </Col>
                             <Col>
                                 <strong>Description:</strong> {ticket.description}
@@ -70,6 +94,13 @@ function ShowTickets(props) {
                                 <strong>Employee:</strong> {ticket.employeeName ? ticket.employeeName + " " + ticket.employeeSurname : ""}
                             </Col>
                         </Row>
+                        {lastUpdate != '' &&
+                            <Row>
+                                <Col>
+                                    <strong>Last Message:</strong> {lastUpdate}
+                                </Col>
+                            </Row>
+                        }
                         <Row>
                             {ticket.priority == null && props.role === "manager" && (
                                 <Col>
@@ -105,7 +136,7 @@ function ShowTickets(props) {
                 </Card.Body>
             </Card>
 
-            <Card style={{marginTop:'10px'}}>
+            <Card style={{marginTop: '10px'}}>
                 <Card.Body>
                     <Card.Title>Status History</Card.Title>
                     <Container>

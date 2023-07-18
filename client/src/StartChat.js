@@ -8,7 +8,7 @@ function StartChat(props) {
     const {id} = useParams();
     const navigate = useNavigate();
 
-    const allowedFileTypes = ['application/pdf', 'image/jpeg' , 'image/jpg', 'image/png'];
+    const allowedFileTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
     const handleNavigation = (path) => {
         navigate(path);
@@ -18,8 +18,7 @@ function StartChat(props) {
     const handleSubmit = async () => {
         try {
             await API.addChat(props.accessToken, id, message, files);
-            const allTickets = await API.getAllTickets(props.accessToken);
-            props.setTickets(allTickets);
+            props.getAllTickets()
             handleNavigation("/")
         } catch (err) {
             console.log(err)
@@ -44,29 +43,39 @@ function StartChat(props) {
 
     return (
         <>
-            <Col></Col>
-            <Col>
-                <Form style={{marginTop: "40px"}}>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Message</Form.Label>
-                        <Form.Control as="textarea" rows={3} placeholder="Enter a Message" value={message}
-                                      onChange={ev => setMessage(ev.target.value)} required={true}/>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>File Upload</Form.Label>
-                        <Form.Control
-                            type="file"
-                            multiple
-                            onChange={handleFileChange}
-                        />
-                        <p>Valid Formats : PDF - JPEG - JPG - PNG</p>
-                    </Form.Group>
-                    <div className="d-grid gap-2">
-                        <Button variant="primary" size="lg" onClick={handleSubmit}> Submit </Button>
-                    </div>
-                </Form>
-            </Col>
-            <Col></Col>
+            <div className="d-grid gap-2">
+                <Button variant="secondary" onClick={()=>{handleNavigation('/show-ticket/'+id)}}>
+                    Back to ticket #{id}
+                </Button>
+            </div>
+            <Row style={{marginTop: '15px'}} className="text-center">
+                <h2>Start a chat</h2>
+            </Row>
+            <Row>
+                <Col></Col>
+                <Col>
+                    <Form style={{marginTop: "40px"}}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Message</Form.Label>
+                            <Form.Control as="textarea" rows={3} placeholder="Enter a Message" value={message}
+                                          onChange={ev => setMessage(ev.target.value)} required={true}/>
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>File Upload</Form.Label>
+                            <Form.Control
+                                type="file"
+                                multiple
+                                onChange={handleFileChange}
+                            />
+                            <p>Valid Formats : PDF - JPEG - JPG - PNG</p>
+                        </Form.Group>
+                        <div className="d-grid gap-2">
+                            <Button variant="primary" size="lg" onClick={handleSubmit}> Submit </Button>
+                        </div>
+                    </Form>
+                </Col>
+                <Col></Col>
+            </Row>
         </>
     )
 

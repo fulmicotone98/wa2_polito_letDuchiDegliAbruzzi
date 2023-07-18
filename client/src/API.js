@@ -1,7 +1,6 @@
 import Product from "./models/Product";
 import Customer from "./models/Customer"
 import Ticket from "./models/Ticket";
-import StatusHistory from "./models/StatusHistory";
 import Message from "./models/Message";
 import UserInfo from "./models/UserInfo";
 

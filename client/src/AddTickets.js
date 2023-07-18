@@ -1,6 +1,6 @@
-import {Button, Col, Form, Row} from "react-bootstrap";
+import {Button, Col, Form} from "react-bootstrap";
 import API from './API';
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 
 function AddTickets(props) {

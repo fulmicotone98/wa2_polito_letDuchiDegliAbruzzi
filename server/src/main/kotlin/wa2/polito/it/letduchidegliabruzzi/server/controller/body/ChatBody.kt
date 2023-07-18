@@ -12,7 +12,7 @@ data class ChatBodyResponse(
 )
 
 data class ChatBodyRequest(
-    @field:NotNull val ticketID: Int,
+    @field:NotNull @field:Positive val ticketID: Int,
     @field:NotNull @field:NotBlank val message: String,
     val files : List<String>?
 )

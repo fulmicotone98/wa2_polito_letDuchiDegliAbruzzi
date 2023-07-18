@@ -83,7 +83,7 @@ class ProductControllerTests {
     @Test
     fun `addProduct should create a new product with valid input`() {
         // Arrange
-        val credentials = CredentialsLogin("manager", "manager")
+        val credentials = CredentialsLogin("customer", "customer")
         val jwtToken = restTemplate.postForEntity(
             "/API/login",
             credentials,
@@ -112,7 +112,7 @@ class ProductControllerTests {
     @Test
     fun `addProduct should return HTTP 400 for invalid input`() {
         // Arrange
-        val credentials = CredentialsLogin("manager", "manager")
+        val credentials = CredentialsLogin("customer", "customer")
         val jwtToken = restTemplate.postForEntity(
             "/API/login",
             credentials,
@@ -140,7 +140,7 @@ class ProductControllerTests {
     @Test
     fun `getAllByUser should return a list of products for a valid user`() {
         // Arrange
-        val credentials = CredentialsLogin("manager", "manager")
+        val credentials = CredentialsLogin("customer", "customer")
         val jwtToken = restTemplate.postForEntity(
             "/API/login",
             credentials,
@@ -179,23 +179,30 @@ class ProductControllerTests {
     @Test
     fun `getProduct should return the product for a valid EAN`() {
         // Arrange
-        val credentials = CredentialsLogin("manager", "manager")
-        val jwtToken = restTemplate.postForEntity(
+        var credentials = CredentialsLogin("customer", "customer")
+        var jwtToken = restTemplate.postForEntity(
             "/API/login",
             credentials,
             JwtResponse::class.java
         ).body?.access_token ?: ""
         val headers = HttpHeaders()
         headers.setBearerAuth(jwtToken)
-        httpEntity = HttpEntity(null, headers)
 
         // Create a new product for testing
         val productRequestBody = ProductRequestBody("1234567890", "Brand", "Product Name")
         httpEntity = HttpEntity(productRequestBody, headers)
-        restTemplate.exchange("/API/products", HttpMethod.POST, httpEntity, ProductBodyID::class.java)
-
+        var responseEntity1 =restTemplate.exchange("/API/products", HttpMethod.POST, httpEntity, ProductBodyID::class.java)
+        println(responseEntity1)
+        credentials = CredentialsLogin("manager", "manager")
+        jwtToken = restTemplate.postForEntity(
+            "/API/login",
+            credentials,
+            JwtResponse::class.java
+        ).body?.access_token ?: ""
+        headers.setBearerAuth(jwtToken)
+        httpEntity = HttpEntity(null, headers)
         // Act
-        val responseEntity = restTemplate.exchange(
+        var responseEntity2 = restTemplate.exchange(
             "/API/products/1234567890",
             HttpMethod.GET,
             httpEntity,
@@ -203,9 +210,9 @@ class ProductControllerTests {
         )
 
         // Assert
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.statusCode)
-        Assertions.assertNotNull(responseEntity.body)
-        Assertions.assertEquals("1234567890", responseEntity.body?.ean)
+        Assertions.assertEquals(HttpStatus.OK, responseEntity2.statusCode)
+        Assertions.assertNotNull(responseEntity2.body)
+        Assertions.assertEquals("1234567890", responseEntity2.body?.ean)
 
     }
 

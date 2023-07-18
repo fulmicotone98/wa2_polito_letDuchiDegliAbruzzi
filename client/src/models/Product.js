@@ -2,12 +2,12 @@ class Product{
     ean
     name
     brand
-    customerEmail
-    constructor(ean, name, brand, customerEmail) {
+    customerUsername
+    constructor(ean, name, brand, customerUsername) {
         this.ean = ean;
         this.name = name;
         this.brand = brand;
-        this.customer_email = customerEmail;
+        this.customerUsername = customerUsername;
     }
 }
 export default Product

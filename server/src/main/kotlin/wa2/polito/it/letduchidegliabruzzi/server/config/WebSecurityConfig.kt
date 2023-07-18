@@ -18,31 +18,41 @@ class WebSecurityConfig {
     val expert: String = "Expert"
     val customer: String = "Client"
 
-    val jwtAuthConverter : JwtAuthConverter = JwtAuthConverter()
+    val jwtAuthConverter: JwtAuthConverter = JwtAuthConverter()
 
     @Bean
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain? {
         http.authorizeHttpRequests()
-            .requestMatchers(HttpMethod.POST, "/API/ticket").hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.GET, "/API/ticket").hasRole(manager)
+            .requestMatchers(HttpMethod.POST, "/API/ticket").hasRole(customer)
             .requestMatchers(HttpMethod.PUT, "/API/ticket/*/assign").hasRole(manager)
             .requestMatchers(HttpMethod.PUT, "/API/ticket/*/status").hasAnyRole(manager, expert)
-            .requestMatchers(HttpMethod.GET, "/API/ticket/**").hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.GET, "/API/ticket/user").hasAnyRole(customer)
+            .requestMatchers(HttpMethod.GET, "/API/ticket/expert").hasAnyRole(manager, expert)
+            .requestMatchers(HttpMethod.GET, "/API/ticket/*").hasAnyRole(manager, expert)
 
-            .requestMatchers(HttpMethod.POST, "/API/products").hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.POST, "/API/products").hasRole(customer)
             .requestMatchers(HttpMethod.GET, "/API/products").hasAnyRole(manager, expert)
-            .requestMatchers(HttpMethod.GET, "/API/products/**").hasAnyRole(manager, expert, customer)
+            .requestMatchers(HttpMethod.GET, "/API/products/user").hasRole(customer)
+            .requestMatchers(HttpMethod.GET, "/API/products/**").hasAnyRole(manager, expert)
 
-            .requestMatchers(HttpMethod.POST, "/API/employee/createExpert").hasRole(manager)
-            .requestMatchers(HttpMethod.GET, "/API/employees/**").hasAnyRole(manager, expert)
+            .requestMatchers(HttpMethod.PUT, "/API/user").hasAnyRole(manager, customer, expert)
+            .requestMatchers(HttpMethod.POST, "/API/user/createExpert").hasRole(manager)
+            .requestMatchers(HttpMethod.GET, "/API/users/experts").hasRole(manager)
+            .requestMatchers(HttpMethod.GET, "/API/users/customers").hasAnyRole(manager, expert)
+            .requestMatchers(HttpMethod.GET, "/API/user/*").hasAnyRole(manager, expert)
+            .requestMatchers(HttpMethod.PUT, "/API/user/*").hasAnyRole(manager, customer)
 
-            .requestMatchers(HttpMethod.GET, "/API/profile/*/tickets").hasAnyRole(manager, expert, customer)
-            .requestMatchers(HttpMethod.GET, "/API/profiles/**").hasAnyRole(manager, expert, customer)
-            .requestMatchers(HttpMethod.PUT, "/API/profiles/**").hasAnyRole(manager, customer)
+            .requestMatchers(HttpMethod.POST, "/API/chat").hasRole(customer)
 
+            .requestMatchers(HttpMethod.POST, "/API/message").hasAnyRole(expert, customer)
+            .requestMatchers(HttpMethod.POST, "/API/message/chat/*").hasAnyRole(manager, expert, customer)
+//
             .requestMatchers(HttpMethod.POST, "/API/login").permitAll()
             .requestMatchers(HttpMethod.POST, "/API/signup").permitAll()
-            .anyRequest().authenticated()
+            .requestMatchers(HttpMethod.GET, "/").permitAll()
+            .anyRequest().permitAll()
 
         http.oauth2ResourceServer()
             .jwt()

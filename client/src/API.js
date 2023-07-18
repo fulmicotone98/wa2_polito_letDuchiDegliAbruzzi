@@ -56,14 +56,13 @@ async function signUp(user) {
     });
     if (response.ok || response.status === 409 || response.status === 400 || response.status === 401) {
         return await response.json();
-    }
-    else{
+    } else {
         throw await response.text(); //return errDetails
     }
 }
 
 async function createExpert(accessToken, user) {
-    const response = await fetch(baseURL8081 + "/API/employee/createExpert", {
+    const response = await fetch(baseURL8081 + "/API/user/createExpert", {
         method: 'POST',
         headers: {
             'Authorization': 'Bearer ' + accessToken,
@@ -74,31 +73,11 @@ async function createExpert(accessToken, user) {
     });
     if (response.ok || response.status === 409 || response.status === 400 || response.status === 401) {
         return await response.json();
-    }
-    else{
+    } else {
         throw await response.text(); //return errDetails
     }
 }
 
-// async function getAllProducts() {
-//     try {
-//         const response = await fetch(baseURL8081 + '/API/products/');
-//         if (response.ok) {
-//             // process the response
-//             const list = await response.json();
-//             return list.map((p) => new Product(p.ean, p.name, p.brand, p.customerUsername));
-//         } else {
-//             // application error (404, 500, ...)
-//             console.log(response.statusText);
-//             const error = await response.json();
-//             throw new TypeError(error.detail);
-//         }
-//     } catch (ex) {
-//         // network error
-//         console.log(ex);
-//         throw ex;
-//     }
-// }
 
 async function getAllProductsByUser(accessToken) {
     try {
@@ -157,6 +136,61 @@ async function addProduct(accessToken, ean, name, brand) {
 async function getAllTickets(accessToken) {
     try {
         const response = await fetch(baseURL8081 + '/API/ticket', {
+            headers: {
+                'Authorization': 'Bearer ' + accessToken,
+                'Content-Type': 'application/json'
+            },
+        });
+
+        if (response.ok) {
+            // process the response
+            const list = await response.json();
+            console.log(list)
+            return list.map((t) => new Ticket(t.ticketID, t.description, t.status, t.priority, t.createdAt, t.product.ean, t.product.brand, t.product.name, t.customer.username, t.customer.name, t.customer.surname, t.employee?.username, t.employee?.name, t.employee?.surname, t.statusHistory, t.chat != null ? t.chat.chatID : null));
+        } else {
+            // application error (404, 500, ...)
+            console.log(response.statusText);
+            const error = await response.json();
+            throw new TypeError(error.detail);
+        }
+    } catch (ex) {
+        // network error
+        console.log(ex);
+        throw ex;
+    }
+}
+
+async function getExpertTickets(accessToken) {
+    try {
+        const response = await fetch(baseURL8081 + '/API/ticket/expert', {
+            headers: {
+                'Authorization': 'Bearer ' + accessToken,
+                'Content-Type': 'application/json'
+            },
+        });
+
+        if (response.ok) {
+            // process the response
+            const list = await response.json();
+            console.log(list)
+            return list.map((t) => new Ticket(t.ticketID, t.description, t.status, t.priority, t.createdAt, t.product.ean, t.product.brand, t.product.name, t.customer.username, t.customer.name, t.customer.surname, t.employee?.username, t.employee?.name, t.employee?.surname, t.statusHistory, t.chat != null ? t.chat.chatID : null));
+        } else {
+            // application error (404, 500, ...)
+            console.log(response.statusText);
+            const error = await response.json();
+            throw new TypeError(error.detail);
+        }
+    } catch (ex) {
+        // network error
+        console.log(ex);
+        throw ex;
+    }
+}
+
+
+async function getCustomerTickets(accessToken) {
+    try {
+        const response = await fetch(baseURL8081 + '/API/ticket/user', {
             headers: {
                 'Authorization': 'Bearer ' + accessToken,
                 'Content-Type': 'application/json'
@@ -425,29 +459,8 @@ async function assignTicket(accessToken, ticketId, expertUsername, priority) {
 }
 
 
-async function getProductById(productId) {
-    const response = await fetch('/API/products/' + productId);
-    try {
-        if (response.ok) {
-            // process the response
-            const p = await response.json();
-            return new Product(p.ean, p.name, p.brand, p.customerEmail);
-        } else {
-            // application error (404, 500, ...)
-            console.log(response.statusText);
-            const error = await response.json();
-            throw new TypeError(error.detail);
-        }
-    } catch (ex) {
-        // network error
-        console.log(ex);
-        throw ex;
-    }
-}
-
-
 async function getUserInfo(accessToken) {
-    const response = await fetch(baseURL8081 +'/API/userinfo', {
+    const response = await fetch(baseURL8081 + '/API/userinfo', {
         headers: {
             'Authorization': 'Bearer ' + accessToken,
             'Content-Type': 'application/json'
@@ -470,65 +483,20 @@ async function getUserInfo(accessToken) {
     }
 }
 
-// async function getProfileByEmail(email) {
-//     const response = await fetch('/API/profiles/' + email);
-//     try {
-//         if (response.ok) {
-//             // process the response
-//             const p = await response.json();
-//             return new Customer(p.email, p.name, p.surname, p.address, p.phonenumber);
-//         } else {
-//             // application error (404, 500, ...)
-//             console.log(response.statusText);
-//             const error = await response.json();
-//             throw new TypeError(error.detail);
-//         }
-//     } catch (ex) {
-//         // network error
-//         console.log(ex);
-//         throw ex;
-//     }
-// }
 
-/*async function addCustomer(email, name, surname, address, phoneNumber) {
+async function updateUser(accessToken, user) {
     try {
-        const customer = new Customer(email, name, surname, address, phoneNumber)
-        const response = await fetch('/API/profiles',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(customer),
-            });
-        if (response.ok) {
-            return customer;
-        } else {
-            // application error (404, 500, ...)
-            console.log(response.statusText);
-            const error = await response.json();
-            throw new TypeError(error.detail);
-        }
-    } catch (ex) {
-        // network error
-        console.log(ex);
-        throw ex;
-    }
-}*/
-
-async function updateCustomer(email, name, surname, address, phoneNumber) {
-    try {
-        const customer = new Customer(email, name, surname, address, phoneNumber)
-        const response = await fetch('/API/profiles/' + email,
+        const response = await fetch(baseURL8081 + '/API/user',
             {
                 method: 'PUT',
                 headers: {
+                    'Authorization': 'Bearer ' + accessToken,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(customer),
+                body: JSON.stringify(user),
             });
         if (response.ok) {
-            return customer;
+            return user;
         } else {
             // application error (404, 500, ...)
             console.log(response.statusText);
@@ -556,10 +524,10 @@ const API = {
     closeTicket,
     getUserInfo,
     createExpert,
-    getProductById,
-    //addCustomer,
+    getExpertTickets,
+    getCustomerTickets,
     signUp,
-    updateCustomer,
+    updateUser,
     logIn,
     logOut
 }

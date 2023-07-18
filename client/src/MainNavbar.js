@@ -24,6 +24,18 @@ function MainNavbar(props) {
                     <>
                         {
                             <Col xs={2} sm={2} md={2}>
+                                <Button variant="primary" onClick={() => {
+                                    handleNavigation('/update-user');
+                                }}> Update User Info </Button>
+                            </Col>
+                        }
+                    </> : <> </>
+                }
+
+                {props.loggedIn === true ?
+                    <>
+                        {
+                            <Col xs={2} sm={2} md={2}>
                                 <Button variant="danger" onClick={() => {
                                     handleNavigation('/login');
                                     props.logOut(props.keycloackResponse)

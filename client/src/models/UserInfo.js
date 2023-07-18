@@ -1,4 +1,4 @@
-class Message {
+class UserInfo {
     username
     email
     name
@@ -18,4 +18,4 @@ class Message {
     }
 }
 
-export default Message
+export default UserInfo

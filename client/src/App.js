@@ -1,9 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-/*import {Col, Row} from "react-bootstrap";
-import View from "./components/View";
-import Dashboard from "./components/Dashboard";
-import {getAllProducts, getProductById, getProfileByEmail, addCustomer, updateCustomer} from "./API";*/
 
 import {useEffect, useState} from "react";
 import LoginRoute from './LoginRoute';
@@ -20,6 +16,8 @@ import StartChat from "./StartChat";
 import ShowChat from "./ShowChat";
 import ShowExperts from "./ShowExperts";
 import AddExpert from "./AddExpert";
+import UpdateUser from "./UpdateUser";
+import ClosedTickets from "./ClosedTickets";
 
 function App() {
 
@@ -31,6 +29,7 @@ function App() {
     const [signupError, setSignupError] = useState('')
     const [username, setUsername] = useState('');
     const [role, setRole] = useState('');
+    const [userInfo, setUserInfo] = useState({});
     const handleLogin = async (credentials) => {
         try {
             const keycloakResp = await API.logIn(credentials);
@@ -38,7 +37,9 @@ function App() {
             setLoggedIn(true);
             setKeycloakResponse(keycloakResp);
             setUsername(credentials.username);
-            getUserInfo(keycloakResp.access_token);
+            await getUserInfo(keycloakResp.access_token);
+            await getAllTickets();
+            setLoggedIn(true);
         } catch (err) {
             setLoggedIn(false);
             setMessage({msg: err, type: 'danger'});
@@ -49,11 +50,11 @@ function App() {
         try {
             const response = await API.signUp(user);
             console.log(response);
-            if(response.status === 409 || response.status === 400 || response.status === 401){
+            if (response.status === 409 || response.status === 400 || response.status === 401) {
                 setSignupError(response.detail)
-            }else{
+            } else {
                 setSignupError("")
-                const credentials = { username: response.username, password: response.password }
+                const credentials = {username: response.username, password: response.password}
                 handleLogin(credentials)
                 setLoggedIn(true);
             }
@@ -64,8 +65,8 @@ function App() {
 
     const getUserInfo = async (accessToken) => {
         try {
+            console.log("in user info");
             const userInfo = await API.getUserInfo(accessToken);
-            console.log(userInfo);
             const hasManagerRole = userInfo.roles.includes('ROLE_Manager');
             const hasExpertRole = userInfo.roles.includes('ROLE_Expert');
             if (hasManagerRole) {
@@ -76,6 +77,10 @@ function App() {
                 setRole('customer');
             }
             setUsername(userInfo.username);
+            setUserInfo(userInfo)
+            console.log("final role");
+            console.log(userInfo)
+            console.log(role);
         } catch (error) {
             console.log(error)
         }
@@ -90,17 +95,30 @@ function App() {
         await API.logOut(keycloakResponse);
     };
 
-    useEffect(() => {
-        const getAllTickets = async (accessToken) => {
-            try {
+    const getAllTickets = async () => {
+        try {
+            if (role === "manager") {
+                console.log("manager in")
                 const allTickets = await API.getAllTickets(accessToken);
                 setTickets(allTickets);
-            } catch (error) {
-                console.log(error)
+            } else if (role === "expert") {
+                console.log("expert in")
+                const allTickets = await API.getExpertTickets(accessToken);
+                setTickets(allTickets);
+            } else if (role === "customer") {
+                console.log("customer in")
+                const allTickets = await API.getCustomerTickets(accessToken);
+                setTickets(allTickets);
             }
-        };
-        getAllTickets(accessToken);
-    }, [accessToken]);
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+
+    useEffect(() => {
+        getAllTickets();
+    }, [role]);
 
 
     return (
@@ -114,11 +132,12 @@ function App() {
                                 message={message} setMessage={setMessage}/>}/>
                 <Route path='/registration' element={loggedIn ? <Navigate replace to='/'/> :
                     <RegistrationPage loggedIn={loggedIn} setLoggedIn={setLoggedIn}
-                                keycloakResponse={keycloakResponse}
-                                setKeycloakResponse={setKeycloakResponse}
-                                logOut={handleLogout} signUp={handleSignUp}
-                                signupError={signupError}/>}/>
-                <Route path='/' element={<Layout keycloakResponse={keycloakResponse} loggedIn={loggedIn} logOut={handleLogout}/>}>
+                                      keycloakResponse={keycloakResponse}
+                                      setKeycloakResponse={setKeycloakResponse}
+                                      logOut={handleLogout} signUp={handleSignUp}
+                                      signupError={signupError}/>}/>
+                <Route path='/' element={<Layout keycloakResponse={keycloakResponse} loggedIn={loggedIn}
+                                                 logOut={handleLogout}/>}>
                     <Route path="" element={loggedIn ?
                         <UserDashboard accessToken={accessToken} tickets={tickets} username={username} role={role}/> :
                         <Navigate replace to='/login'/>}/>
@@ -126,40 +145,35 @@ function App() {
                            element={loggedIn ? <AddProducts accessToken={accessToken} role={role}/> :
                                <Navigate replace to='/login'/>}/>
                     <Route path="/add-ticket/:ean" element={loggedIn ?
-                        <AddTickets accessToken={accessToken} tickets={tickets} setTickets={setTickets}/> :
+                        <AddTickets accessToken={accessToken} tickets={tickets} getAllTickets={getAllTickets}/> :
                         <Navigate replace to='/login'/>}/>
                     <Route path="/show-ticket/:id"
                            element={loggedIn ? <ShowTickets accessToken={accessToken} tickets={tickets} role={role}/> :
                                <Navigate replace to='/login'/>}/>
                     <Route path="/assign-ticket/:id" element={loggedIn ?
-                        <AssignTickets accessToken={accessToken} tickets={tickets} setTickets={setTickets}/> :
+                        <AssignTickets accessToken={accessToken} tickets={tickets} getAllTickets={getAllTickets}/> :
                         <Navigate replace to='/login'/>}/>
                     <Route path="/start-chat/:id" element={loggedIn ?
-                        <StartChat accessToken={accessToken} tickets={tickets} setTickets={setTickets}/> :
+                        <StartChat accessToken={accessToken} tickets={tickets} getAllTickets={getAllTickets}/> :
                         <Navigate replace to='/login'/>}/>
                     <Route path="/show-chat/:id" element={loggedIn ?
                         <ShowChat accessToken={accessToken} username={username} role={role} tickets={tickets}
-                                  setTickets={setTickets}/> : <Navigate replace to='/login'/>}/>
+                                  getAllTickets={getAllTickets}/> : <Navigate replace to='/login'/>}/>
                     <Route path="/show-experts" element={loggedIn ?
-                        <ShowExperts accessToken={accessToken} setLoggedIn={setLoggedIn}/> : <Navigate replace to='/login'/>}/>
+                        <ShowExperts accessToken={accessToken} setLoggedIn={setLoggedIn}/> :
+                        <Navigate replace to='/login'/>}/>
                     <Route path="/add-expert" element={loggedIn ?
-                        <AddExpert accessToken={accessToken} /> : <Navigate replace to='/login'/>}/>
+                        <AddExpert accessToken={accessToken}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/update-user" element={loggedIn ?
+                        <UpdateUser accessToken={accessToken} userInfo={userInfo} getAllTickets={getAllTickets}
+                                    getUserInfo={getUserInfo}/> : <Navigate replace to='/login'/>}/>
+                    <Route path="/closed-tickets" element={loggedIn ?
+                        <ClosedTickets accessToken={accessToken} tickets={tickets}/> :
+                        <Navigate replace to='/login'/>}/>
                 </Route>
             </Routes>
         </Router>
     );
-
-    /*<Row>
-                    <Col>
-                         Dashboard with all commands to test the APIs
-                        <Dashboard setApiName={setApiName} setError={setError} setView={setView} getProducts = {getProducts} getProduct = {getProduct} getProfile={getProfile} addProfile={addProfile} updateProfile={editProfile}/>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <View error={error} view={view} apiName={apiName} products = {products} product = {product} profile = {profile}/>
-                    </Col>
-                </Row>*/
 
 }
 
